@@ -1,0 +1,463 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+
+interface OrderDetails {
+  id: string;
+  orderNumber: string;
+  status: string;
+  totalAmount: number;
+  subtotalAmount: number;
+  discountAmount: number;
+  createdAt: string;
+  expiresAt?: string;
+  paymentMethod?: string;
+  transactionId?: string;
+  paymentProofUrl?: string;
+  paymentUploadedAt?: string;
+  items: Array<{
+    catalogItem: {
+      name: string;
+      description: string;
+      image: string;
+      type: string;
+    };
+    quantity: number;
+    priceAtPurchase: number;
+  }>;
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Pendiente',
+  PENDING_PAYMENT: 'Esperando Pago',
+  PAYMENT_UPLOADED: 'Comprobante Subido',
+  PAYMENT_VERIFIED: 'Pago Verificado',
+  PAYMENT_REJECTED: 'Pago Rechazado',
+  WAITING_FRIENDSHIP: 'Esperando Amistad',
+  WAITING_PERIOD: 'En Período de Espera',
+  QUEUED: 'En Cola',
+  PROCESSING: 'Procesando',
+  COMPLETED: 'Completado',
+  FAILED: 'Fallido',
+  CANCELLED: 'Cancelado',
+  EXPIRED: 'Expirado',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: 'text-yellow-500',
+  PENDING_PAYMENT: 'text-orange-500',
+  PAYMENT_UPLOADED: 'text-blue-500',
+  PAYMENT_VERIFIED: 'text-cyan-500',
+  PAYMENT_REJECTED: 'text-red-500',
+  WAITING_FRIENDSHIP: 'text-purple-500',
+  WAITING_PERIOD: 'text-indigo-500',
+  QUEUED: 'text-blue-400',
+  PROCESSING: 'text-cyan-400',
+  COMPLETED: 'text-green-500',
+  FAILED: 'text-red-600',
+  CANCELLED: 'text-gray-500',
+  EXPIRED: 'text-gray-600',
+};
+
+export default function OrderStatusPage() {
+  const params = useParams();
+  const router = useRouter();
+  const orderId = params.orderId as string;
+
+  const [order, setOrder] = useState<OrderDetails | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showUploadModal, setShowUploadModal] = useState(false);
+
+  useEffect(() => {
+    if (orderId) {
+      fetchOrderDetails();
+    }
+  }, [orderId]);
+
+  const fetchOrderDetails = async () => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+      const response = await fetch(`${API_BASE_URL}/orders/${orderId}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al obtener detalles de la orden');
+      }
+
+      setOrder(data.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUploadProof = () => {
+    setShowUploadModal(true);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0A0118] text-white">
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>Cargando orden...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !order) {
+    return (
+      <div className="min-h-screen bg-[#0A0118] text-white">
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center">
+            <div className="text-6xl mb-6">⚠</div>
+            <h1 className="text-3xl font-russo mb-4">Orden No Encontrada</h1>
+            <p className="text-gray-400 mb-8">{error || 'No se pudo cargar la orden'}</p>
+            <button
+              onClick={() => router.push('/tienda')}
+              className="bg-primary hover:bg-primary/90 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300"
+            >
+              Volver a la Tienda
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const canUploadProof = order.status === 'PENDING_PAYMENT' || order.status === 'PAYMENT_REJECTED';
+  const isExpired = order.expiresAt && new Date(order.expiresAt) < new Date();
+
+  return (
+    <div className="min-h-screen bg-[#0A0118] text-white">
+      <Header />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-russo mb-2 neon-text">Estado del Pedido</h1>
+            <p className="text-xl text-gray-400">#{order.orderNumber}</p>
+          </div>
+
+          {/* Status Badge */}
+          <div className="bg-[#1A0B2E] rounded-xl p-8 border border-primary/20 mb-6">
+            <div className="text-center">
+              <p className="text-gray-400 mb-2">Estado Actual:</p>
+              <p className={`text-3xl font-russo ${STATUS_COLORS[order.status]}`}>
+                {STATUS_LABELS[order.status]}
+              </p>
+              {isExpired && (
+                <p className="text-red-500 mt-4">Esta orden ha expirado</p>
+              )}
+            </div>
+          </div>
+
+          {/* Payment Upload Button */}
+          {canUploadProof && !isExpired && (
+            <div className="bg-[#1A0B2E] rounded-xl p-6 border border-primary/20 mb-6">
+              <div className="text-center">
+                <h3 className="text-xl font-russo mb-4">
+                  {order.status === 'PAYMENT_REJECTED' ? 'Reenviar Comprobante de Pago' : 'Subir Comprobante de Pago'}
+                </h3>
+                <p className="text-gray-400 mb-6">
+                  {order.status === 'PAYMENT_REJECTED'
+                    ? 'Tu comprobante fue rechazado. Por favor sube un nuevo comprobante válido.'
+                    : 'Por favor sube tu comprobante de pago para que podamos verificar tu orden.'
+                  }
+                </p>
+                <button
+                  onClick={handleUploadProof}
+                  className="bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:scale-105"
+                >
+                  Subir Comprobante
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Order Details */}
+          <div className="bg-[#1A0B2E] rounded-xl p-8 border border-primary/20 mb-6">
+            <h2 className="text-2xl font-russo mb-6">Detalles del Pedido</h2>
+
+            <div className="space-y-4 mb-6">
+              {order.items.map((item, index) => (
+                <div key={index} className="flex items-center gap-4 p-4 bg-[#0A0118] rounded-lg">
+                  <img
+                    src={item.catalogItem.image}
+                    alt={item.catalogItem.name}
+                    className="w-20 h-20 rounded-lg object-cover"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-bold">{item.catalogItem.name}</h3>
+                    <p className="text-sm text-gray-400">Cantidad: {item.quantity}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold">${(item.priceAtPurchase * item.quantity).toFixed(2)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-gray-700 pt-4 space-y-2">
+              <div className="flex justify-between text-gray-400">
+                <span>Subtotal:</span>
+                <span>${order.subtotalAmount.toFixed(2)}</span>
+              </div>
+              {order.discountAmount > 0 && (
+                <div className="flex justify-between text-green-500">
+                  <span>Descuento:</span>
+                  <span>-${order.discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-2xl font-bold pt-2">
+                <span>Total:</span>
+                <span className="neon-text">${order.totalAmount.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Info */}
+          {(order.paymentMethod || order.transactionId || order.paymentUploadedAt || order.paymentProofUrl) && (
+            <div className="bg-[#1A0B2E] rounded-xl p-8 border border-primary/20 mb-6">
+              <h2 className="text-2xl font-russo mb-6">Información de Pago</h2>
+              <div className="space-y-3">
+                {order.paymentMethod && (
+                  <div>
+                    <span className="text-gray-400">Método de Pago: </span>
+                    <span className="font-medium">{order.paymentMethod}</span>
+                  </div>
+                )}
+                {order.transactionId && (
+                  <div>
+                    <span className="text-gray-400">ID de Transacción: </span>
+                    <span className="font-mono text-sm">{order.transactionId}</span>
+                  </div>
+                )}
+                {order.paymentUploadedAt && (
+                  <div>
+                    <span className="text-gray-400">Comprobante Subido: </span>
+                    <span>{new Date(order.paymentUploadedAt).toLocaleString('es')}</span>
+                  </div>
+                )}
+                {order.paymentProofUrl && (
+                  <div className="mt-4">
+                    <div className="text-gray-400 mb-3">Comprobante de Pago:</div>
+                    <div className="bg-[#0A0118] rounded-lg p-4">
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${order.paymentProofUrl}`}
+                        alt="Comprobante de pago"
+                        className="w-full max-w-2xl mx-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${order.paymentProofUrl}`, '_blank')}
+                      />
+                      <p className="text-xs text-gray-500 text-center mt-2">
+                        Haz clic en la imagen para ver en tamaño completo
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Timestamps */}
+          <div className="bg-[#1A0B2E] rounded-xl p-8 border border-primary/20">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-400">Creado: </span>
+                <span>{new Date(order.createdAt).toLocaleString('es')}</span>
+              </div>
+              {order.expiresAt && (
+                <div>
+                  <span className="text-gray-400">Expira: </span>
+                  <span className={isExpired ? 'text-red-500' : ''}>
+                    {new Date(order.expiresAt).toLocaleString('es')}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => router.push('/tienda')}
+              className="bg-secondary hover:bg-secondary/90 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300"
+            >
+              Volver a la Tienda
+            </button>
+          </div>
+        </div>
+      </main>
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <PaymentUploadModal
+          orderId={order.id}
+          onClose={() => setShowUploadModal(false)}
+          onSuccess={() => {
+            setShowUploadModal(false);
+            fetchOrderDetails();
+          }}
+        />
+      )}
+
+      <Footer />
+    </div>
+  );
+}
+
+// Payment Upload Modal Component
+function PaymentUploadModal({
+  orderId,
+  onClose,
+  onSuccess,
+}: {
+  orderId: string;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [transactionId, setTransactionId] = useState('');
+  const [notes, setNotes] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!paymentMethod || !transactionId || !file) {
+      setError('Por favor completa todos los campos requeridos');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+
+      const formData = new FormData();
+      formData.append('paymentMethod', paymentMethod);
+      formData.append('transactionId', transactionId);
+      formData.append('notes', notes);
+      formData.append('paymentProof', file);
+
+      const response = await fetch(`${API_BASE_URL}/payments/orders/${orderId}/proof`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al subir comprobante');
+      }
+
+      onSuccess();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#1A0B2E] rounded-xl p-8 max-w-md w-full border border-primary/20">
+        <h2 className="text-2xl font-russo mb-6">Subir Comprobante de Pago</h2>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">Método de Pago *</label>
+            <select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              className="w-full px-4 py-3 bg-[#0A0118] border border-primary/30 rounded-lg focus:outline-none focus:border-primary"
+              required
+            >
+              <option value="">Seleccionar...</option>
+              <option value="Transferencia">Transferencia Bancaria</option>
+              <option value="PayPal">PayPal</option>
+              <option value="Zelle">Zelle</option>
+              <option value="Binance">Binance</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">ID de Transacción *</label>
+            <input
+              type="text"
+              value={transactionId}
+              onChange={(e) => setTransactionId(e.target.value)}
+              className="w-full px-4 py-3 bg-[#0A0118] border border-primary/30 rounded-lg focus:outline-none focus:border-primary"
+              placeholder="ABC123..."
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Comprobante (Imagen) *</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="w-full px-4 py-3 bg-[#0A0118] border border-primary/30 rounded-lg focus:outline-none focus:border-primary"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Notas (Opcional)</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="w-full px-4 py-3 bg-[#0A0118] border border-primary/30 rounded-lg focus:outline-none focus:border-primary"
+              rows={3}
+              placeholder="Información adicional..."
+            />
+          </div>
+
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300"
+              disabled={isUploading}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="flex-1 bg-primary hover:bg-primary/90 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 disabled:opacity-50"
+              disabled={isUploading}
+            >
+              {isUploading ? 'Subiendo...' : 'Subir'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
