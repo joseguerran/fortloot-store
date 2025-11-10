@@ -3,6 +3,10 @@ const backend = process.env.BACKEND_INTERNAL_URL || 'http://backend:3001'
 
 const nextConfig = {
   output: 'standalone', // For Docker deployment
+  skipTrailingSlashRedirect: true,
+  generateBuildId: async () => {
+    return 'build-id'
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -11,6 +15,10 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+  },
+  experimental: {
+    // Disable static 404 page generation
+    appDir: true,
   },
   async rewrites() {
     return [
