@@ -1,9 +1,10 @@
 /**
  * API Client Base
- * Configuración centralizada para todas las llamadas a la API del backend
+ * Client-side HTTP client for calling Next.js API routes
+ * All calls now go through /api/* routes (server-side) which handle backend communication
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+const API_BASE_URL = '' // Empty string = same origin, calls /api/* routes
 
 export class APIError extends Error {
   constructor(
@@ -33,8 +34,7 @@ class APIClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {},
-    useApiSecret: boolean = false
+    options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
 
@@ -42,17 +42,8 @@ class APIClient {
       'Content-Type': 'application/json',
     }
 
-    // Usar API_SECRET para endpoints que requieren autenticación de admin
-    // o token de sesión para endpoints de cliente
-    if (useApiSecret) {
-      const apiSecret = process.env.NEXT_PUBLIC_API_SECRET
-      if (apiSecret) {
-        console.log('🔐 Using API_SECRET for authentication:', apiSecret.substring(0, 20) + '...')
-        defaultHeaders['Authorization'] = `Bearer ${apiSecret}`
-      } else {
-        console.warn('⚠️ API_SECRET not found in environment variables')
-      }
-    } else if (typeof window !== 'undefined') {
+    // Add session token if available (for payment upload, etc.)
+    if (typeof window !== 'undefined') {
       const sessionToken = localStorage.getItem('fortloot_session_token')
       if (sessionToken) {
         defaultHeaders['Authorization'] = `Bearer ${sessionToken}`
@@ -104,36 +95,36 @@ class APIClient {
     }
   }
 
-  async get<T>(endpoint: string, options?: RequestInit, useApiSecret?: boolean): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: 'GET' }, useApiSecret)
+  async get<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    return this.request<T>(endpoint, { ...options, method: 'GET' })
   }
 
-  async post<T>(endpoint: string, body?: any, options?: RequestInit, useApiSecret?: boolean): Promise<T> {
+  async post<T>(endpoint: string, body?: any, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
-    }, useApiSecret)
+    })
   }
 
-  async put<T>(endpoint: string, body?: any, options?: RequestInit, useApiSecret?: boolean): Promise<T> {
+  async put<T>(endpoint: string, body?: any, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: 'PUT',
       body: body ? JSON.stringify(body) : undefined,
-    }, useApiSecret)
+    })
   }
 
-  async patch<T>(endpoint: string, body?: any, options?: RequestInit, useApiSecret?: boolean): Promise<T> {
+  async patch<T>(endpoint: string, body?: any, options?: RequestInit): Promise<T> {
     return this.request<T>(endpoint, {
       ...options,
       method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
-    }, useApiSecret)
+    })
   }
 
-  async delete<T>(endpoint: string, options?: RequestInit, useApiSecret?: boolean): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: 'DELETE' }, useApiSecret)
+  async delete<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    return this.request<T>(endpoint, { ...options, method: 'DELETE' })
   }
 
   /**

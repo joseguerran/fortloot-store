@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+const BACKEND_URL = process.env.API_URL || 'http://localhost:3001/api'
+const API_SECRET = process.env.API_SECRET
 
 export async function GET(request: Request) {
   try {
@@ -10,10 +11,11 @@ export async function GET(request: Request) {
     // Build query string
     const queryString = active ? `?active=${active}` : ''
 
-    const response = await fetch(`${BACKEND_URL}/api/payment-methods${queryString}`, {
+    const response = await fetch(`${BACKEND_URL}/payment-methods${queryString}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': API_SECRET!,
       },
       cache: 'no-store', // Don't cache payment methods to ensure we get latest data
     })

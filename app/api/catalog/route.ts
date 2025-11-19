@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import type { StoreItem, PriceInfo } from "@/types"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+const API_BASE_URL = process.env.API_URL || 'http://localhost:3001/api'
+const API_SECRET = process.env.API_SECRET
 
 // Mapeo de tipos del backend a tipos del frontend
 const TYPE_MAPPING: Record<string, string> = {
@@ -86,6 +87,9 @@ export async function GET(request: Request) {
 
     // Llamar al backend para obtener el catálogo actual
     let response = await fetch(`${API_BASE_URL}/catalog/current`, {
+      headers: {
+        'x-api-key': API_SECRET!,
+      },
       cache: 'no-store',
       next: { revalidate: 0 },
     })
@@ -122,7 +126,10 @@ export async function GET(request: Request) {
         // Trigger sync endpoint
         const syncResponse = await fetch(`${API_BASE_URL}/catalog/update`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': API_SECRET!,
+          },
         })
 
         if (syncResponse.ok) {
@@ -133,6 +140,9 @@ export async function GET(request: Request) {
 
           // Retry fetching catalog
           const retryResponse = await fetch(`${API_BASE_URL}/catalog/current`, {
+            headers: {
+              'x-api-key': API_SECRET!,
+            },
             cache: 'no-store',
             next: { revalidate: 0 },
           })

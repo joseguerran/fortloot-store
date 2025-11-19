@@ -2,8 +2,26 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { StoreItem } from "@/types"
-import { pricingAPI, type CartTotal } from "@/lib/api/pricing"
 import { useCustomer } from "./CustomerContext"
+
+// Cart total type (no longer from pricing API)
+export type CartTotal = {
+  items: Array<{
+    itemId: string
+    quantity: number
+    price: {
+      basePrice: number
+      profitAmount: number
+      discountAmount: number
+      finalPrice: number
+      vbucksPrice?: number
+    }
+  }>
+  subtotal: number
+  totalDiscount: number
+  totalProfit: number
+  total: number
+}
 
 // Definir el tipo para los items del carrito
 export interface CartItem extends StoreItem {
@@ -107,34 +125,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setIsLoadingPrices(true)
 
     try {
-      const requestBody: any = {
-        items: cartItems.map((item) => ({
-          itemId: item.id,
-          quantity: item.quantity,
-        })),
+      // Los precios ya vienen calculados del backend en el catálogo
+      // Solo necesitamos totalizar
+      const items = cartItems.map((item) => ({
+        itemId: item.id,
+        quantity: item.quantity,
+        price: {
+          basePrice: item.price.regularPrice,
+          profitAmount: 0, // Ya incluido en finalPrice
+          discountAmount: item.price.regularPrice - item.price.finalPrice,
+          finalPrice: item.price.finalPrice,
+          vbucksPrice: item.vbucksPrice,
+        },
+      }))
+
+      const subtotal = items.reduce((sum, item) => sum + (item.price.basePrice * item.quantity), 0)
+      const totalDiscount = items.reduce((sum, item) => sum + (item.price.discountAmount * item.quantity), 0)
+      const total = items.reduce((sum, item) => sum + (item.price.finalPrice * item.quantity), 0)
+
+      const cartTotal = {
+        items,
+        subtotal,
+        totalDiscount,
+        totalProfit: 0, // No exponer márgenes al cliente
+        total,
       }
 
-      // Incluir customer si está logueado
-      if (customer?.epicAccountId) {
-        requestBody.customerEpicId = customer.epicAccountId
-      }
+      setCartTotal(cartTotal)
 
-      const total = await pricingAPI.calculateCart(requestBody)
-      setCartTotal(total)
-
-      // Actualizar items con precios calculados
-      setCartItems((prevItems) =>
-        prevItems.map((item) => {
-          const priceData = total.items.find((i) => i.itemId === item.id)
-          return {
-            ...item,
-            calculatedPrice: priceData?.price,
-          }
-        })
-      )
+      // Los items ya tienen sus precios desde el catálogo
+      // No necesitamos actualizar nada más
     } catch (err) {
-      console.error("Error calculating cart prices:", err)
-      // Si falla la API, usar cálculo local como fallback
+      console.error("Error calculating cart total:", err)
       setCartTotal(null)
     } finally {
       setIsLoadingPrices(false)

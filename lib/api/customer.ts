@@ -41,10 +41,10 @@ export interface VerifyFriendshipResponse {
 
 export const customerAPI = {
   /**
-   * Crear o recuperar sesión de cliente
+   * Crear o recuperar sesión de cliente (ahora usa API route local)
    */
   async createSession(data: CreateSessionRequest): Promise<Customer> {
-    const response = await apiClient.post<CreateSessionResponse>('/customers/session', data)
+    const response = await apiClient.post<CreateSessionResponse>('/api/customers/session', data)
     // Combinar customer y sessionToken en un solo objeto
     return {
       ...response.customer,
@@ -57,7 +57,7 @@ export const customerAPI = {
    */
   async verifyFriendship(epicAccountId: string): Promise<VerifyFriendshipResponse> {
     return apiClient.get<VerifyFriendshipResponse>(
-      `/customers/verify-friendship?epicAccountId=${encodeURIComponent(epicAccountId)}`
+      `/api/customers/verify-friendship?epicAccountId=${encodeURIComponent(epicAccountId)}`
     )
   },
 
@@ -65,6 +65,6 @@ export const customerAPI = {
    * Obtener estadísticas del cliente
    */
   async getStats(epicAccountId: string) {
-    return apiClient.get(`/customers/${epicAccountId}/stats`)
+    return apiClient.get(`/api/customers/${epicAccountId}/stats`)
   },
 }

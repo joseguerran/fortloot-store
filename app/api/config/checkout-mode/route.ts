@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const BACKEND_URL = process.env.API_URL || 'http://localhost:3001/api';
+const API_SECRET = process.env.API_SECRET;
 
 /**
  * GET /api/config/checkout-mode
@@ -12,6 +13,7 @@ export async function GET(request: NextRequest) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': API_SECRET!,
       },
       cache: 'no-store',
     });
@@ -59,6 +61,7 @@ export async function PUT(request: NextRequest) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': API_SECRET!,
       },
       body: JSON.stringify({ value }),
     });

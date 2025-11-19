@@ -76,31 +76,31 @@ export interface CreateOrderResponse {
 
 export const orderAPI = {
   /**
-   * Crear una nueva orden (usa API_SECRET para autenticación)
+   * Crear una nueva orden (ahora usa API route local)
    */
   async create(data: CreateOrderRequest): Promise<CreateOrderResponse> {
-    return apiClient.post<CreateOrderResponse>('/orders', data, undefined, true)
+    return apiClient.post<CreateOrderResponse>('/api/orders', data)
   },
 
   /**
-   * Obtener detalles de una orden por ID (usa API_SECRET)
+   * Obtener detalles de una orden por ID
    */
   async getById(orderId: string): Promise<Order> {
-    return apiClient.get<Order>(`/orders/${orderId}`, undefined, true)
+    return apiClient.get<Order>(`/api/orders/${orderId}`)
   },
 
   /**
-   * Obtener orden por número de orden (usa API_SECRET)
+   * Obtener orden por número de orden
    */
   async getByOrderNumber(orderNumber: string): Promise<Order> {
-    return apiClient.get<Order>(`/orders/number/${orderNumber}`, undefined, true)
+    return apiClient.get<Order>(`/api/orders/number/${orderNumber}`)
   },
 
   /**
-   * Obtener órdenes del cliente (usa API_SECRET)
+   * Obtener órdenes del cliente
    */
   async getByCustomer(epicAccountId: string): Promise<Order[]> {
-    return apiClient.get<Order[]>(`/orders/customer/${epicAccountId}`, undefined, true)
+    return apiClient.get<Order[]>(`/api/orders?customerId=${epicAccountId}`)
   },
 
   /**
@@ -123,9 +123,9 @@ export const orderAPI = {
   },
 
   /**
-   * Cancelar orden (usa API_SECRET)
+   * Cancelar orden
    */
   async cancel(orderId: string): Promise<Order> {
-    return apiClient.patch<Order>(`/orders/${orderId}/cancel`, undefined, undefined, true)
+    return apiClient.patch<Order>(`/api/orders/${orderId}/cancel`)
   },
 }

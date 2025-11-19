@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const BACKEND_URL = process.env.API_URL || 'http://localhost:3001/api';
+const API_SECRET = process.env.API_SECRET;
 
 /**
  * GET /api/config/manual-checkout
@@ -12,6 +13,7 @@ export async function GET() {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': API_SECRET!,
       },
       cache: 'no-store',
     });

@@ -11,11 +11,6 @@ export type { Customer, CreateSessionRequest, VerifyFriendshipResponse } from '.
 // Exportar el objeto customerAPI
 export { customerAPI } from './customer'
 
-// Exportar tipos de pricing
-export type { PriceBreakdown, CalculatePriceRequest, CalculateCartRequest, CartTotal } from './pricing'
-// Exportar el objeto pricingAPI
-export { pricingAPI } from './pricing'
-
 // Exportar tipos de order
 export type { OrderStatus, Order, CreateOrderRequest, CreateOrderResponse } from './order'
 // Exportar el objeto orderAPI
