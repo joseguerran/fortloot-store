@@ -22,21 +22,8 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      { source: '/api/auth/:path*', destination: `${backend}/api/auth/:path*` },
-      { source: '/api/users/:path*', destination: `${backend}/api/users/:path*` },
-      { source: '/api/orders/:path*', destination: `${backend}/api/orders/:path*` },
-      { source: '/api/bots/:path*', destination: `${backend}/api/bots/:path*` },
-      { source: '/api/analytics/:path*', destination: `${backend}/api/analytics/:path*` },
-      { source: '/api/monitoring/:path*', destination: `${backend}/api/monitoring/:path*` },
-      { source: '/api/customers/:path*', destination: `${backend}/api/customers/:path*` },
-      { source: '/api/catalog/:path*', destination: `${backend}/api/catalog/:path*` },
-      { source: '/api/pricing/:path*', destination: `${backend}/api/pricing/:path*` },
-      { source: '/api/payments/:path*', destination: `${backend}/api/payments/:path*` },
-      { source: '/api/payment-methods/:path*', destination: `${backend}/api/payment-methods/:path*` },
-      { source: '/api/kpis/:path*', destination: `${backend}/api/kpis/:path*` },
-      { source: '/api/config/:path*', destination: `${backend}/api/config/:path*` },
-      { source: '/api/logs/:path*', destination: `${backend}/api/logs/:path*` },
-      { source: '/api/health', destination: `${backend}/api/health` },
+      // Note: /api/payments/orders/:orderId/proof is handled by the app/api route handler
+      // and should NOT be rewritten to the backend
     ]
   },
 }

@@ -97,12 +97,17 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
         onSuccess()
       }, response.warning ? 2000 : 500)
     } catch (err: any) {
+      console.error('Error uploading payment proof:', err)
+
       // Handle specific error for expired orders
       if (err.error === 'ORDER_EXPIRED') {
         setError(err.message || "Esta orden ha expirado. Por favor, realiza una nueva compra desde el inicio para garantizar la disponibilidad de los items.")
         setIsExpired(true)
+      } else if (err.message && err.message.includes('JSON')) {
+        // Handle JSON parsing errors with friendly message
+        setError("Hubo un problema al procesar la respuesta del servidor. Por favor, verifica tu conexión e inténtalo de nuevo.")
       } else {
-        setError(err.message || "Error subiendo comprobante")
+        setError(err.message || "No pudimos procesar tu comprobante de pago. Por favor, verifica que el archivo sea válido e inténtalo nuevamente.")
       }
     } finally {
       setIsUploading(false)

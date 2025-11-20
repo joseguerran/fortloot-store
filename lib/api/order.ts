@@ -119,7 +119,7 @@ export const orderAPI = {
     if (transactionId) formData.append('transactionId', transactionId)
     if (notes) formData.append('notes', notes)
 
-    return apiClient.upload<Order>(`/payments/orders/${orderId}/proof`, formData)
+    return apiClient.upload<Order>(`/api/payments/orders/${orderId}/proof`, formData)
   },
 
   /**
