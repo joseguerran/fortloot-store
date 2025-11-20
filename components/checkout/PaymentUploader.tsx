@@ -2,14 +2,19 @@
 
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Upload, FileImage, X, Loader2, CheckCircle, AlertCircle, ShoppingCart } from "lucide-react"
+import { Upload, FileImage, X, Loader2, CheckCircle, ShoppingCart } from "lucide-react"
 import { orderAPI } from "@/lib/api/order"
 import { PaymentCountdownTimer } from "./PaymentCountdownTimer"
+
+interface PaymentMethod {
+  name: string
+  instructions?: string
+}
 
 interface PaymentUploaderProps {
   orderId: string
   orderExpiresAt: string | Date
-  paymentMethod: string
+  paymentMethod: PaymentMethod | string // Accept both for backward compatibility
   onSuccess: () => void
 }
 
@@ -25,6 +30,10 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
   const [isExpired, setIsExpired] = useState(false)
   const [isTimerExpired, setIsTimerExpired] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Extract payment method name and instructions
+  const paymentMethodName = typeof paymentMethod === 'string' ? paymentMethod : paymentMethod.name
+  const paymentInstructions = typeof paymentMethod === 'object' ? paymentMethod.instructions : undefined
 
   const handleTimerExpire = () => {
     setIsTimerExpired(true)
@@ -82,7 +91,7 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
       const response = await orderAPI.uploadPaymentProof(
         orderId,
         file,
-        paymentMethod,
+        paymentMethodName,
         transactionId || undefined,
         notes || undefined
       )
@@ -126,6 +135,21 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
           onExpire={handleTimerExpire}
         />
       </div>
+
+      {/* Payment Instructions - Prominent Display */}
+      {paymentInstructions && (
+        <div className="mb-6 bg-blue-500/10 border-l-4 border-blue-500 rounded-r-lg p-5">
+          <div className="flex items-start gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400 flex-shrink-0 mt-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+            <div className="flex-1">
+              <h3 className="text-blue-400 font-bold text-2xl mb-2">Instrucciones para realizar el pago</h3>
+              <p className="text-white text-base leading-relaxed whitespace-pre-line">{paymentInstructions}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!file ? (
         <div

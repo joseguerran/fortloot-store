@@ -248,42 +248,6 @@ export default function OrderStatusPage() {
               </div>
             </div>
 
-            {/* Comprobante de Pago */}
-            {order.paymentProofUrl && (
-              <div className="border-t border-light pt-6">
-                <h3 className="text-xl font-bold text-white mb-4">Comprobante de Pago</h3>
-                <div className="bg-darker rounded-lg p-6">
-                  <div className="flex flex-col items-center gap-4">
-                    {/* Icono de recibo */}
-                    <div className="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center">
-                      <FileText className="w-10 h-10 text-blue-500" />
-                    </div>
-
-                    {/* Información del comprobante */}
-                    <div className="text-center">
-                      <p className="text-white font-medium mb-1">Comprobante Subido</p>
-                      <p className="text-sm text-gray-400">Método de Pago</p>
-                      <p className="text-white font-bold">{order.paymentMethod || 'Transferencia Bancaria'}</p>
-                      {order.paymentUploadedAt && (
-                        <p className="text-xs text-gray-500 mt-2">
-                          Subido el {new Date(order.paymentUploadedAt).toLocaleString('es-ES')}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Botón para ver comprobante */}
-                    <button
-                      onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${order.paymentProofUrl}`, '_blank')}
-                      className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
-                    >
-                      <FileText className="w-5 h-5" />
-                      Ver Comprobante
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {order.status === "PAYMENT_UPLOADED" && (
               <div className="bg-blue-500/10 border border-blue-500 rounded-lg p-6">
                 <div className="flex gap-4">

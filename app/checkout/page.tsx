@@ -19,6 +19,7 @@ interface PaymentMethod {
   slug: string
   name: string
   description?: string
+  instructions?: string
 }
 
 const STEPS = [
@@ -36,6 +37,7 @@ export default function CheckoutPage() {
   const customer = customerContext?.customer || null
   const [currentStep, setCurrentStep] = useState(1)
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null)
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [createdOrder, setCreatedOrder] = useState<any>(null)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
@@ -82,6 +84,13 @@ export default function CheckoutPage() {
     }
     fetchPaymentMethods()
   }, [])
+
+  // Handle payment method selection
+  const handlePaymentMethodSelect = (slug: string) => {
+    setPaymentMethod(slug)
+    const method = paymentMethods.find(m => m.slug === slug)
+    setSelectedPaymentMethod(method || null)
+  }
 
   // Get payment method name by slug
   const getPaymentMethodName = (slug: string | null): string => {
@@ -334,7 +343,7 @@ export default function CheckoutPage() {
               />
             )}
             {currentStep === 1 && !shouldUseManualFlow && <EpicIdVerifier onVerified={() => setCurrentStep(2)} />}
-            {currentStep === 2 && !shouldUseManualFlow && <PaymentMethodSelector selectedMethod={paymentMethod} onSelect={setPaymentMethod} />}
+            {currentStep === 2 && !shouldUseManualFlow && <PaymentMethodSelector selectedMethod={paymentMethod} onSelect={handlePaymentMethodSelect} />}
             {currentStep === 3 && (
               <div className="bg-dark border border-light rounded-lg p-6">
                 <h2 className="text-2xl font-russo text-white mb-4">Confirmar Orden</h2>
@@ -359,6 +368,17 @@ export default function CheckoutPage() {
                         <p className="text-white text-sm">
                           {getPaymentMethodName(paymentMethod)}
                         </p>
+                        {selectedPaymentMethod?.instructions && (
+                          <div className="mt-3 p-4 bg-blue-500/10 border-l-4 border-blue-500 rounded-r-lg">
+                            <p className="text-xl text-blue-400 mb-2 font-bold flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                              </svg>
+                              Instrucciones para realizar el pago
+                            </p>
+                            <p className="text-base text-white leading-relaxed">{selectedPaymentMethod.instructions}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -418,7 +438,7 @@ export default function CheckoutPage() {
                 <PaymentUploader
                   orderId={createdOrder.id}
                   orderExpiresAt={createdOrder.expiresAt}
-                  paymentMethod={getPaymentMethodName(paymentMethod)}
+                  paymentMethod={selectedPaymentMethod ? { name: selectedPaymentMethod.name, instructions: selectedPaymentMethod.instructions } : getPaymentMethodName(paymentMethod)}
                   onSuccess={handleUploadSuccess}
                 />
                 <button
