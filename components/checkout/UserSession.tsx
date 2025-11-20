@@ -32,7 +32,10 @@ export function UserSession({ onLogout }: UserSessionProps) {
           </div>
           <div>
             <p className="text-sm text-gray-400">Comprando como:</p>
-            <p className="text-white font-medium">{customer.epicAccountId}</p>
+            <p className="text-white font-medium">{customer.displayName || customer.epicAccountId}</p>
+            {customer.displayName && (
+              <p className="text-gray-500 font-mono text-xs mt-0.5">{customer.epicAccountId}</p>
+            )}
           </div>
         </div>
         <button

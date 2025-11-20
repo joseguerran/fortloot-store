@@ -8,6 +8,7 @@ import { apiClient } from './client'
 export interface Customer {
   id: string
   epicAccountId: string
+  displayName?: string
   email: string
   sessionToken: string
   tier: 'REGULAR' | 'VIP' | 'PREMIUM'

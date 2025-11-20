@@ -51,7 +51,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
     setAvailableBots([])
 
     if (!epicId.trim()) {
-      setLocalError("Por favor ingresa tu Epic Account ID")
+      setLocalError("Por favor ingresa tu Epic ID")
       return
     }
 
@@ -153,8 +153,11 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
 
         <div className="bg-darker rounded-lg p-4 mb-4 space-y-3">
           <div>
-            <p className="text-xs text-gray-500 mb-1">Epic Account ID</p>
-            <p className="text-white font-mono text-sm">{customer.epicAccountId}</p>
+            <p className="text-xs text-gray-500 mb-1">Epic ID</p>
+            <p className="text-white font-medium text-base">{customer.displayName || customer.epicAccountId}</p>
+            {customer.displayName && (
+              <p className="text-gray-500 font-mono text-xs mt-1">{customer.epicAccountId}</p>
+            )}
           </div>
           <div>
             <p className="text-xs text-gray-500 mb-1">Email</p>
@@ -196,24 +199,24 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
   return (
     <div className="bg-dark border border-light rounded-lg p-6">
       <h2 className="text-2xl font-russo text-white mb-2">Verificación de Cuenta</h2>
-      <p className="text-gray-400 mb-6">Ingresa tu Epic Account ID y email para continuar</p>
+      <p className="text-gray-400 mb-6">Ingresa tu Epic ID y email para continuar</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="epicId" className="block text-sm font-medium text-gray-300 mb-2">
-            Epic Account ID *
+            Epic ID *
           </label>
           <input
             type="text"
             id="epicId"
             value={epicId}
             onChange={(e) => setEpicId(e.target.value)}
-            placeholder="Ej: a1b2c3d4e5f6..."
+            placeholder="Ej: TheProPlayer#1"
             className="w-full px-4 py-3 bg-darker border border-light rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-secondary transition-colors"
             disabled={isLoading}
           />
           <p className="text-xs text-gray-500 mt-1">
-            Encuentra tu Epic ID en tu perfil de Epic Games o en el lobby de Fortnite
+            Tu nombre de usuario en Fortnite (lo encuentras en el lobby o perfil)
           </p>
         </div>
 

@@ -22,7 +22,7 @@ interface PaymentMethod {
 }
 
 const STEPS = [
-  { id: 1, name: "Verificar Cuenta", description: "Epic Account ID" },
+  { id: 1, name: "Verificar Cuenta", description: "Epic ID" },
   { id: 2, name: "Método de Pago", description: "Selecciona tu método" },
   { id: 3, name: "Revisar Orden", description: "Confirma tu compra" },
   { id: 4, name: "Comprobante", description: "Sube tu comprobante" },
@@ -345,7 +345,10 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-gray-400 mb-1">Epic ID:</p>
-                        <p className="text-white font-mono text-sm">{customer?.epicAccountId || "No disponible"}</p>
+                        <p className="text-white font-medium text-sm">{customer?.displayName || customer?.epicAccountId || "No disponible"}</p>
+                        {customer?.displayName && (
+                          <p className="text-gray-500 font-mono text-xs mt-0.5">{customer.epicAccountId}</p>
+                        )}
                       </div>
                       <div>
                         <p className="text-sm text-gray-400 mb-1">Email:</p>

@@ -45,7 +45,7 @@ export default function MyOrdersPage() {
     e.preventDefault();
 
     if (!epicAccountId.trim()) {
-      setError('Por favor ingresa tu Epic Account ID');
+      setError('Por favor ingresa tu Epic ID');
       return;
     }
 
@@ -67,7 +67,7 @@ export default function MyOrdersPage() {
 
       if (!statsRes.ok) {
         if (statsRes.status === 404) {
-          setError('No se encontraron órdenes para este Epic Account ID');
+          setError('No se encontraron órdenes para este Epic ID');
           return;
         }
         throw new Error('Error al obtener estadísticas');
@@ -157,14 +157,14 @@ export default function MyOrdersPage() {
             <form onSubmit={handleSearch}>
               <div className="mb-4">
                 <label className="block text-sm font-medium mb-2">
-                  Epic Account ID
+                  Epic ID
                 </label>
                 <input
                   type="text"
                   value={epicAccountId}
                   onChange={(e) => setEpicAccountId(e.target.value)}
                   className="w-full px-4 py-3 bg-[#0A0118] border border-primary/30 rounded-lg focus:outline-none focus:border-primary"
-                  placeholder="Ingresa tu Epic Account ID"
+                  placeholder="Ej: TheProPlayer#1"
                   disabled={loading}
                 />
               </div>

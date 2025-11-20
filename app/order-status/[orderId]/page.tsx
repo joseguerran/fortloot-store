@@ -230,7 +230,10 @@ export default function OrderStatusPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-darker rounded-lg p-4">
                   <p className="text-sm text-gray-400 mb-1">Epic ID</p>
-                  <p className="text-white font-mono text-sm">{order.customerEpicId}</p>
+                  <p className="text-white font-medium text-sm">{order.customerName || order.customerEpicId}</p>
+                  {order.customerName && order.customerName !== order.customerEpicId && (
+                    <p className="text-gray-500 font-mono text-xs mt-0.5">{order.customerEpicId}</p>
+                  )}
                 </div>
                 <div className="bg-darker rounded-lg p-4">
                   <p className="text-sm text-gray-400 mb-1">Fecha de Orden</p>
