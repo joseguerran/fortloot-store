@@ -1,90 +1,144 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { customerAPI, type Customer } from "@/lib/api/customer"
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
+import { customerAPI, type Customer, type ContactPreference } from "@/lib/api/customer"
 
 interface CustomerContextType {
-  customer: Customer | null
+  customer: Omit<Customer, 'sessionToken'> | null
+  sessionToken: string | null
   isLoading: boolean
   error: string | null
-  createSession: (epicAccountId: string, email: string, cartItems?: Array<{ type: string }>) => Promise<void>
+  createSession: (
+    epicAccountId: string,
+    contactPreference: ContactPreference,
+    email?: string,
+    phoneNumber?: string,
+    cartItems?: Array<{ type: string }>
+  ) => Promise<void>
+  setSessionFromOTP: (token: string, customerData: Omit<Customer, 'sessionToken'>) => void
   verifyFriendship: (epicAccountId: string) => Promise<boolean>
+  refreshCustomer: () => Promise<void>
   logout: () => void
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined)
 
-const CUSTOMER_STORAGE_KEY = "fortloot_customer"
+// Only store the session token - NOT the full customer object
+const SESSION_TOKEN_KEY = "fortloot_session_token"
+// Legacy key to clean up
+const LEGACY_CUSTOMER_KEY = "fortloot_customer"
 
 export function CustomerProvider({ children }: { children: ReactNode }) {
-  const [customer, setCustomer] = useState<Customer | null>(null)
+  const [customer, setCustomer] = useState<Omit<Customer, 'sessionToken'> | null>(null)
+  const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Cargar customer desde localStorage al montar
-  useEffect(() => {
-    const loadCustomer = () => {
-      try {
-        const stored = localStorage.getItem(CUSTOMER_STORAGE_KEY)
-        if (stored) {
-          const parsed = JSON.parse(stored)
-          console.log("✅ Customer loaded from localStorage:", parsed)
-          setCustomer(parsed)
+  // Fetch customer data from backend using sessionToken
+  const fetchCustomerData = useCallback(async (token: string): Promise<Omit<Customer, 'sessionToken'> | null> => {
+    try {
+      const data = await customerAPI.getMe(token)
+      console.log("✅ Customer data fetched from backend:", data)
+      return data
+    } catch (err) {
+      console.error("❌ Error fetching customer data:", err)
+      // If session is invalid, clear it
+      if (err instanceof Error && err.message.includes('Invalid')) {
+        localStorage.removeItem(SESSION_TOKEN_KEY)
+        return null
+      }
+      throw err
+    }
+  }, [])
 
-          // Guardar el sessionToken separado para el API client
-          if (parsed.sessionToken) {
-            localStorage.setItem("fortloot_session_token", parsed.sessionToken)
+  // Clean up legacy storage and load session on mount
+  useEffect(() => {
+    const loadSession = async () => {
+      try {
+        // Clean up legacy customer data storage (security fix)
+        const legacyData = localStorage.getItem(LEGACY_CUSTOMER_KEY)
+        if (legacyData) {
+          console.log("🔒 Cleaning up legacy customer data from localStorage (security improvement)")
+          localStorage.removeItem(LEGACY_CUSTOMER_KEY)
+        }
+
+        // Load session token
+        const storedToken = localStorage.getItem(SESSION_TOKEN_KEY)
+        if (storedToken) {
+          console.log("✅ Session token found in localStorage")
+          setSessionToken(storedToken)
+
+          // Fetch customer data from backend
+          const customerData = await fetchCustomerData(storedToken)
+          if (customerData) {
+            setCustomer(customerData)
+          } else {
+            // Invalid session, clean up
+            setSessionToken(null)
+            localStorage.removeItem(SESSION_TOKEN_KEY)
           }
         } else {
-          console.log("❌ No customer found in localStorage")
+          console.log("❌ No session token found in localStorage")
         }
       } catch (err) {
-        console.error("Error loading customer from storage:", err)
+        console.error("Error loading session:", err)
       } finally {
         setIsLoading(false)
       }
     }
 
-    loadCustomer()
-  }, [])
+    loadSession()
+  }, [fetchCustomerData])
 
-  // Guardar customer en localStorage cuando cambie
+  // Persist session token changes
   useEffect(() => {
-    if (customer) {
-      localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify(customer))
-      if (customer.sessionToken) {
-        localStorage.setItem("fortloot_session_token", customer.sessionToken)
-      }
+    if (sessionToken) {
+      localStorage.setItem(SESSION_TOKEN_KEY, sessionToken)
     } else {
-      localStorage.removeItem(CUSTOMER_STORAGE_KEY)
-      localStorage.removeItem("fortloot_session_token")
+      localStorage.removeItem(SESSION_TOKEN_KEY)
     }
-  }, [customer])
+  }, [sessionToken])
 
-  const createSession = async (epicAccountId: string, email: string, cartItems?: Array<{ type: string }>) => {
+  const createSession = async (
+    epicAccountId: string,
+    contactPreference: ContactPreference,
+    email?: string,
+    phoneNumber?: string,
+    cartItems?: Array<{ type: string }>
+  ) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const customerData = await customerAPI.createSession({ epicAccountId, email, cartItems })
-      console.log("✅ Customer session created:", customerData)
+      // Create session - backend returns only sessionToken now
+      const { sessionToken: newToken } = await customerAPI.createSession({
+        epicAccountId,
+        contactPreference,
+        email,
+        phoneNumber,
+        cartItems
+      })
+      console.log("✅ Session created, token received")
 
-      if (customerData.isBlacklisted) {
-        throw new Error("Tu cuenta ha sido bloqueada. Contacta a soporte.")
+      // Store token
+      setSessionToken(newToken)
+
+      // Fetch customer data using the new token
+      const customerData = await fetchCustomerData(newToken)
+      if (customerData) {
+        if (customerData.isBlacklisted) {
+          throw new Error("Tu cuenta ha sido bloqueada. Contacta a soporte.")
+        }
+        setCustomer(customerData)
       }
-
-      setCustomer(customerData)
     } catch (err: any) {
       console.log("❌ Error in createSession:", err)
       console.log("❌ Error data:", err.data)
       console.log("❌ Available bots:", err.data?.availableBots)
 
-      // Si el error es de tipo NO_BOT_FRIENDSHIP, no mostrarlo como texto de error
-      // porque el modal se encargará de mostrarlo
       let errorMessage = err.message || "Error creando sesión"
 
-      // Si hay availableBots, no guardar el error en el estado
-      // para que no se muestre el mensaje inline
+      // If there are availableBots, don't set error state (modal will handle it)
       if (!err.data?.availableBots) {
         setError(errorMessage)
       }
@@ -111,19 +165,47 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const refreshCustomer = async () => {
+    if (!sessionToken) return
+
+    try {
+      const customerData = await fetchCustomerData(sessionToken)
+      if (customerData) {
+        setCustomer(customerData)
+      }
+    } catch (err) {
+      console.error("Error refreshing customer:", err)
+    }
+  }
+
+  // Set session from external OTP verification (e.g., from mis-compras page)
+  const setSessionFromOTP = (token: string, customerData: Omit<Customer, 'sessionToken'>) => {
+    console.log("✅ Setting session from OTP verification")
+    setSessionToken(token)
+    setCustomer(customerData)
+    // The useEffect will persist the token to localStorage
+  }
+
   const logout = () => {
     setCustomer(null)
+    setSessionToken(null)
     setError(null)
+    localStorage.removeItem(SESSION_TOKEN_KEY)
+    // Also remove legacy key if it exists
+    localStorage.removeItem(LEGACY_CUSTOMER_KEY)
   }
 
   return (
     <CustomerContext.Provider
       value={{
         customer,
+        sessionToken,
         isLoading,
         error,
         createSession,
+        setSessionFromOTP,
         verifyFriendship,
+        refreshCustomer,
         logout,
       }}
     >

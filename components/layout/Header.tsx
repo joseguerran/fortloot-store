@@ -23,6 +23,8 @@ export const Header = memo(() => {
   const scrolled = useScrollDetection(50)
   const pathname = usePathname()
   const isStoreView = pathname.includes("/tienda")
+  const isMisComprasView = pathname.includes("/mis-compras")
+  const isSimplifiedNav = isStoreView || isMisComprasView
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -57,7 +59,7 @@ export const Header = memo(() => {
             </Link>
 
             <div className="flex items-center gap-4">
-              {!isStoreView && (
+              {!isSimplifiedNav ? (
                 <nav className="hidden md:flex space-x-8">
                   {navItems.map((item) => (
                     <Link
@@ -77,11 +79,44 @@ export const Header = memo(() => {
                     Tienda
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
                   </Link>
+                  <Link
+                    href="/mis-compras"
+                    className="text-white hover:text-secondary transition-colors duration-300 relative group"
+                  >
+                    Mis Compras
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
+                  </Link>
+                </nav>
+              ) : (
+                <nav className="hidden md:flex space-x-8">
+                  <Link
+                    href="/"
+                    className="text-white hover:text-secondary transition-colors duration-300 relative group"
+                  >
+                    Inicio
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
+                  </Link>
+                  <Link
+                    href="/tienda"
+                    className="text-white hover:text-secondary transition-colors duration-300 relative group"
+                  >
+                    Tienda
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
+                  </Link>
+                  {!isMisComprasView && (
+                    <Link
+                      href="/mis-compras"
+                      className="text-white hover:text-secondary transition-colors duration-300 relative group"
+                    >
+                      Mis Compras
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
+                    </Link>
+                  )}
                 </nav>
               )}
               <CartButton />
 
-              {!isStoreView && (
+              {!isSimplifiedNav && (
                 <button className="md:hidden text-white p-2" aria-label="Menú" onClick={toggleMobileMenu}>
                   {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                 </button>
@@ -93,7 +128,7 @@ export const Header = memo(() => {
 
       {/* Menú móvil */}
       <AnimatePresence>
-        {isMobileMenuOpen && !isStoreView && (
+        {isMobileMenuOpen && !isSimplifiedNav && (
           <>
             {/* Overlay */}
             <motion.div
@@ -150,6 +185,15 @@ export const Header = memo(() => {
                         onClick={closeMobileMenu}
                       >
                         Tienda
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/mis-compras"
+                        className="block text-white text-lg font-medium hover:text-secondary transition-colors duration-300 py-2"
+                        onClick={closeMobileMenu}
+                      >
+                        Mis Compras
                       </Link>
                     </li>
                   </ul>

@@ -19,11 +19,23 @@ export type OrderStatus =
   | 'CANCELLED'
   | 'REFUNDED'
 
+export interface CustomerInfo {
+  id: string
+  displayName: string
+  epicAccountId?: string
+  email?: string
+  tier: 'REGULAR' | 'VIP' | 'PREMIUM'
+}
+
 export interface Order {
   id: string
   orderNumber: string
-  customerEpicId: string
-  customerName: string
+  customerId: string
+  // Customer relation - preferred way to access customer data
+  customer?: CustomerInfo
+  // Legacy fields - deprecated, use customer relation instead
+  customerEpicId?: string
+  customerName?: string
   customerEmail?: string
   productId: string
   productName: string

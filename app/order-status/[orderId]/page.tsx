@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { orderAPI, type Order } from "@/lib/api/order"
-import { Loader2, CheckCircle, Clock, XCircle, Package, AlertCircle, Home, FileText } from "lucide-react"
+import { Loader2, CheckCircle, Clock, XCircle, Package, AlertCircle, Home, FileText, ArrowLeft, ShoppingBag } from "lucide-react"
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; description: string }> = {
   PENDING: {
@@ -77,6 +77,8 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; d
 export default function OrderStatusPage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const fromMisCompras = searchParams.get("from") === "mis-compras"
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -85,7 +87,12 @@ export default function OrderStatusPage() {
     const fetchOrder = async () => {
       try {
         setError(null)
-        const data = await orderAPI.getById(params.orderId as string)
+        const identifier = params.orderId as string
+        // Detect if it's an orderNumber (FL-xxx) or UUID
+        const isOrderNumber = identifier.startsWith("FL-")
+        const data = isOrderNumber
+          ? await orderAPI.getByOrderNumber(identifier)
+          : await orderAPI.getById(identifier)
         setOrder(data)
       } catch (err: any) {
         console.error("Error fetching order:", err)
@@ -230,9 +237,10 @@ export default function OrderStatusPage() {
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-darker rounded-lg p-4">
                   <p className="text-sm text-gray-400 mb-1">Epic ID</p>
-                  <p className="text-white font-medium text-sm">{order.customerName || order.customerEpicId}</p>
-                  {order.customerName && order.customerName !== order.customerEpicId && (
-                    <p className="text-gray-500 font-mono text-xs mt-0.5">{order.customerEpicId}</p>
+                  <p className="text-white font-medium text-sm">{order.customer?.displayName || order.customerName || order.customerEpicId}</p>
+                  {(order.customer?.epicAccountId || order.customerEpicId) &&
+                   (order.customer?.displayName || order.customerName) !== (order.customer?.epicAccountId || order.customerEpicId) && (
+                    <p className="text-gray-500 font-mono text-xs mt-0.5">{order.customer?.epicAccountId || order.customerEpicId}</p>
                   )}
                 </div>
                 <div className="bg-darker rounded-lg p-4">
@@ -290,13 +298,23 @@ export default function OrderStatusPage() {
           </div>
 
           <div className="mt-8 flex gap-4 justify-center">
-            <button
-              onClick={() => router.push("/")}
-              className="px-6 py-3 bg-dark hover:bg-light text-white font-bold rounded-lg transition-colors border border-light flex items-center gap-2"
-            >
-              <Home className="w-5 h-5" />
-              Volver al Inicio
-            </button>
+            {fromMisCompras ? (
+              <button
+                onClick={() => router.push("/mis-compras")}
+                className="px-6 py-3 bg-dark hover:bg-light text-white font-bold rounded-lg transition-colors border border-light flex items-center gap-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Volver
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push("/")}
+                className="px-6 py-3 bg-dark hover:bg-light text-white font-bold rounded-lg transition-colors border border-light flex items-center gap-2"
+              >
+                <Home className="w-5 h-5" />
+                Volver al Inicio
+              </button>
+            )}
             {order.status === "COMPLETED" && (
               <button
                 onClick={() => router.push("/tienda")}

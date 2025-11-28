@@ -5,11 +5,15 @@
 
 import { apiClient } from './client'
 
+export type ContactPreference = 'EMAIL' | 'WHATSAPP'
+
 export interface Customer {
   id: string
   epicAccountId: string
   displayName?: string
-  email: string
+  email?: string
+  phoneNumber?: string
+  contactPreference: ContactPreference
   sessionToken: string
   tier: 'REGULAR' | 'VIP' | 'PREMIUM'
   isBlacklisted: boolean
@@ -20,7 +24,9 @@ export interface Customer {
 
 export interface CreateSessionRequest {
   epicAccountId: string
-  email: string
+  contactPreference: ContactPreference
+  email?: string       // Requerido si contactPreference es EMAIL
+  phoneNumber?: string // Requerido si contactPreference es WHATSAPP
   cartItems?: Array<{
     type: string
   }>
@@ -43,14 +49,31 @@ export interface VerifyFriendshipResponse {
 export const customerAPI = {
   /**
    * Crear o recuperar sesión de cliente (ahora usa API route local)
+   * Nota: Solo retorna sessionToken, los datos del cliente se obtienen via getMe()
    */
-  async createSession(data: CreateSessionRequest): Promise<Customer> {
+  async createSession(data: CreateSessionRequest): Promise<{ sessionToken: string }> {
     const response = await apiClient.post<CreateSessionResponse>('/api/customers/session', data)
-    // Combinar customer y sessionToken en un solo objeto
-    return {
-      ...response.customer,
-      sessionToken: response.sessionToken
+    return { sessionToken: response.sessionToken }
+  },
+
+  /**
+   * Obtener datos del cliente actual usando sessionToken
+   * Este es el método seguro para obtener datos del cliente
+   */
+  async getMe(sessionToken: string): Promise<Omit<Customer, 'sessionToken'>> {
+    const response = await fetch('/api/customers/me', {
+      headers: {
+        'Authorization': `Bearer ${sessionToken}`,
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(error.message || 'Failed to fetch customer data')
     }
+
+    const data = await response.json()
+    return data.data
   },
 
   /**

@@ -4,44 +4,36 @@ const BACKEND_URL = process.env.API_URL || 'http://localhost:3001/api';
 const API_SECRET = process.env.API_SECRET;
 
 /**
- * POST /api/customers/session
- * Create or retrieve customer session
+ * POST /api/otp/verify
+ * Verifica un código OTP
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Server-side validation
-    if (!body.epicAccountId) {
+    // Validación básica
+    if (!body.identifier) {
       return NextResponse.json(
-        { success: false, error: 'epicAccountId is required' },
+        { success: false, error: 'identifier is required' },
         { status: 400 }
       );
     }
 
-    if (!body.contactPreference || !['EMAIL', 'WHATSAPP'].includes(body.contactPreference)) {
+    if (!body.type || !['EMAIL', 'WHATSAPP'].includes(body.type)) {
       return NextResponse.json(
-        { success: false, error: 'contactPreference must be EMAIL or WHATSAPP' },
+        { success: false, error: 'type must be EMAIL or WHATSAPP' },
         { status: 400 }
       );
     }
 
-    // Validar que se proporcione el medio de contacto correcto
-    if (body.contactPreference === 'EMAIL' && !body.email) {
+    if (!body.code || body.code.length !== 6) {
       return NextResponse.json(
-        { success: false, error: 'email is required for EMAIL preference' },
+        { success: false, error: 'code must be 6 digits' },
         { status: 400 }
       );
     }
 
-    if (body.contactPreference === 'WHATSAPP' && !body.phoneNumber) {
-      return NextResponse.json(
-        { success: false, error: 'phoneNumber is required for WHATSAPP preference' },
-        { status: 400 }
-      );
-    }
-
-    const response = await fetch(`${BACKEND_URL}/customers/session`, {
+    const response = await fetch(`${BACKEND_URL}/otp/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,13 +45,13 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Backend error creating session:', data);
+      console.error('Backend error verifying OTP:', data);
       return NextResponse.json(data, { status: response.status });
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error creating session:', error);
+    console.error('Error verifying OTP:', error);
     return NextResponse.json(
       {
         success: false,

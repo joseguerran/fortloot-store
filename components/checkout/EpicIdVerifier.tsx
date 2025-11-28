@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Check, Loader2, AlertCircle, Copy, X } from "lucide-react"
+import { Check, Loader2, AlertCircle, Copy, X, Mail } from "lucide-react"
 import { useCustomer } from "@/context/CustomerContext"
+import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon"
 import { useCart } from "@/context/CartContext"
 import { useRouter } from "next/navigation"
 
@@ -15,12 +16,15 @@ interface AvailableBot {
   displayName: string
 }
 
+type ContactPreference = 'WHATSAPP' | 'EMAIL'
+
 export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
   const router = useRouter()
   const customerContext = useCustomer()
   const { cartItems, removeFromCart } = useCart()
   const [epicId, setEpicId] = useState("")
-  const [email, setEmail] = useState("")
+  const [contactPreference, setContactPreference] = useState<ContactPreference>('WHATSAPP')
+  const [contactValue, setContactValue] = useState("")
   const [localError, setLocalError] = useState("")
   const [showSuccess, setShowSuccess] = useState(false)
   const [availableBots, setAvailableBots] = useState<AvailableBot[]>([])
@@ -55,9 +59,26 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
       return
     }
 
-    if (!email.trim() || !email.includes("@")) {
+    if (!contactValue.trim()) {
+      setLocalError(contactPreference === 'WHATSAPP'
+        ? "Por favor ingresa tu número de WhatsApp"
+        : "Por favor ingresa tu email")
+      return
+    }
+
+    // Validar formato según preferencia
+    if (contactPreference === 'EMAIL' && !contactValue.includes("@")) {
       setLocalError("Por favor ingresa un email válido")
       return
+    }
+
+    if (contactPreference === 'WHATSAPP') {
+      // Validar que sea un número de teléfono básico
+      const phoneRegex = /^\+?[0-9\s-]{8,20}$/
+      if (!phoneRegex.test(contactValue.replace(/\s/g, ''))) {
+        setLocalError("Por favor ingresa un número de WhatsApp válido (ej: +56912345678)")
+        return
+      }
     }
 
     if (!createSession) {
@@ -72,7 +93,13 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
     try {
       // Pasar la información del carrito al backend para validación condicional
       const cartItemsForBackend = cartItems.map(item => ({ type: item.type }))
-      await createSession(epicId.trim(), email.trim(), cartItemsForBackend)
+      await createSession(
+        epicId.trim(),
+        contactPreference,
+        contactPreference === 'EMAIL' ? contactValue.trim() : undefined,
+        contactPreference === 'WHATSAPP' ? contactValue.trim() : undefined,
+        cartItemsForBackend
+      )
       // Mostrar estado de éxito por 1 segundo antes de continuar
       setShowSuccess(true)
       setTimeout(() => {
@@ -160,8 +187,22 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
             )}
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-1">Email</p>
-            <p className="text-white text-sm">{customer.email}</p>
+            <p className="text-xs text-gray-500 mb-1">
+              {customer.contactPreference === 'WHATSAPP' ? 'WhatsApp' : 'Email'}
+            </p>
+            <p className="text-white text-sm flex items-center gap-2">
+              {customer.contactPreference === 'WHATSAPP' ? (
+                <>
+                  <WhatsAppIcon className="w-4 h-4 text-green-400" />
+                  {customer.phoneNumber}
+                </>
+              ) : (
+                <>
+                  <Mail className="w-4 h-4 text-blue-400" />
+                  {customer.email}
+                </>
+              )}
+            </p>
           </div>
         </div>
 
@@ -178,7 +219,8 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
             onClick={() => {
               if (logout) logout()
               setEpicId("")
-              setEmail("")
+              setContactValue("")
+              setContactPreference('WHATSAPP')
               setLocalError("")
             }}
             className="flex-1 py-3 bg-dark hover:bg-light text-white font-medium rounded-lg transition-colors border border-light"
@@ -220,19 +262,58 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
           </p>
         </div>
 
+        {/* Selector de preferencia de contacto */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-            Email *
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            ¿Cómo prefieres que te contactemos? *
+          </label>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => { setContactPreference('WHATSAPP'); setContactValue(''); setLocalError(''); }}
+              disabled={isLoading}
+              className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                contactPreference === 'WHATSAPP'
+                  ? 'border-green-500 bg-green-500/10 text-green-400'
+                  : 'border-light hover:border-gray-500 text-gray-400'
+              } disabled:opacity-50`}
+            >
+              <WhatsAppIcon className="w-5 h-5" />
+              WhatsApp
+            </button>
+            <button
+              type="button"
+              onClick={() => { setContactPreference('EMAIL'); setContactValue(''); setLocalError(''); }}
+              disabled={isLoading}
+              className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all flex items-center justify-center gap-2 ${
+                contactPreference === 'EMAIL'
+                  ? 'border-blue-500 bg-blue-500/10 text-blue-400'
+                  : 'border-light hover:border-gray-500 text-gray-400'
+              } disabled:opacity-50`}
+            >
+              <Mail className="w-5 h-5" />
+              Email
+            </button>
+          </div>
+        </div>
+
+        {/* Campo dinámico según preferencia */}
+        <div>
+          <label htmlFor="contactValue" className="block text-sm font-medium text-gray-300 mb-2">
+            {contactPreference === 'WHATSAPP' ? 'Número de WhatsApp' : 'Correo electrónico'} *
           </label>
           <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="tu@email.com"
+            type={contactPreference === 'WHATSAPP' ? 'tel' : 'email'}
+            id="contactValue"
+            value={contactValue}
+            onChange={(e) => setContactValue(e.target.value)}
+            placeholder={contactPreference === 'WHATSAPP' ? '+56 9 1234 5678' : 'tu@email.com'}
             className="w-full px-4 py-3 bg-darker border border-light rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-secondary transition-colors"
             disabled={isLoading}
           />
+          <p className="text-xs text-gray-500 mt-1">
+            Aquí recibirás el código para ver tus compras
+          </p>
         </div>
 
         {(localError || error) && !showNoBotsModal && (
