@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useCart } from "@/context/CartContext"
 import { useCustomer } from "@/context/CustomerContext"
@@ -13,6 +13,7 @@ import { ManualCheckoutMessage } from "@/components/checkout/ManualCheckoutMessa
 import { UserSession } from "@/components/checkout/UserSession"
 import { orderAPI } from "@/lib/api/order"
 import { ChevronLeft, ChevronRight, Check, Loader2, ArrowLeft } from "lucide-react"
+import { trackBeginCheckout, trackEpicIdConfirmed, trackPurchase, setUserId, setUserProperties } from "@/lib/analytics"
 
 interface PaymentMethod {
   id: string
@@ -42,6 +43,24 @@ export default function CheckoutPage() {
   const [createdOrder, setCreatedOrder] = useState<any>(null)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
   const [orderError, setOrderError] = useState<string | null>(null)
+  const beginCheckoutTracked = useRef(false)
+
+  // Track begin_checkout on mount (only once)
+  useEffect(() => {
+    if (cartItems.length > 0 && !beginCheckoutTracked.current) {
+      beginCheckoutTracked.current = true
+      trackBeginCheckout(
+        cartItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          type: item.type || "ITEM",
+          rarity: item.rarity,
+          price: (item.price?.finalPrice || 0) / 100,
+          quantity: item.quantity,
+        }))
+      )
+    }
+  }, [cartItems])
 
   // Detectar si hay items manuales y el feature está habilitado
   const shouldUseManualFlow = manualCheckoutEnabled && hasManualItems()
@@ -186,6 +205,21 @@ export default function CheckoutPage() {
       console.log("📤 Sending order data:", orderData)
       const response = await orderAPI.create(orderData)
       console.log("✅ Order created:", response)
+
+      // Track purchase event
+      trackPurchase(
+        response.orderId,
+        response.orderNumber,
+        cartItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          type: item.type || "ITEM",
+          rarity: item.rarity,
+          price: (item.price?.finalPrice || 0) / 100,
+          quantity: item.quantity,
+        })),
+        totalAmount
+      )
 
       // Guardar el orderId, orderNumber y expiresAt en createdOrder para el paso 4
       setCreatedOrder({
@@ -333,7 +367,20 @@ export default function CheckoutPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             {currentStep === 1 && shouldUseManualFlow && !customer && (
-              <EpicIdVerifier onVerified={() => {}} />
+              <EpicIdVerifier onVerified={() => {
+                // Track Epic ID confirmed
+                if (customerContext?.customer) {
+                  trackEpicIdConfirmed(
+                    customerContext.customer.epicAccountId,
+                    customerContext.customer.displayName || customerContext.customer.epicAccountId
+                  )
+                  setUserId(customerContext.customer.epicAccountId)
+                  setUserProperties({
+                    customer_tier: customerContext.customer.tier,
+                    has_orders: false,
+                  })
+                }
+              }} />
             )}
             {currentStep === 1 && shouldUseManualFlow && customer && (
               <ManualCheckoutMessage
@@ -342,7 +389,23 @@ export default function CheckoutPage() {
                 onWhatsAppClick={handleManualCheckoutWhatsApp}
               />
             )}
-            {currentStep === 1 && !shouldUseManualFlow && <EpicIdVerifier onVerified={() => setCurrentStep(2)} />}
+            {currentStep === 1 && !shouldUseManualFlow && (
+              <EpicIdVerifier onVerified={() => {
+                // Track Epic ID confirmed
+                if (customerContext?.customer) {
+                  trackEpicIdConfirmed(
+                    customerContext.customer.epicAccountId,
+                    customerContext.customer.displayName || customerContext.customer.epicAccountId
+                  )
+                  setUserId(customerContext.customer.epicAccountId)
+                  setUserProperties({
+                    customer_tier: customerContext.customer.tier,
+                    has_orders: false,
+                  })
+                }
+                setCurrentStep(2)
+              }} />
+            )}
             {currentStep === 2 && !shouldUseManualFlow && <PaymentMethodSelector selectedMethod={paymentMethod} onSelect={handlePaymentMethodSelect} />}
             {currentStep === 3 && (
               <div className="bg-dark border border-light rounded-lg p-6">

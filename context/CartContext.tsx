@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { StoreItem } from "@/types"
 import { useCustomer } from "./CustomerContext"
+import { trackAddToCart, trackRemoveFromCart, trackViewCart, type CartItem as AnalyticsCartItem } from "@/lib/analytics"
 
 // Cart total type (no longer from pricing API)
 export type CartTotal = {
@@ -197,12 +198,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     })
 
+    // Track add to cart event
+    trackAddToCart({
+      id: item.id,
+      name: item.name,
+      type: item.type || 'ITEM',
+      rarity: item.rarity,
+      price: (item.price?.finalPrice || 0) / 100,
+      quantity: 1,
+    })
+
     // El carrito ya no se abre automáticamente - el usuario debe hacer click en el ícono
   }
 
   // Eliminar un item del carrito
   const removeFromCart = (itemId: string) => {
+    // Get item before removing for analytics
+    const itemToRemove = cartItems.find((item) => item.id === itemId)
+
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemId))
+
+    // Track remove from cart event
+    if (itemToRemove) {
+      trackRemoveFromCart({
+        id: itemToRemove.id,
+        name: itemToRemove.name,
+        type: itemToRemove.type || 'ITEM',
+        rarity: itemToRemove.rarity,
+        price: (itemToRemove.price?.finalPrice || 0) / 100,
+        quantity: itemToRemove.quantity,
+      })
+    }
   }
 
   // Actualizar la cantidad de un item en el carrito
@@ -222,7 +248,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   // Abrir el carrito
-  const openCart = () => setIsCartOpen(true)
+  const openCart = () => {
+    setIsCartOpen(true)
+
+    // Track view cart event
+    if (cartItems.length > 0) {
+      trackViewCart(
+        cartItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          type: item.type || 'ITEM',
+          rarity: item.rarity,
+          price: (item.price?.finalPrice || 0) / 100,
+          quantity: item.quantity,
+        }))
+      )
+    }
+  }
 
   // Cerrar el carrito
   const closeCart = () => setIsCartOpen(false)

@@ -2,11 +2,14 @@ import type React from "react"
 import "./globals.css"
 import { Inter } from "next/font/google"
 import type { Metadata } from "next"
+import { GoogleAnalytics } from "@next/third-parties/google"
 import { CustomerProvider } from "@/context/CustomerContext"
 import { CartProvider } from "@/context/CartContext"
 import { ConfigProvider } from "@/context/ConfigContext"
 import { CartDrawer } from "@/components/cart/CartDrawer"
 import { Toaster } from "@/components/ui/toaster"
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -47,6 +50,7 @@ export default function RootLayout({
           </CustomerProvider>
         </ConfigProvider>
       </body>
+      {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
     </html>
   )
 }

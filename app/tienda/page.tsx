@@ -23,6 +23,7 @@ import type { StoreItem as StoreItemType } from "@/types"
 import { sortItemsByPriority } from "@/utils/sortItems"
 import { IMAGES } from "@/config/images"
 import { logger } from "@/utils/logger"
+import { trackViewItemList, trackFilterApplied, trackSearch } from "@/lib/analytics"
 
 // Constantes
 const ITEMS_PER_PAGE = 20
@@ -74,9 +75,14 @@ export default function StorePage() {
         } else {
           url.searchParams.set("filter", filter)
         }
-        
+
         // Usar pushState para actualizar la URL sin recargar la página
         window.history.pushState({}, "", url.toString())
+      }
+
+      // Track filter applied
+      if (filter !== "all") {
+        trackFilterApplied("category", filter)
       }
 
       // Resetear a la primera página
@@ -134,6 +140,20 @@ export default function StorePage() {
           setOriginalItems(processedItems) // Guardar los elementos originales
           // Resetear a la primera página cuando cambian los ítems
           setCurrentPage(1)
+
+          // Track view item list
+          trackViewItemList(
+            activeFilter,
+            activeFilter === "all" ? "Tienda FortLoot" : `Tienda - ${activeFilter}`,
+            processedItems.slice(0, 20).map((item) => ({
+              id: item.id,
+              name: item.name,
+              type: item.type || "ITEM",
+              rarity: item.rarity,
+              price: (item.price?.finalPrice || 0) / 100,
+              quantity: 1,
+            }))
+          )
         } else {
           logger.warn(`⚠️ API returned empty array for filter: "${activeFilter}"`)
           setError("No se encontraron ítems con los filtros actuales. Intenta con otro filtro.")
@@ -172,6 +192,11 @@ export default function StorePage() {
     setItems(filtered)
     // Resetear a la primera página cuando cambian los resultados de búsqueda
     setCurrentPage(1)
+
+    // Track search (debounced - only track if search query is meaningful)
+    if (searchQuery.length >= 3) {
+      trackSearch(searchQuery, filtered.length)
+    }
   }, [searchQuery, originalItems])
 
   // Modificar el efecto que carga los datos para usar la función fetchItems

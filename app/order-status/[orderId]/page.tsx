@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { orderAPI, type Order } from "@/lib/api/order"
 import { Loader2, CheckCircle, Clock, XCircle, Package, AlertCircle, Home, FileText, ArrowLeft, ShoppingBag } from "lucide-react"
+import { trackOrderStatusViewed, trackOrderCompleted } from "@/lib/analytics"
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; description: string }> = {
   PENDING: {
@@ -82,6 +83,8 @@ export default function OrderStatusPage() {
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const statusTracked = useRef<string | null>(null)
+  const completedTracked = useRef(false)
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -94,6 +97,18 @@ export default function OrderStatusPage() {
           ? await orderAPI.getByOrderNumber(identifier)
           : await orderAPI.getById(identifier)
         setOrder(data)
+
+        // Track order status viewed (only once per status)
+        if (data && statusTracked.current !== data.status) {
+          statusTracked.current = data.status
+          trackOrderStatusViewed(data.orderNumber, data.status)
+
+          // Track order completed (only once)
+          if (data.status === "COMPLETED" && !completedTracked.current) {
+            completedTracked.current = true
+            trackOrderCompleted(data.orderNumber, data.finalPrice || 0)
+          }
+        }
       } catch (err: any) {
         console.error("Error fetching order:", err)
         setError(err.message || "Error cargando la orden")
