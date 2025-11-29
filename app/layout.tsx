@@ -30,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
+        <meta name="cryptomus" content="d187b01d" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
