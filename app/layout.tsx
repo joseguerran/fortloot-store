@@ -3,6 +3,7 @@ import "./globals.css"
 import { Inter } from "next/font/google"
 import type { Metadata } from "next"
 import { GoogleAnalytics } from "@next/third-parties/google"
+import { ClarityScript } from "@/components/analytics/ClarityScript"
 import { CustomerProvider } from "@/context/CustomerContext"
 import { CartProvider } from "@/context/CartContext"
 import { ConfigProvider } from "@/context/ConfigContext"
@@ -51,6 +52,7 @@ export default function RootLayout({
         </ConfigProvider>
       </body>
       {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
+      <ClarityScript />
     </html>
   )
 }
