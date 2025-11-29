@@ -1,9 +1,9 @@
 "use client"
 
-import { memo, useMemo } from "react"
+import { memo, useMemo, useState } from "react"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { motion } from "framer-motion"
-import { ShoppingCart, Coins } from "lucide-react"
+import { ShoppingCart, Coins, Check } from "lucide-react"
 import type { StoreItem as StoreItemType } from "@/types"
 import { IMAGES } from "@/config/images"
 import { useCart } from "@/context/CartContext"
@@ -14,6 +14,7 @@ interface StoreItemProps {
 
 export const StoreItem = memo(({ item }: StoreItemProps) => {
   const { addToCart } = useCart()
+  const [isAdded, setIsAdded] = useState(false)
 
   // Filtrar: solo mostrar la tarjeta de Crew de 1 mes
   if (item.type === "crew" && item.id !== "crew-2") {
@@ -22,6 +23,8 @@ export const StoreItem = memo(({ item }: StoreItemProps) => {
 
   const handleAddToCart = () => {
     addToCart(item)
+    setIsAdded(true)
+    setTimeout(() => setIsAdded(false), 1500)
   }
 
   // Generar SVG de fallback basado en el tipo (memoizado para evitar re-renders)
@@ -135,14 +138,29 @@ export const StoreItem = memo(({ item }: StoreItemProps) => {
               </div>
             )}
           </div>
-          <button
+          <motion.button
             onClick={handleAddToCart}
-            className="bg-[#FF007A] hover:bg-[#00F5D4] text-white text-sm font-medium px-4 py-2 rounded-full transition-colors duration-300 flex items-center neon-border-cyan"
-            aria-label={`Adquirir ${item.name}`}
+            disabled={isAdded}
+            animate={isAdded ? { scale: [1, 1.1, 1] } : {}}
+            className={`${
+              isAdded
+                ? 'bg-[#00F5D4] cursor-default'
+                : 'bg-[#FF007A] hover:bg-[#00F5D4]'
+            } text-white text-sm font-medium px-4 py-2 rounded-full transition-colors duration-300 flex items-center neon-border-cyan`}
+            aria-label={isAdded ? `${item.name} agregado al carrito` : `Adquirir ${item.name}`}
           >
-            <ShoppingCart className="w-4 h-4 mr-1" />
-            Adquirir
-          </button>
+            {isAdded ? (
+              <>
+                <Check className="w-4 h-4 mr-1" />
+                ¡Agregado!
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4 mr-1" />
+                Adquirir
+              </>
+            )}
+          </motion.button>
         </div>
       </div>
     </motion.div>
