@@ -53,7 +53,7 @@ export const scrollToSection = (id: string): void => {
         block: "start",
       })
     }
-  } catch (error) {
-    console.error("Error al desplazarse a la sección:", error)
+  } catch {
+    // Silently fail - scroll won't happen but app continues
   }
 }

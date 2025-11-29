@@ -66,27 +66,11 @@ export default function CheckoutPage() {
   const shouldUseManualFlow = manualCheckoutEnabled && hasManualItems()
   const manualItems = cartItems.filter(item => item.requiresManualProcess === true)
 
-  // Debug: Log manual flow detection
-  useEffect(() => {
-    console.log('🔍 Manual Flow Detection:', {
-      manualCheckoutEnabled,
-      hasManualItems: hasManualItems(),
-      shouldUseManualFlow,
-      manualItemsCount: manualItems.length,
-      cartItems: cartItems.map(i => ({ name: i.name, requiresManualProcess: i.requiresManualProcess }))
-    })
-  }, [manualCheckoutEnabled, cartItems, shouldUseManualFlow, manualItems])
-
   useEffect(() => {
     if (cartItems.length === 0 && currentStep < 4) {
       router.push("/tienda")
     }
   }, [cartItems, router, currentStep])
-
-  // Debug: Log customer data when it changes
-  useEffect(() => {
-    console.log("Customer in checkout:", customer)
-  }, [customer])
 
   // Fetch payment methods
   useEffect(() => {
@@ -97,8 +81,8 @@ export default function CheckoutPage() {
         if (data.success) {
           setPaymentMethods(data.data)
         }
-      } catch (error) {
-        console.error('Error fetching payment methods:', error)
+      } catch {
+        // Silently fail - payment methods will show empty state
       }
     }
     fetchPaymentMethods()
@@ -119,12 +103,6 @@ export default function CheckoutPage() {
   }
 
   const handleCreateOrder = async () => {
-    console.log("🔍 handleCreateOrder called", { customer, paymentMethod, cartTotal, cartItems })
-
-    // Debug: Check if session token exists
-    const sessionToken = localStorage.getItem("fortloot_session_token")
-    console.log("🔑 Session token:", sessionToken ? "EXISTS" : "MISSING", sessionToken?.substring(0, 20) + "...")
-
     if (!customer || !paymentMethod) {
       setOrderError("Falta información del cliente o método de pago")
       return
@@ -145,9 +123,6 @@ export default function CheckoutPage() {
       let totalDiscount = 0
       let totalProfit = 0
 
-      console.log("📊 Cart items:", cartItems)
-      console.log("💰 Cart total from API:", cartTotal)
-
       // Mapear items al formato correcto del backend
       const items = cartItems.map((item) => {
         // Buscar precio calculado desde el backend si existe
@@ -157,26 +132,11 @@ export default function CheckoutPage() {
         const itemPriceCents = item.price?.finalPrice || 0
         const itemPriceUSD = itemPriceCents / 100
 
-        console.log(`📦 Item ${item.name}:`, {
-          calculatedPrice,
-          itemPrice: item.price,
-          itemPriceUSD,
-          type: item.type
-        })
-
         // Usar precio calculado del backend si existe, sino usar precio del item
         const basePrice = calculatedPrice?.basePrice || itemPriceUSD
         const profitAmount = calculatedPrice?.profitAmount || 0
         const discountAmount = calculatedPrice?.discountAmount || 0
         const finalPrice = calculatedPrice?.finalPrice || itemPriceUSD
-
-        console.log(`💵 Calculated prices for ${item.name}:`, {
-          basePrice,
-          profitAmount,
-          discountAmount,
-          finalPrice,
-          quantity: item.quantity
-        })
 
         // Acumular totales
         subtotalAmount += basePrice * item.quantity
@@ -202,9 +162,7 @@ export default function CheckoutPage() {
         profitAmount: totalProfit,
       }
 
-      console.log("📤 Sending order data:", orderData)
       const response = await orderAPI.create(orderData)
-      console.log("✅ Order created:", response)
 
       // Track purchase event
       trackPurchase(
@@ -231,7 +189,6 @@ export default function CheckoutPage() {
       } as any)
       setCurrentStep(4)
     } catch (err: any) {
-      console.error("❌ Error creating order:", err)
       setOrderError(err.message || "Error creando orden. Por favor intenta de nuevo.")
     } finally {
       setIsCreatingOrder(false)
@@ -282,9 +239,8 @@ export default function CheckoutPage() {
       }
 
       await orderAPI.create(orderData)
-    } catch (err) {
-      console.error("Error creating tracking order:", err)
-      // Continuar de todos modos con WhatsApp
+    } catch {
+      // Silently continue - WhatsApp flow will still work
     }
 
     // Generar mensaje de WhatsApp con el mismo formato que el carrito

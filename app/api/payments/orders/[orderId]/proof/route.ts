@@ -13,8 +13,6 @@ export async function POST(
 
     // API_URL already includes /api, so we use it directly
     const url = `${apiUrl}/payments/orders/${orderId}/proof`;
-    console.log('Uploading payment proof to:', url);
-    console.log('Using API key:', process.env.API_SECRET ? 'present' : 'missing');
 
     // Forward the form data to the backend
     const response = await fetch(url, {
@@ -26,9 +24,6 @@ export async function POST(
       // Don't set Content-Type header - let fetch set it with boundary for multipart/form-data
     });
 
-    console.log('Backend response status:', response.status);
-    console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
-
     const data = await response.json();
 
     if (!response.ok) {
@@ -36,8 +31,7 @@ export async function POST(
     }
 
     return NextResponse.json(data);
-  } catch (error) {
-    console.error('Error uploading payment proof:', error);
+  } catch {
     return NextResponse.json(
       {
         success: false,

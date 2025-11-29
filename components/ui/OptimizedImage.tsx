@@ -50,7 +50,6 @@ export const OptimizedImage = ({ src, alt, fallbackSrc = DEFAULT_SVG_FALLBACK, .
 
   const handleError = () => {
     if (!error) {
-      console.warn(`Image failed to load: ${typeof src === "string" ? src : "imported image"}, using fallback`)
       setImgSrc(fallbackSrc)
       setError(true)
     }

@@ -95,7 +95,6 @@ export async function GET(request: Request) {
     })
 
     if (!response.ok) {
-      console.error(`Error fetching catalog: ${response.status} ${response.statusText}`)
       return NextResponse.json({
         items: [],
         error: 'Error al cargar el catálogo',
@@ -106,7 +105,6 @@ export async function GET(request: Request) {
     let catalogData = await response.json()
 
     if (!catalogData.success || !catalogData.data) {
-      console.error('Invalid catalog response:', catalogData)
       return NextResponse.json({
         items: [],
         error: 'Respuesta inválida del catálogo',
@@ -120,8 +118,6 @@ export async function GET(request: Request) {
 
     // FRONTEND FALLBACK: If no items, trigger backend sync and retry
     if (items.length === 0) {
-      console.warn('[FRONTEND] No items in catalog, triggering backend sync...')
-
       try {
         // Trigger sync endpoint
         const syncResponse = await fetch(`${API_BASE_URL}/catalog/update`, {
@@ -133,8 +129,6 @@ export async function GET(request: Request) {
         })
 
         if (syncResponse.ok) {
-          console.log('[FRONTEND] Sync triggered successfully, retrying fetch...')
-
           // Wait a moment for sync to complete
           await new Promise(resolve => setTimeout(resolve, 3000))
 
@@ -151,12 +145,11 @@ export async function GET(request: Request) {
             const retryCatalogData = await retryResponse.json()
             if (retryCatalogData.success && retryCatalogData.data) {
               items = retryCatalogData.data.items || []
-              console.log(`[FRONTEND] Retry successful, got ${items.length} items`)
             }
           }
         }
-      } catch (syncError) {
-        console.error('[FRONTEND] Auto-sync failed:', syncError)
+      } catch {
+        // Sync failed, continue with empty catalog
       }
     }
 
@@ -189,7 +182,6 @@ export async function GET(request: Request) {
       itemCount: storeItems.length,
     })
   } catch (error) {
-    console.error('Error in catalog API route:', error)
     return NextResponse.json({
       items: [],
       error: error instanceof Error ? error.message : 'Error desconocido',

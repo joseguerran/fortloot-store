@@ -37,11 +37,9 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
         if (['whatsapp', 'wizard', 'bot-wizard'].includes(mode)) {
           setCheckoutMode(mode as CheckoutMode);
         } else {
-          console.warn(`Invalid checkout mode received: ${mode}, defaulting to whatsapp`);
           setCheckoutMode('whatsapp');
         }
       } else {
-        console.warn('Failed to fetch checkout mode, defaulting to whatsapp');
         setCheckoutMode('whatsapp');
       }
 
@@ -50,18 +48,13 @@ export function ConfigProvider({ children }: ConfigProviderProps) {
         cache: 'no-store',
       });
 
-      console.log('🔧 Manual checkout response status:', manualResponse.status);
-
       if (manualResponse.ok) {
         const data = await manualResponse.json();
-        console.log('🔧 Manual checkout data received:', data);
         setManualCheckoutEnabled(data.enabled || false);
       } else {
-        console.warn('🔧 Manual checkout response not OK, defaulting to false');
         setManualCheckoutEnabled(false);
       }
-    } catch (error) {
-      console.warn('Error fetching config, using defaults:', error);
+    } catch {
       setCheckoutMode('whatsapp');
       setManualCheckoutEnabled(false);
     } finally {

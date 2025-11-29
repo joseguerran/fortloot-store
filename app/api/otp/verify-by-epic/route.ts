@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { setSessionCookie } from '@/lib/auth/cookies';
 
 const BACKEND_URL = process.env.API_URL || 'http://localhost:3001/api';
 const API_SECRET = process.env.API_SECRET;
@@ -6,6 +7,7 @@ const API_SECRET = process.env.API_SECRET;
 /**
  * POST /api/otp/verify-by-epic
  * Verifica un código OTP usando Epic ID
+ * Sets session token in httpOnly cookie on successful verification
  */
 export async function POST(request: NextRequest) {
   try {
@@ -38,13 +40,20 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Backend error verifying OTP by Epic ID:', data);
       return NextResponse.json(data, { status: response.status });
+    }
+
+    // Extract session token and set it in httpOnly cookie
+    const sessionToken = data.data?.sessionToken || data.sessionToken;
+
+    if (sessionToken) {
+      // Create response and set cookie
+      const jsonResponse = NextResponse.json(data);
+      return setSessionCookie(jsonResponse, sessionToken);
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error verifying OTP by Epic ID:', error);
     return NextResponse.json(
       {
         success: false,

@@ -19,7 +19,6 @@ export async function GET() {
     });
 
     if (!response.ok) {
-      console.warn('Failed to fetch manual checkout config from backend, using default');
       return NextResponse.json({
         success: true,
         enabled: false,
@@ -32,8 +31,7 @@ export async function GET() {
       enabled: data.enabled || false,
       value: data.enabled || false,
     });
-  } catch (error) {
-    console.error('Error fetching manual checkout config:', error);
+  } catch {
     // Fallback a false en caso de error
     return NextResponse.json({
       success: true,

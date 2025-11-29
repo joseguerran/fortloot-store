@@ -32,13 +32,11 @@ export async function GET(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Backend error fetching orders:', data);
       return NextResponse.json(data, { status: response.status });
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error fetching orders:', error);
     return NextResponse.json(
       {
         success: false,

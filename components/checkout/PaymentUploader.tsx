@@ -106,8 +106,6 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
         onSuccess()
       }, response.warning ? 2000 : 500)
     } catch (err: any) {
-      console.error('Error uploading payment proof:', err)
-
       // Handle specific error for expired orders
       if (err.error === 'ORDER_EXPIRED') {
         setError(err.message || "Esta orden ha expirado. Por favor, realiza una nueva compra desde el inicio para garantizar la disponibilidad de los items.")

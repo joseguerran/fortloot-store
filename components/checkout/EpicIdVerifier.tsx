@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { Check, Loader2, AlertCircle, Copy, X, Mail } from "lucide-react"
 import { useCustomer } from "@/context/CustomerContext"
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon"
 import { useCart } from "@/context/CartContext"
 import { useRouter } from "next/navigation"
+import { customerAPI } from "@/lib/api/customer"
 
 interface EpicIdVerifierProps {
   onVerified: () => void
@@ -17,6 +18,14 @@ interface AvailableBot {
 }
 
 type ContactPreference = 'WHATSAPP' | 'EMAIL'
+
+/**
+ * Normaliza un número de teléfono para el formato esperado por el backend
+ * Ejemplo: "+56 9 1234 5678" -> "56912345678"
+ */
+function normalizePhoneNumber(phone: string): string {
+  return phone.replace(/[\s\-\+\(\)]/g, '')
+}
 
 export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
   const router = useRouter()
@@ -31,6 +40,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
   const [copiedBotId, setCopiedBotId] = useState<string | null>(null)
   const [showNoBotsModal, setShowNoBotsModal] = useState(false)
   const [submittedEpicId, setSubmittedEpicId] = useState("")
+  const [isVerifyingFriendships, setIsVerifyingFriendships] = useState(false)
 
   // Verificar si hay items de la tienda que requieren bots
   // Items que requieren bots: outfit, emote, pickaxe, glider, backpack, wrap
@@ -97,7 +107,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
         epicId.trim(),
         contactPreference,
         contactPreference === 'EMAIL' ? contactValue.trim() : undefined,
-        contactPreference === 'WHATSAPP' ? contactValue.trim() : undefined,
+        contactPreference === 'WHATSAPP' ? normalizePhoneNumber(contactValue) : undefined,
         cartItemsForBackend
       )
       // Mostrar estado de éxito por 1 segundo antes de continuar
@@ -106,29 +116,21 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
         onVerified()
       }, 1000)
     } catch (err: any) {
-      console.log("🔍 EpicIdVerifier caught error:", err)
-      console.log("🔍 hasStoreItems:", hasStoreItems)
-      console.log("🔍 err.availableBots:", err.availableBots)
-      console.log("🔍 Is array?:", Array.isArray(err.availableBots))
-
       // Si hay items de la tienda Y el error es de no tener bots, mostrar modal
       if (hasStoreItems && err.availableBots && Array.isArray(err.availableBots)) {
-        console.log("✅ Showing modal with bots:", err.availableBots)
         setAvailableBots(err.availableBots)
         setSubmittedEpicId(epicId.trim())
         setShowNoBotsModal(true)
       } else if (!hasStoreItems && err.availableBots) {
         // Si NO hay items de tienda pero el backend dice que no hay bots,
         // continuar de todos modos porque no se necesitan
-        console.log("✅ No store items, continuing anyway")
         setShowSuccess(true)
         setTimeout(() => {
           onVerified()
         }, 1000)
       } else {
         // Para otros errores, mostrar mensaje inline
-        console.log("❌ Showing inline error")
-        let friendlyMessage = err.message || "Error verificando cuenta"
+        const friendlyMessage = err.message || "Error verificando cuenta"
         setLocalError(friendlyMessage)
       }
     }
@@ -163,6 +165,48 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
     navigator.clipboard.writeText(text)
     setCopiedBotId(text)
     setTimeout(() => setCopiedBotId(null), 2000)
+  }
+
+  /**
+   * Verifica si el usuario tiene friendships válidas para continuar con items de tienda
+   * Se usa cuando el usuario ya tiene sesión (autenticado via OTP u otro método)
+   */
+  const handleContinueWithExistingSession = async () => {
+    // Si no hay store items, no necesita verificar friendships
+    if (storeItems.length === 0) {
+      onVerified()
+      return
+    }
+
+    // Si hay store items, verificar friendships
+    setIsVerifyingFriendships(true)
+    setLocalError("")
+
+    try {
+      // Crear sesión con los cartItems para que el backend verifique friendships
+      const cartItemsForBackend = cartItems.map(item => ({ type: item.type }))
+      await customerContext?.createSession(
+        customer!.epicAccountId,
+        customer!.contactPreference,
+        customer!.email,
+        customer!.phoneNumber,
+        cartItemsForBackend
+      )
+
+      // Si llegamos aquí, la verificación pasó
+      onVerified()
+    } catch (err: any) {
+      // Si hay availableBots, mostrar el modal de bots
+      if (err.availableBots && Array.isArray(err.availableBots)) {
+        setAvailableBots(err.availableBots)
+        setSubmittedEpicId(customer!.displayName || customer!.epicAccountId)
+        setShowNoBotsModal(true)
+      } else {
+        setLocalError(err.message || "Error verificando amistad con bots")
+      }
+    } finally {
+      setIsVerifyingFriendships(false)
+    }
   }
 
   if (customer) {
@@ -214,6 +258,23 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
           </div>
         )}
 
+        {/* Mostrar advertencia si tiene store items y necesita verificar friendships */}
+        {storeItems.length > 0 && (
+          <div className="bg-blue-500/10 border border-blue-500 rounded-lg p-3 mb-4">
+            <p className="text-sm text-blue-400">
+              ℹ️ Tienes {storeItems.length} {storeItems.length === 1 ? 'item' : 'items'} de la tienda. Se verificará tu amistad con nuestros bots al continuar.
+            </p>
+          </div>
+        )}
+
+        {/* Mostrar error si hay */}
+        {localError && !showNoBotsModal && (
+          <div className="bg-red-500/10 border border-red-500 rounded-lg p-3 mb-4 flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-500">{localError}</p>
+          </div>
+        )}
+
         <div className="flex gap-3">
           <button
             onClick={() => {
@@ -223,15 +284,24 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
               setContactPreference('WHATSAPP')
               setLocalError("")
             }}
-            className="flex-1 py-3 bg-dark hover:bg-light text-white font-medium rounded-lg transition-colors border border-light"
+            disabled={isVerifyingFriendships}
+            className="flex-1 py-3 bg-dark hover:bg-light text-white font-medium rounded-lg transition-colors border border-light disabled:opacity-50"
           >
             Cambiar Cuenta
           </button>
           <button
-            onClick={onVerified}
-            className="flex-1 py-3 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition-colors neon-border-cyan"
+            onClick={handleContinueWithExistingSession}
+            disabled={isVerifyingFriendships}
+            className="flex-1 py-3 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition-colors neon-border-cyan disabled:opacity-50 flex items-center justify-center"
           >
-            Continuar
+            {isVerifyingFriendships ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Verificando...
+              </>
+            ) : (
+              "Continuar"
+            )}
           </button>
         </div>
       </div>

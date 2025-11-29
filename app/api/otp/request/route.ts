@@ -38,13 +38,11 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Backend error requesting OTP:', data);
       return NextResponse.json(data, { status: response.status });
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error requesting OTP:', error);
     return NextResponse.json(
       {
         success: false,

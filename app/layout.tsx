@@ -2,15 +2,14 @@ import type React from "react"
 import "./globals.css"
 import { Inter } from "next/font/google"
 import type { Metadata } from "next"
-import { GoogleAnalytics } from "@next/third-parties/google"
-import { ClarityScript } from "@/components/analytics/ClarityScript"
+import { ConsentProvider } from "@/context/ConsentContext"
 import { CustomerProvider } from "@/context/CustomerContext"
 import { CartProvider } from "@/context/CartContext"
 import { ConfigProvider } from "@/context/ConfigContext"
 import { CartDrawer } from "@/components/cart/CartDrawer"
 import { Toaster } from "@/components/ui/toaster"
-
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID
+import { CookieBanner } from "@/components/cookies/CookieBanner"
+import { ConditionalAnalytics } from "@/components/analytics/ConditionalAnalytics"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -41,18 +40,20 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/favicon.svg" />
       </head>
       <body className={inter.className}>
-        <ConfigProvider>
-          <CustomerProvider>
-            <CartProvider>
-              {children}
-              <CartDrawer />
-              <Toaster />
-            </CartProvider>
-          </CustomerProvider>
-        </ConfigProvider>
+        <ConsentProvider>
+          <ConfigProvider>
+            <CustomerProvider>
+              <CartProvider>
+                {children}
+                <CartDrawer />
+                <Toaster />
+                <CookieBanner />
+              </CartProvider>
+            </CustomerProvider>
+          </ConfigProvider>
+          <ConditionalAnalytics />
+        </ConsentProvider>
       </body>
-      {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
-      <ClarityScript />
     </html>
   )
 }

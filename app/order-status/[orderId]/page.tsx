@@ -110,7 +110,6 @@ export default function OrderStatusPage() {
           }
         }
       } catch (err: any) {
-        console.error("Error fetching order:", err)
         setError(err.message || "Error cargando la orden")
       } finally {
         setIsLoading(false)

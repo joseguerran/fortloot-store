@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getSessionToken } from '@/lib/auth/cookies';
 
 const BACKEND_URL = process.env.API_URL || 'http://localhost:3001/api';
 
@@ -6,12 +7,22 @@ const BACKEND_URL = process.env.API_URL || 'http://localhost:3001/api';
  * GET /api/customers/me
  * Get current customer data using session token
  * This is the secure endpoint for fetching customer data
+ * Reads token from httpOnly cookie (primary) or Authorization header (fallback)
  */
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
+    // Try to get token from httpOnly cookie first (secure method)
+    let sessionToken = await getSessionToken();
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Fallback to Authorization header for backwards compatibility
+    if (!sessionToken) {
+      const authHeader = request.headers.get('authorization');
+      if (authHeader?.startsWith('Bearer ')) {
+        sessionToken = authHeader.substring(7);
+      }
+    }
+
+    if (!sessionToken) {
       return NextResponse.json(
         { success: false, error: 'UNAUTHORIZED', message: 'Session token required' },
         { status: 401 }
@@ -22,7 +33,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(`${BACKEND_URL}/customers/me`, {
       method: 'GET',
       headers: {
-        'Authorization': authHeader,
+        'Authorization': `Bearer ${sessionToken}`,
         'Content-Type': 'application/json',
       },
     });
@@ -35,7 +46,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error fetching customer:', error);
     return NextResponse.json(
       {
         success: false,

@@ -46,8 +46,7 @@ export function PaymentMethodSelector({ selectedMethod, onSelect }: PaymentMetho
       } else {
         throw new Error('Failed to fetch payment methods')
       }
-    } catch (err) {
-      console.error('Error fetching payment methods:', err)
+    } catch {
       setError('Error al cargar métodos de pago')
     } finally {
       setIsLoading(false)

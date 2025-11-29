@@ -31,13 +31,11 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Backend error verifying friendship:', data);
       return NextResponse.json(data, { status: response.status });
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error verifying friendship:', error);
     return NextResponse.json(
       {
         success: false,

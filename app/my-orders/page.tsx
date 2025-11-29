@@ -90,8 +90,7 @@ export default function MyOrdersPage() {
         const ordersData = await ordersRes.json();
         setOrders(ordersData.data.orders || []);
       }
-    } catch (err) {
-      console.error('Error fetching orders:', err);
+    } catch {
       setError('Error al cargar tus órdenes. Por favor intenta de nuevo.');
     } finally {
       setLoading(false);

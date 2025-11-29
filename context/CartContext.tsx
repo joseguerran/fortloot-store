@@ -81,8 +81,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (savedCart) {
         try {
           setCartItems(JSON.parse(savedCart))
-        } catch (error) {
-          console.error("Error al cargar el carrito desde localStorage:", error)
+        } catch {
           localStorage.removeItem(CART_STORAGE_KEY)
         }
       }
@@ -156,8 +155,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       // Los items ya tienen sus precios desde el catálogo
       // No necesitamos actualizar nada más
-    } catch (err) {
-      console.error("Error calculating cart total:", err)
+    } catch {
       setCartTotal(null)
     } finally {
       setIsLoadingPrices(false)

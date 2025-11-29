@@ -51,13 +51,8 @@ interface Customer {
   totalSpent: number
 }
 
-// Security: Only store session token, not full customer data
-const SESSION_TOKEN_KEY = "fortloot_session_token"
-// Legacy key to clean up
-const LEGACY_CUSTOMER_KEY = "fortloot_customer"
-
 export default function MisComprasPage() {
-  const { customer: contextCustomer, setSessionFromOTP } = useCustomer() || {}
+  const { customer: contextCustomer, setSessionFromOTP, logout: contextLogout } = useCustomer() || {}
   const [step, setStep] = useState<Step>("loading")
   const [displayName, setDisplayName] = useState("")
   const [otpCode, setOtpCode] = useState("")
@@ -73,18 +68,11 @@ export default function MisComprasPage() {
   const [statusFilter, setStatusFilter] = useState<OrderStatusFilter>("all")
   const [dateFilter, setDateFilter] = useState<DateRangeFilter>("all")
 
-  // Cargar cliente desde contexto al iniciar
+  // Load customer from context on mount
   useEffect(() => {
     const loadCustomer = async () => {
       try {
-        // Clean up legacy customer data from localStorage (security fix)
-        const legacyData = localStorage.getItem(LEGACY_CUSTOMER_KEY)
-        if (legacyData) {
-          console.log("Cleaning up legacy customer data from localStorage (security improvement)")
-          localStorage.removeItem(LEGACY_CUSTOMER_KEY)
-        }
-
-        // Try to load from context (which fetches from backend)
+        // Try to load from context (session is in httpOnly cookie)
         if (contextCustomer?.id) {
           setCustomer(contextCustomer as Customer)
           await loadOrders(contextCustomer.id)
@@ -94,8 +82,7 @@ export default function MisComprasPage() {
 
         // No customer in context, show Epic ID form
         setStep("epic-id")
-      } catch (err) {
-        console.error("Error loading customer:", err)
+      } catch {
         setStep("epic-id")
       }
     }
@@ -110,8 +97,8 @@ export default function MisComprasPage() {
       if (data.success) {
         setOrders(data.orders)
       }
-    } catch (err) {
-      console.error("Error loading orders:", err)
+    } catch {
+      // Silently fail - orders list will remain empty
     }
   }
 
@@ -143,8 +130,7 @@ export default function MisComprasPage() {
       setContactMethod(data.contactMethod)
       setMaskedContact(data.maskedContact)
       setStep("otp")
-    } catch (err) {
-      console.error("Error requesting OTP:", err)
+    } catch {
       setError("No pudimos conectar con el servidor. Verifica tu conexion e intenta de nuevo.")
     } finally {
       setIsLoading(false)
@@ -164,6 +150,7 @@ export default function MisComprasPage() {
       const response = await fetch("/api/otp/verify-by-epic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Include cookies for session
         body: JSON.stringify({ displayName: displayName.trim(), code: otpCode }),
       })
 
@@ -176,21 +163,16 @@ export default function MisComprasPage() {
 
       setCustomer(data.customer)
 
-      // Security: Only store sessionToken, not full customer data
-      if (data.sessionToken) {
-        localStorage.setItem(SESSION_TOKEN_KEY, data.sessionToken)
-        // Sync with CustomerContext so session persists across navigation
-        if (setSessionFromOTP) {
-          setSessionFromOTP(data.sessionToken, data.customer)
-        }
+      // Sync with CustomerContext (session cookie was set by the API)
+      if (setSessionFromOTP) {
+        setSessionFromOTP(data.customer)
       }
 
       // Cargar ordenes
       await loadOrders(data.customer.id)
 
       setStep("orders")
-    } catch (err) {
-      console.error("Error verifying OTP:", err)
+    } catch {
       setError("No pudimos conectar con el servidor. Verifica tu conexion e intenta de nuevo.")
     } finally {
       setIsLoading(false)
@@ -202,7 +184,13 @@ export default function MisComprasPage() {
     await handleRequestOTP()
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clear session via context (calls logout API to clear httpOnly cookie)
+    if (contextLogout) {
+      await contextLogout()
+    }
+
+    // Reset local state
     setStep("epic-id")
     setDisplayName("")
     setOtpCode("")
@@ -212,8 +200,6 @@ export default function MisComprasPage() {
     setMaskedContact(null)
     setStatusFilter("all")
     setDateFilter("all")
-    localStorage.removeItem(SESSION_TOKEN_KEY)
-    localStorage.removeItem(LEGACY_CUSTOMER_KEY)
   }
 
   const handleClearFilters = () => {

@@ -57,15 +57,19 @@ export const customerAPI = {
   },
 
   /**
-   * Obtener datos del cliente actual usando sessionToken
-   * Este es el método seguro para obtener datos del cliente
+   * Obtener datos del cliente actual
+   * Session token is sent via httpOnly cookie automatically
+   * Returns null if not authenticated (401) - this is expected for unauthenticated users
    */
-  async getMe(sessionToken: string): Promise<Omit<Customer, 'sessionToken'>> {
+  async getMe(): Promise<Omit<Customer, 'sessionToken'> | null> {
     const response = await fetch('/api/customers/me', {
-      headers: {
-        'Authorization': `Bearer ${sessionToken}`,
-      },
+      credentials: 'include', // Include httpOnly cookie
     })
+
+    // Return null for 401 - user is not authenticated, this is expected
+    if (response.status === 401) {
+      return null
+    }
 
     if (!response.ok) {
       const error = await response.json()

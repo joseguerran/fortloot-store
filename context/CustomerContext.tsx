@@ -5,7 +5,7 @@ import { customerAPI, type Customer, type ContactPreference } from "@/lib/api/cu
 
 interface CustomerContextType {
   customer: Omit<Customer, 'sessionToken'> | null
-  sessionToken: string | null
+  isAuthenticated: boolean
   isLoading: boolean
   error: string | null
   createSession: (
@@ -15,73 +15,61 @@ interface CustomerContextType {
     phoneNumber?: string,
     cartItems?: Array<{ type: string }>
   ) => Promise<void>
-  setSessionFromOTP: (token: string, customerData: Omit<Customer, 'sessionToken'>) => void
+  setSessionFromOTP: (customerData: Omit<Customer, 'sessionToken'>) => void
   verifyFriendship: (epicAccountId: string) => Promise<boolean>
   refreshCustomer: () => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined)
 
-// Only store the session token - NOT the full customer object
-const SESSION_TOKEN_KEY = "fortloot_session_token"
-// Legacy key to clean up
+// Legacy keys to clean up (migration from localStorage to httpOnly cookies)
+const LEGACY_SESSION_TOKEN_KEY = "fortloot_session_token"
 const LEGACY_CUSTOMER_KEY = "fortloot_customer"
 
 export function CustomerProvider({ children }: { children: ReactNode }) {
   const [customer, setCustomer] = useState<Omit<Customer, 'sessionToken'> | null>(null)
-  const [sessionToken, setSessionToken] = useState<string | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch customer data from backend using sessionToken
-  const fetchCustomerData = useCallback(async (token: string): Promise<Omit<Customer, 'sessionToken'> | null> => {
+  // Fetch customer data from backend (token is sent via httpOnly cookie)
+  const fetchCustomerData = useCallback(async (): Promise<Omit<Customer, 'sessionToken'> | null> => {
     try {
-      const data = await customerAPI.getMe(token)
-      console.log("✅ Customer data fetched from backend:", data)
+      const data = await customerAPI.getMe()
       return data
     } catch (err) {
-      console.error("❌ Error fetching customer data:", err)
-      // If session is invalid, clear it
+      // If session is invalid, return null
       if (err instanceof Error && err.message.includes('Invalid')) {
-        localStorage.removeItem(SESSION_TOKEN_KEY)
         return null
       }
       throw err
     }
   }, [])
 
-  // Clean up legacy storage and load session on mount
+  // Clean up legacy localStorage and check session on mount
   useEffect(() => {
     const loadSession = async () => {
       try {
-        // Clean up legacy customer data storage (security fix)
-        const legacyData = localStorage.getItem(LEGACY_CUSTOMER_KEY)
-        if (legacyData) {
-          console.log("🔒 Cleaning up legacy customer data from localStorage (security improvement)")
+        // Clean up legacy localStorage data (migration to httpOnly cookies)
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(LEGACY_SESSION_TOKEN_KEY)
           localStorage.removeItem(LEGACY_CUSTOMER_KEY)
         }
 
-        // Load session token
-        const storedToken = localStorage.getItem(SESSION_TOKEN_KEY)
-        if (storedToken) {
-          console.log("✅ Session token found in localStorage")
-          setSessionToken(storedToken)
-
-          // Fetch customer data from backend
-          const customerData = await fetchCustomerData(storedToken)
-          if (customerData) {
-            setCustomer(customerData)
-          } else {
-            // Invalid session, clean up
-            setSessionToken(null)
-            localStorage.removeItem(SESSION_TOKEN_KEY)
-          }
+        // Try to fetch customer data (session is in httpOnly cookie)
+        const customerData = await fetchCustomerData()
+        if (customerData) {
+          setCustomer(customerData)
+          setIsAuthenticated(true)
         } else {
-          console.log("❌ No session token found in localStorage")
+          setCustomer(null)
+          setIsAuthenticated(false)
         }
-      } catch (err) {
-        console.error("Error loading session:", err)
+      } catch {
+        // Session load failed silently - user is not authenticated
+        setCustomer(null)
+        setIsAuthenticated(false)
       } finally {
         setIsLoading(false)
       }
@@ -89,15 +77,6 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
 
     loadSession()
   }, [fetchCustomerData])
-
-  // Persist session token changes
-  useEffect(() => {
-    if (sessionToken) {
-      localStorage.setItem(SESSION_TOKEN_KEY, sessionToken)
-    } else {
-      localStorage.removeItem(SESSION_TOKEN_KEY)
-    }
-  }, [sessionToken])
 
   const createSession = async (
     epicAccountId: string,
@@ -110,32 +89,25 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     setError(null)
 
     try {
-      // Create session - backend returns only sessionToken now
-      const { sessionToken: newToken } = await customerAPI.createSession({
+      // Create session - backend sets httpOnly cookie automatically
+      await customerAPI.createSession({
         epicAccountId,
         contactPreference,
         email,
         phoneNumber,
         cartItems
       })
-      console.log("✅ Session created, token received")
 
-      // Store token
-      setSessionToken(newToken)
-
-      // Fetch customer data using the new token
-      const customerData = await fetchCustomerData(newToken)
+      // Fetch customer data (session cookie was set by the API)
+      const customerData = await fetchCustomerData()
       if (customerData) {
         if (customerData.isBlacklisted) {
           throw new Error("Tu cuenta ha sido bloqueada. Contacta a soporte.")
         }
         setCustomer(customerData)
+        setIsAuthenticated(true)
       }
     } catch (err: any) {
-      console.log("❌ Error in createSession:", err)
-      console.log("❌ Error data:", err.data)
-      console.log("❌ Available bots:", err.data?.availableBots)
-
       let errorMessage = err.message || "Error creando sesión"
 
       // If there are availableBots, don't set error state (modal will handle it)
@@ -147,7 +119,6 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
       const enhancedError = new Error(errorMessage) as any
       if (err.data?.availableBots) {
         enhancedError.availableBots = err.data.availableBots
-        console.log("✅ Added availableBots to error:", enhancedError.availableBots)
       }
       throw enhancedError
     } finally {
@@ -159,47 +130,58 @@ export function CustomerProvider({ children }: { children: ReactNode }) {
     try {
       const response = await customerAPI.verifyFriendship(epicAccountId)
       return response.hasReadyFriendship
-    } catch (err) {
-      console.error("Error verifying friendship:", err)
+    } catch {
       return false
     }
   }
 
   const refreshCustomer = async () => {
-    if (!sessionToken) return
+    if (!isAuthenticated) return
 
     try {
-      const customerData = await fetchCustomerData(sessionToken)
+      const customerData = await fetchCustomerData()
       if (customerData) {
         setCustomer(customerData)
       }
-    } catch (err) {
-      console.error("Error refreshing customer:", err)
+    } catch {
+      // Silently fail - customer data will be stale but app remains functional
     }
   }
 
   // Set session from external OTP verification (e.g., from mis-compras page)
-  const setSessionFromOTP = (token: string, customerData: Omit<Customer, 'sessionToken'>) => {
-    console.log("✅ Setting session from OTP verification")
-    setSessionToken(token)
+  // The httpOnly cookie is already set by the OTP verify API
+  const setSessionFromOTP = (customerData: Omit<Customer, 'sessionToken'>) => {
     setCustomer(customerData)
-    // The useEffect will persist the token to localStorage
+    setIsAuthenticated(true)
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      // Call logout API to clear the httpOnly cookie
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+    } catch {
+      // Silently fail - continue with local cleanup
+    }
+
     setCustomer(null)
-    setSessionToken(null)
+    setIsAuthenticated(false)
     setError(null)
-    localStorage.removeItem(SESSION_TOKEN_KEY)
-    // Also remove legacy key if it exists
-    localStorage.removeItem(LEGACY_CUSTOMER_KEY)
+
+    // Clean up any legacy localStorage keys
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(LEGACY_SESSION_TOKEN_KEY)
+      localStorage.removeItem(LEGACY_CUSTOMER_KEY)
+    }
   }
 
   return (
     <CustomerContext.Provider
       value={{
         customer,
-        sessionToken,
+        isAuthenticated,
         isLoading,
         error,
         createSession,

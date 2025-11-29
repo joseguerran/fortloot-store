@@ -27,9 +27,7 @@ export async function GET(request: Request) {
     const data = await response.json()
 
     return NextResponse.json(data)
-  } catch (error) {
-    console.error('Error fetching payment methods:', error)
-
+  } catch {
     // Return fallback data if backend is unavailable
     return NextResponse.json({
       success: true,

@@ -2,6 +2,9 @@
  * API Client Base
  * Client-side HTTP client for calling Next.js API routes
  * All calls now go through /api/* routes (server-side) which handle backend communication
+ *
+ * Authentication is handled via httpOnly cookies for security (XSS protection)
+ * The session token is stored server-side in a cookie, not in localStorage
  */
 
 const API_BASE_URL = '' // Empty string = same origin, calls /api/* routes
@@ -42,16 +45,12 @@ class APIClient {
       'Content-Type': 'application/json',
     }
 
-    // Add session token if available (for payment upload, etc.)
-    if (typeof window !== 'undefined') {
-      const sessionToken = localStorage.getItem('fortloot_session_token')
-      if (sessionToken) {
-        defaultHeaders['Authorization'] = `Bearer ${sessionToken}`
-      }
-    }
+    // No longer adding Authorization header from localStorage
+    // Session token is now sent via httpOnly cookie automatically
 
     const config: RequestInit = {
       ...options,
+      credentials: 'include', // Include cookies in requests for session authentication
       headers: {
         ...defaultHeaders,
         ...options.headers,
@@ -129,26 +128,20 @@ class APIClient {
 
   /**
    * Upload de archivos con FormData
+   * Session token is sent via httpOnly cookie automatically
    */
   async upload<T>(endpoint: string, formData: FormData, options?: RequestInit): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
 
-    const headers: HeadersInit = {}
-
-    // Agregar token de sesión si existe
-    if (typeof window !== 'undefined') {
-      const sessionToken = localStorage.getItem('fortloot_session_token')
-      if (sessionToken) {
-        headers['Authorization'] = `Bearer ${sessionToken}`
-      }
-    }
+    // No longer adding Authorization header from localStorage
+    // Session token is now sent via httpOnly cookie automatically
 
     const config: RequestInit = {
       ...options,
       method: 'POST',
       body: formData,
+      credentials: 'include', // Include cookies in requests for session authentication
       headers: {
-        ...headers,
         ...options?.headers,
       },
     }

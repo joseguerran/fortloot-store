@@ -30,13 +30,11 @@ export async function GET(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Backend error fetching order:', data);
       return NextResponse.json(data, { status: response.status });
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error fetching order:', error);
     return NextResponse.json(
       {
         success: false,
@@ -75,7 +73,6 @@ export async function PATCH(
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('Backend error canceling order:', data);
         return NextResponse.json(data, { status: response.status });
       }
 
@@ -87,7 +84,6 @@ export async function PATCH(
       { status: 400 }
     );
   } catch (error) {
-    console.error('Error canceling order:', error);
     return NextResponse.json(
       {
         success: false,

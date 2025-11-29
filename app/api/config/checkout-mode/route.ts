@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       // Si el backend no responde o falla, retornar whatsapp por defecto
-      console.warn('Backend config API not available, defaulting to whatsapp mode');
       return NextResponse.json({
         value: 'whatsapp',
         source: 'default'
@@ -29,9 +28,8 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch {
     // En caso de error, retornar whatsapp por defecto
-    console.error('Error fetching checkout mode:', error);
     return NextResponse.json({
       value: 'whatsapp',
       source: 'default',
@@ -77,7 +75,6 @@ export async function PUT(request: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error updating checkout mode:', error);
     return NextResponse.json(
       { error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
