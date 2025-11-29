@@ -6,10 +6,12 @@ import { ConsentProvider } from "@/context/ConsentContext"
 import { CustomerProvider } from "@/context/CustomerContext"
 import { CartProvider } from "@/context/CartContext"
 import { ConfigProvider } from "@/context/ConfigContext"
+import { AnnouncementProvider } from "@/context/AnnouncementContext"
 import { CartDrawer } from "@/components/cart/CartDrawer"
 import { Toaster } from "@/components/ui/toaster"
 import { CookieBanner } from "@/components/cookies/CookieBanner"
 import { ConditionalAnalytics } from "@/components/analytics/ConditionalAnalytics"
+import { MaintenanceBanner } from "@/components/announcements"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -43,14 +45,17 @@ export default function RootLayout({
       <body className={inter.className}>
         <ConsentProvider>
           <ConfigProvider>
-            <CustomerProvider>
-              <CartProvider>
-                {children}
-                <CartDrawer />
-                <Toaster />
-                <CookieBanner />
-              </CartProvider>
-            </CustomerProvider>
+            <AnnouncementProvider>
+              <CustomerProvider>
+                <CartProvider>
+                  <MaintenanceBanner />
+                  {children}
+                  <CartDrawer />
+                  <Toaster />
+                  <CookieBanner />
+                </CartProvider>
+              </CustomerProvider>
+            </AnnouncementProvider>
           </ConfigProvider>
           <ConditionalAnalytics />
         </ConsentProvider>

@@ -3,9 +3,10 @@
 import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Trash2, ShoppingCart, Coins, CreditCard, MessageCircle } from "lucide-react"
+import { X, Trash2, ShoppingCart, Coins, CreditCard, MessageCircle, Wrench } from "lucide-react"
 import { useCart, type CartItem } from "@/context/CartContext"
 import { useConfig } from "@/context/ConfigContext"
+import { useMaintenance } from "@/context/AnnouncementContext"
 import { openWhatsAppWithCart } from "@/utils/whatsapp"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { useToast } from "@/components/ui/use-toast"
@@ -15,6 +16,7 @@ export function CartDrawer() {
   const { cartItems, isCartOpen, closeCart, removeFromCart, clearCart, totalItems, totalPrice, isLoadingPrices } =
     useCart()
   const { checkoutMode } = useConfig()
+  const { isInMaintenance, maintenanceMessage } = useMaintenance()
   const { toast } = useToast()
   const cartRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -139,6 +141,19 @@ export function CartDrawer() {
             {/* Footer */}
             {cartItems.length > 0 && (
               <div className="p-4 border-t border-light bg-dark">
+                {/* Maintenance Banner inside Cart */}
+                {isInMaintenance && (
+                  <div className="mb-4 p-3 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg border border-primary/30">
+                    <div className="flex items-center gap-2 text-primary">
+                      <Wrench className="w-5 h-5 animate-pulse" />
+                      <div>
+                        <p className="font-bold text-sm">{maintenanceMessage?.title || 'Tienda en Mantenimiento'}</p>
+                        <p className="text-xs text-gray-300">{maintenanceMessage?.message || 'Las compras están temporalmente deshabilitadas'}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-gray-300">Total ({totalItems} items):</span>
                   <div className="flex flex-col items-end">
@@ -151,19 +166,31 @@ export function CartDrawer() {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={handleCheckout}
-                    disabled={isLoadingPrices}
+                    disabled={isLoadingPrices || isInMaintenance}
                     className={`w-full py-3 px-4 text-white font-bold rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                      checkoutMode === "whatsapp"
+                      isInMaintenance
+                        ? "bg-gray-600"
+                        : checkoutMode === "whatsapp"
                         ? "bg-[#25D366] hover:bg-[#20BA5A]"
                         : "bg-primary hover:bg-secondary neon-border-cyan"
                     }`}
                   >
-                    {checkoutMode === "whatsapp" ? (
-                      <WhatsAppIcon className="w-5 h-5 mr-2" size={20} />
+                    {isInMaintenance ? (
+                      <>
+                        <Wrench className="w-5 h-5 mr-2" />
+                        Checkout Deshabilitado
+                      </>
+                    ) : checkoutMode === "whatsapp" ? (
+                      <>
+                        <WhatsAppIcon className="w-5 h-5 mr-2" size={20} />
+                        Finalizar Compra por WhatsApp
+                      </>
                     ) : (
-                      <CreditCard className="w-5 h-5 mr-2" />
+                      <>
+                        <CreditCard className="w-5 h-5 mr-2" />
+                        Proceder al Pago
+                      </>
                     )}
-                    {checkoutMode === "whatsapp" ? "Finalizar Compra por WhatsApp" : "Proceder al Pago"}
                   </button>
                   <div className="flex justify-between gap-2">
                     <button

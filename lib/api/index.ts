@@ -20,3 +20,8 @@ export { orderAPI } from './order'
 export type { CatalogItem, CurrentCatalog } from './catalog'
 // Exportar el objeto catalogAPI
 export { catalogAPI } from './catalog'
+
+// Exportar tipos de announcement
+export type { Announcement, MaintenanceStatus } from './announcement'
+// Exportar el objeto announcementAPI
+export { announcementAPI } from './announcement'

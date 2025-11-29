@@ -3,10 +3,11 @@
 import { memo, useMemo, useState } from "react"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { motion } from "framer-motion"
-import { ShoppingCart, Coins, Check } from "lucide-react"
+import { ShoppingCart, Coins, Check, Wrench } from "lucide-react"
 import type { StoreItem as StoreItemType } from "@/types"
 import { IMAGES } from "@/config/images"
 import { useCart } from "@/context/CartContext"
+import { useMaintenance } from "@/context/AnnouncementContext"
 
 interface StoreItemProps {
   item: StoreItemType
@@ -14,6 +15,7 @@ interface StoreItemProps {
 
 export const StoreItem = memo(({ item }: StoreItemProps) => {
   const { addToCart } = useCart()
+  const { isInMaintenance } = useMaintenance()
   const [isAdded, setIsAdded] = useState(false)
 
   // Filtrar: solo mostrar la tarjeta de Crew de 1 mes
@@ -140,16 +142,24 @@ export const StoreItem = memo(({ item }: StoreItemProps) => {
           </div>
           <motion.button
             onClick={handleAddToCart}
-            disabled={isAdded}
+            disabled={isAdded || isInMaintenance}
             animate={isAdded ? { scale: [1, 1.1, 1] } : {}}
             className={`${
-              isAdded
+              isInMaintenance
+                ? 'bg-gray-600 cursor-not-allowed opacity-60'
+                : isAdded
                 ? 'bg-[#00F5D4] cursor-default'
                 : 'bg-[#FF007A] hover:bg-[#00F5D4]'
-            } text-white text-sm font-medium px-4 py-2 rounded-full transition-colors duration-300 flex items-center neon-border-cyan`}
-            aria-label={isAdded ? `${item.name} agregado al carrito` : `Adquirir ${item.name}`}
+            } text-white text-sm font-medium px-4 py-2 rounded-full transition-colors duration-300 flex items-center ${!isInMaintenance ? 'neon-border-cyan' : ''}`}
+            aria-label={isInMaintenance ? 'Tienda en mantenimiento' : isAdded ? `${item.name} agregado al carrito` : `Adquirir ${item.name}`}
+            title={isInMaintenance ? 'La tienda está en mantenimiento' : undefined}
           >
-            {isAdded ? (
+            {isInMaintenance ? (
+              <>
+                <Wrench className="w-4 h-4 mr-1" />
+                En Mantenimiento
+              </>
+            ) : isAdded ? (
               <>
                 <Check className="w-4 h-4 mr-1" />
                 ¡Agregado!

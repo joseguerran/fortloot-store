@@ -10,6 +10,7 @@ import { X, Menu } from "lucide-react"
 import { useScrollDetection } from "@/hooks/useScrollDetection"
 import { scrollToSection } from "@/utils/helpers"
 import { CartButton } from "@/components/cart/CartButton"
+import { useMaintenance } from "@/context/AnnouncementContext"
 
 const navItems = [
   { name: "Inicio", id: "inicio" },
@@ -26,6 +27,10 @@ export const Header = memo(() => {
   const isMisComprasView = pathname.includes("/mis-compras")
   const isSimplifiedNav = isStoreView || isMisComprasView
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { isInMaintenance, isLoading: maintenanceLoading } = useMaintenance()
+
+  // Determine if maintenance banner is showing (only after loading)
+  const showingMaintenanceBanner = !maintenanceLoading && isInMaintenance
 
   const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
@@ -44,7 +49,9 @@ export const Header = memo(() => {
   return (
     <>
       <motion.header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed left-0 right-0 z-40 transition-all duration-300 ${
+          showingMaintenanceBanner ? "top-[48px]" : "top-0"
+        } ${
           scrolled ? "bg-darker shadow-lg py-4" : "bg-transparent py-6"
         }`}
         initial={{ y: -100 }}

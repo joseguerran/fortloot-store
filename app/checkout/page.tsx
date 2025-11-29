@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useCart } from "@/context/CartContext"
 import { useCustomer } from "@/context/CustomerContext"
 import { useConfig } from "@/context/ConfigContext"
+import { useMaintenance } from "@/context/AnnouncementContext"
 import { EpicIdVerifier } from "@/components/checkout/EpicIdVerifier"
 import { OrderSummary } from "@/components/checkout/OrderSummary"
 import { PaymentMethodSelector } from "@/components/checkout/PaymentMethodSelector"
@@ -12,7 +13,7 @@ import { PaymentUploader } from "@/components/checkout/PaymentUploader"
 import { ManualCheckoutMessage } from "@/components/checkout/ManualCheckoutMessage"
 import { UserSession } from "@/components/checkout/UserSession"
 import { orderAPI } from "@/lib/api/order"
-import { ChevronLeft, ChevronRight, Check, Loader2, ArrowLeft } from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, Loader2, ArrowLeft, AlertTriangle } from "lucide-react"
 import { trackBeginCheckout, trackEpicIdConfirmed, trackPurchase, setUserId, setUserProperties } from "@/lib/analytics"
 
 interface PaymentMethod {
@@ -34,6 +35,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { cartItems, cartTotal, clearCart, hasManualItems } = useCart()
   const { manualCheckoutEnabled } = useConfig()
+  const { isInMaintenance, maintenanceMessage } = useMaintenance()
   const customerContext = useCustomer()
   const customer = customerContext?.customer || null
   const [currentStep, setCurrentStep] = useState(1)
@@ -265,6 +267,39 @@ export default function CheckoutPage() {
   }
 
   if (cartItems.length === 0 && currentStep < 4) return null
+
+  // Show maintenance block when in maintenance mode
+  if (isInMaintenance) {
+    return (
+      <div className="min-h-screen bg-darker py-12 flex items-center justify-center">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <div className="bg-amber-500/10 border-2 border-amber-500 rounded-2xl p-8 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-amber-500/20 rounded-full">
+                <AlertTriangle className="w-16 h-16 text-amber-500" />
+              </div>
+            </div>
+            <h1 className="text-3xl font-russo text-amber-500 mb-4">
+              {maintenanceMessage?.title || 'Estamos en Mantenimiento'}
+            </h1>
+            <p className="text-lg text-gray-300 mb-6">
+              {maintenanceMessage?.message || 'Estamos trabajando para mejorar tu experiencia. Por favor, vuelve en unos minutos.'}
+            </p>
+            <p className="text-sm text-gray-400 mb-8">
+              Las compras estan temporalmente deshabilitadas. Disculpa las molestias.
+            </p>
+            <button
+              onClick={() => router.push('/tienda')}
+              className="inline-flex items-center px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Volver a la Tienda
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-darker py-12">
