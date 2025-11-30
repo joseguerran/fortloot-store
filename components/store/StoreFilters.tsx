@@ -3,6 +3,7 @@
 import { memo } from "react"
 import { motion } from "framer-motion"
 import { Search } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface StoreFiltersProps {
   activeFilter: string
@@ -46,15 +47,39 @@ export const StoreFilters = memo(
           </div>
 
           <div className="relative w-full md:w-64">
-            <input
-              type="text"
-              placeholder="Buscar artículos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#0D1B2A] text-white border border-[#1B263B] rounded-full py-2 pl-10 pr-4 focus:outline-none focus:border-[#00F5D4] transition-colors"
-              aria-label="Buscar artículos"
-            />
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+            <motion.div
+              animate={searchQuery ? {
+                boxShadow: [
+                  "0 0 0px rgba(0, 245, 212, 0)",
+                  "0 0 15px rgba(0, 245, 212, 0.5)",
+                  "0 0 5px rgba(0, 245, 212, 0.3)",
+                  "0 0 15px rgba(0, 245, 212, 0.5)",
+                  "0 0 0px rgba(0, 245, 212, 0)",
+                ]
+              } : { boxShadow: "0 0 0px rgba(0, 245, 212, 0)" }}
+              transition={searchQuery ? {
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              } : { duration: 0.3 }}
+              className="rounded-full"
+            >
+              <input
+                type="text"
+                placeholder="Buscar artículos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={cn(
+                  "w-full bg-[#0D1B2A] text-white border rounded-full py-2 pl-10 pr-4 focus:outline-none transition-colors",
+                  searchQuery ? "border-[#00F5D4]" : "border-[#1B263B] focus:border-[#00F5D4]"
+                )}
+                aria-label="Buscar artículos"
+              />
+            </motion.div>
+            <Search className={cn(
+              "absolute left-3 top-2.5 w-4 h-4 transition-colors",
+              searchQuery ? "text-[#00F5D4]" : "text-gray-400"
+            )} />
           </div>
         </div>
       </motion.div>

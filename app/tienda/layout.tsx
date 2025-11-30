@@ -8,8 +8,8 @@ export default function TiendaLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <Header />
-      <div className="container mx-auto px-4 pt-4">
-        <PromotionBanner />
+      <div className="container mx-auto px-4 pt-24 md:pt-28">
+        <PromotionBanner className="mb-6" />
       </div>
       {children}
       <Footer />

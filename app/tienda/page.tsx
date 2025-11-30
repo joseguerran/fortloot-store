@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useMemo } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { ArrowLeft, AlertCircle, Info } from "lucide-react"
 
@@ -15,6 +15,7 @@ import { OptimizedImage } from "@/components/ui/OptimizedImage"
 
 // Importar hooks
 // (useTimeRemaining ahora se maneja internamente en CountdownTimer)
+import { usePromotions } from "@/context/AnnouncementContext"
 
 // Importar tipos
 import type { StoreItem as StoreItemType } from "@/types"
@@ -42,18 +43,28 @@ export default function StorePage() {
   // Añadir un nuevo estado para almacenar los elementos originales sin filtrar
   const [originalItems, setOriginalItems] = useState<StoreItemType[]>([])
 
+  // Get promotions to determine if we should hide the title header
+  const { promotions, isLoading: isLoadingPromotions } = usePromotions()
+  const hasPromotions = promotions.length > 0
+
   // Inicializar el estado del cliente y obtener parámetros de URL
   useEffect(() => {
     setIsClient(true)
-    
+
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search)
       const filter = urlParams.get("filter")
       const debug = urlParams.get("debug")
-      
+      const search = urlParams.get("search")
+
       if (filter) {
         logger.log(`🔄 URL parameter found: "${filter}", setting active filter`)
         setActiveFilter(filter)
+      }
+
+      if (search) {
+        logger.log(`🔍 URL search parameter found: "${search}", setting search query`)
+        setSearchQuery(search)
       }
 
       if (debug === "true") {
@@ -247,7 +258,9 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen text-white relative">
-      <div className="h-32"></div>
+      {/* Spacer - smaller when promotions are visible since banner replaces header */}
+      {/* Wait for promotions to load to avoid layout shift */}
+      <div className={isLoadingPromotions ? "h-16" : hasPromotions ? "h-8" : "h-32"} style={{ transition: 'height 0.3s ease-out' }}></div>
 
       <div className="fixed inset-0 z-0">
         <OptimizedImage
@@ -261,7 +274,7 @@ export default function StorePage() {
       </div>
       <div className="relative z-20">
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-8 pt-16">
+        <main className="container mx-auto px-4 py-8">
           {/* Back Button (Mobile) */}
           <div className="md:hidden mb-4">
             <Link href="/" className="inline-flex items-center text-[#00F5D4] hover:text-[#FF007A] transition-colors">
@@ -270,28 +283,34 @@ export default function StorePage() {
             </Link>
           </div>
 
-          {/* Title */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, type: "spring" }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-4xl md:text-5xl font-['Russo_One'] mb-2 relative inline-block">
-              <span className="text-white">
-                Tienda <span className="text-primary neon-text">FortLoot</span>
-              </span>
+          {/* Title - Hidden when promotions banner is visible, wait for promotions to load first */}
+          <AnimatePresence mode="wait">
+            {!isLoadingPromotions && !hasPromotions && (
               <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: "100px" }}
-                transition={{ delay: 0.5, duration: 0.8 }}
-                className="h-1 bg-primary mx-auto mt-2"
-              />
-            </h1>
-            <p className="text-xl text-secondary neon-text-cyan mt-4 mb-6">
-              ¡Tienda y Ofertas actualizados diariamente!
-            </p>
-          </motion.div>
+                key="store-title"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="text-center mb-12"
+              >
+                <h1 className="text-4xl md:text-5xl font-['Russo_One'] mb-2 relative inline-block">
+                  <span className="text-white">
+                    Tienda <span className="text-primary neon-text">FortLoot</span>
+                  </span>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: "100px" }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                    className="h-1 bg-primary mx-auto mt-2"
+                  />
+                </h1>
+                <p className="text-xl text-secondary neon-text-cyan mt-4 mb-6">
+                  ¡Tienda y Ofertas actualizados diariamente!
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Filters */}
           <StoreFilters
