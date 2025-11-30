@@ -3,8 +3,64 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { orderAPI, type Order } from "@/lib/api/order"
-import { Loader2, CheckCircle, Clock, XCircle, Package, AlertCircle, Home, FileText, ArrowLeft, ShoppingBag } from "lucide-react"
+import { Loader2, CheckCircle, Clock, XCircle, Package, AlertCircle, Home, FileText, ArrowLeft, ShoppingBag, Bitcoin, ExternalLink } from "lucide-react"
 import { trackOrderStatusViewed, trackOrderCompleted } from "@/lib/analytics"
+
+interface CryptoPaymentStatus {
+  id: string
+  status: string
+  amount: number
+  paidAmount: number | null
+  cryptoCurrency: string | null
+  network: string | null
+  txHash: string | null
+  paymentUrl: string
+  expiresAt: string
+  paidAt: string | null
+}
+
+const CRYPTO_STATUS_CONFIG: Record<string, { label: string; color: string; description: string }> = {
+  PENDING: {
+    label: "Esperando Pago",
+    color: "yellow",
+    description: "Realiza el pago en la pagina de Cryptomus",
+  },
+  CONFIRMING: {
+    label: "Confirmando",
+    color: "blue",
+    description: "Pago detectado, esperando confirmaciones en la blockchain",
+  },
+  PAID: {
+    label: "Pagado",
+    color: "green",
+    description: "Pago confirmado exitosamente",
+  },
+  PAID_OVER: {
+    label: "Pagado (exceso)",
+    color: "green",
+    description: "Pagaste mas del monto requerido",
+  },
+  WRONG_AMOUNT: {
+    label: "Monto Incorrecto",
+    color: "red",
+    description: "El monto pagado no coincide con el requerido",
+  },
+  EXPIRED: {
+    label: "Expirado",
+    color: "red",
+    description: "La factura ha expirado",
+  },
+  CANCELLED: {
+    label: "Cancelado",
+    color: "red",
+    description: "El pago fue cancelado",
+  },
+  FAILED: {
+    label: "Fallido",
+    color: "red",
+    description: "El pago fallo",
+  },
+}
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; description: string }> = {
   PENDING: {
@@ -83,6 +139,7 @@ export default function OrderStatusPage() {
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [cryptoPayment, setCryptoPayment] = useState<CryptoPaymentStatus | null>(null)
   const statusTracked = useRef<string | null>(null)
   const completedTracked = useRef(false)
 
@@ -121,6 +178,29 @@ export default function OrderStatusPage() {
 
     return () => clearInterval(interval)
   }, [params.orderId])
+
+  // Fetch crypto payment status if order has crypto payment
+  useEffect(() => {
+    const fetchCryptoStatus = async () => {
+      if (!order || order.paymentMethod !== 'CRYPTO') return
+
+      try {
+        const response = await fetch(`/api/crypto/status/${order.id}`)
+        const data = await response.json()
+        if (data.success && data.data) {
+          setCryptoPayment(data.data)
+        }
+      } catch {
+        // Silently fail - crypto status is supplementary
+      }
+    }
+
+    fetchCryptoStatus()
+    // Poll more frequently for pending crypto payments
+    const cryptoInterval = setInterval(fetchCryptoStatus, 10000)
+
+    return () => clearInterval(cryptoInterval)
+  }, [order?.id, order?.paymentMethod])
 
   if (isLoading) {
     return (
@@ -280,6 +360,103 @@ export default function OrderStatusPage() {
                       Tu comprobante está siendo verificado por nuestro equipo. Te notificaremos cuando sea aprobado.
                     </p>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Crypto Payment Section */}
+            {order.paymentMethod === "CRYPTO" && cryptoPayment && (
+              <div className="border-t border-light pt-6">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Bitcoin className="w-5 h-5 text-green-500" />
+                  Pago con Crypto
+                </h3>
+                <div className="bg-darker rounded-lg p-4 border border-light">
+                  {/* Crypto Status Badge */}
+                  {(() => {
+                    const cryptoConfig = CRYPTO_STATUS_CONFIG[cryptoPayment.status] || CRYPTO_STATUS_CONFIG.PENDING
+                    return (
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                            cryptoConfig.color === "green" ? "bg-green-500/20 text-green-500" :
+                            cryptoConfig.color === "blue" ? "bg-blue-500/20 text-blue-500" :
+                            cryptoConfig.color === "yellow" ? "bg-yellow-500/20 text-yellow-500" :
+                            cryptoConfig.color === "red" ? "bg-red-500/20 text-red-500" : "bg-gray-500/20 text-gray-500"
+                          }`}>
+                            {cryptoConfig.label}
+                          </span>
+                          <p className="text-sm text-gray-400 mt-2">{cryptoConfig.description}</p>
+                        </div>
+                      </div>
+                    )
+                  })()}
+
+                  {/* Payment Details Grid */}
+                  <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    {cryptoPayment.cryptoCurrency && (
+                      <div>
+                        <p className="text-sm text-gray-400 mb-1">Moneda</p>
+                        <p className="text-white font-medium">{cryptoPayment.cryptoCurrency}</p>
+                      </div>
+                    )}
+                    {cryptoPayment.network && (
+                      <div>
+                        <p className="text-sm text-gray-400 mb-1">Red</p>
+                        <p className="text-white font-medium">{cryptoPayment.network}</p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm text-gray-400 mb-1">Monto</p>
+                      <p className="text-white font-medium">${cryptoPayment.amount.toFixed(2)} USD</p>
+                    </div>
+                    {cryptoPayment.paidAmount !== null && (
+                      <div>
+                        <p className="text-sm text-gray-400 mb-1">Monto Pagado</p>
+                        <p className="text-green-500 font-medium">${cryptoPayment.paidAmount.toFixed(2)} USD</p>
+                      </div>
+                    )}
+                    {cryptoPayment.expiresAt && cryptoPayment.status === "PENDING" && (
+                      <div className="md:col-span-2">
+                        <p className="text-sm text-gray-400 mb-1">Expira</p>
+                        <p className="text-yellow-500 font-medium">
+                          {new Date(cryptoPayment.expiresAt).toLocaleString("es-AR")}
+                        </p>
+                      </div>
+                    )}
+                    {cryptoPayment.paidAt && (
+                      <div className="md:col-span-2">
+                        <p className="text-sm text-gray-400 mb-1">Fecha de Pago</p>
+                        <p className="text-green-500 font-medium">
+                          {new Date(cryptoPayment.paidAt).toLocaleString("es-AR")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Transaction Hash */}
+                  {cryptoPayment.txHash && (
+                    <div className="mb-4">
+                      <p className="text-sm text-gray-400 mb-1">Hash de Transaccion</p>
+                      <p className="text-white font-mono text-xs break-all bg-dark p-2 rounded">
+                        {cryptoPayment.txHash}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Payment Link Button - Only show for pending payments */}
+                  {cryptoPayment.status === "PENDING" && cryptoPayment.paymentUrl && (
+                    <a
+                      href={cryptoPayment.paymentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors"
+                    >
+                      <Bitcoin className="w-5 h-5" />
+                      Ir a Pagar en Cryptomus
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  )}
                 </div>
               </div>
             )}

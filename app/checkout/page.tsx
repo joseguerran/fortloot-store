@@ -100,18 +100,19 @@ export default function CheckoutPage() {
   // Get payment method name by slug
   const getPaymentMethodName = (slug: string | null): string => {
     if (!slug) return "No seleccionado"
+    if (slug === 'crypto') return "Pago con Crypto (USDT/USDC)"
     const method = paymentMethods.find(m => m.slug === slug)
     return method?.name || slug
   }
 
   const handleCreateOrder = async () => {
     if (!customer || !paymentMethod) {
-      setOrderError("Falta información del cliente o método de pago")
+      setOrderError("Falta informacion del cliente o metodo de pago")
       return
     }
 
     if (cartItems.length === 0) {
-      setOrderError("El carrito está vacío")
+      setOrderError("El carrito esta vacio")
       return
     }
 
@@ -181,7 +182,33 @@ export default function CheckoutPage() {
         totalAmount
       )
 
-      // Guardar el orderId, orderNumber y expiresAt en createdOrder para el paso 4
+      // If crypto payment, create invoice and redirect
+      if (paymentMethod === 'crypto') {
+        try {
+          const cryptoResponse = await fetch('/api/crypto/create-invoice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: response.orderId }),
+          })
+          const cryptoData = await cryptoResponse.json()
+
+          if (cryptoData.success && cryptoData.data?.paymentUrl) {
+            // Clear cart before redirecting
+            clearCart()
+            // Redirect to Cryptomus payment page
+            window.location.href = cryptoData.data.paymentUrl
+            return
+          } else {
+            throw new Error(cryptoData.message || 'Error creando factura crypto')
+          }
+        } catch (cryptoErr: any) {
+          setOrderError(cryptoErr.message || 'Error procesando pago crypto. Intenta con otro metodo.')
+          setIsCreatingOrder(false)
+          return
+        }
+      }
+
+      // For manual payment methods, go to step 4 (upload proof)
       setCreatedOrder({
         id: response.orderId,
         orderNumber: response.orderNumber,
