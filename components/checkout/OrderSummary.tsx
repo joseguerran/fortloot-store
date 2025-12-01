@@ -13,19 +13,21 @@ export function OrderSummary() {
 
       <div className="space-y-4 mb-6">
         {cartItems.map((item) => {
-          const calculatedPrice = cartTotal?.items.find((i) => i.itemId === item.id)
+          // El precio viene en centavos desde el catálogo, convertir a USD
+          const itemPrice = (item.price?.finalPrice || 0) / 100
+          const totalItemPrice = itemPrice * item.quantity
           return (
-            <div key={item.id} className="flex gap-4">
-              <div className="w-16 h-16 relative flex-shrink-0">
+            <div key={item.id} className="flex gap-3">
+              <div className="w-14 h-14 relative flex-shrink-0">
                 <OptimizedImage src={item.image} alt={item.name} fill className="object-cover rounded" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-white font-medium">{item.name}</h3>
-                <p className="text-sm text-gray-400">Cantidad: {item.quantity}</p>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-white font-medium text-sm truncate">{item.name}</h3>
+                <p className="text-xs text-gray-400">Cantidad: {item.quantity}</p>
               </div>
-              <div className="text-right">
-                <p className="text-accent font-bold">
-                  ${calculatedPrice ? (calculatedPrice.price.finalPrice * item.quantity).toFixed(2) : "..."}
+              <div className="text-right flex-shrink-0">
+                <p className="text-accent font-bold text-sm">
+                  ${totalItemPrice.toFixed(2)}
                 </p>
               </div>
             </div>

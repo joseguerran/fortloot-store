@@ -2,7 +2,7 @@
 
 import { memo, useMemo, useState } from "react"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { ShoppingCart, Coins, Check, Wrench } from "lucide-react"
 import type { StoreItem as StoreItemType } from "@/types"
 import { IMAGES } from "@/config/images"
@@ -16,7 +16,7 @@ interface StoreItemProps {
 export const StoreItem = memo(({ item }: StoreItemProps) => {
   const { addToCart } = useCart()
   const { isInMaintenance } = useMaintenance()
-  const [isAdded, setIsAdded] = useState(false)
+  const [isFlipped, setIsFlipped] = useState(false)
 
   // Filtrar: solo mostrar la tarjeta de Crew de 1 mes
   if (item.type === "crew" && item.id !== "crew-2") {
@@ -25,8 +25,9 @@ export const StoreItem = memo(({ item }: StoreItemProps) => {
 
   const handleAddToCart = () => {
     addToCart(item)
-    setIsAdded(true)
-    setTimeout(() => setIsAdded(false), 1500)
+    setIsFlipped(true)
+    // Flip back after 1.5 seconds
+    setTimeout(() => setIsFlipped(false), 1500)
   }
 
   // Generar SVG de fallback basado en el tipo (memoizado para evitar re-renders)
@@ -91,89 +92,126 @@ export const StoreItem = memo(({ item }: StoreItemProps) => {
   const isCrewMonthly = item.type === "crew" && (item.name || "").toLowerCase().includes("1 mes")
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-      className="bg-[#1B263B]/70 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:shadow-[#00F5D4]/30 border border-transparent hover:border-[#00F5D4]/50"
-    >
-      {/* Imagen */}
-      <div className="relative h-64 bg-gradient-to-b from-[#1B263B] to-[#0D1B2A]">
-        <OptimizedImage
-          src={itemImage}
-          alt={item.name || "Fortnite Item"}
-          fallbackSrc={fallbackSVG}
-          fill
-          className="object-contain p-4"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority
-        />
+    <div className="relative" style={{ perspective: "1000px" }}>
+      <motion.div
+        animate={{ rotateY: isFlipped ? 180 : 0 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+        style={{ transformStyle: "preserve-3d" }}
+        className="relative"
+      >
+        {/* Front of card */}
+        <motion.div
+          whileHover={!isFlipped ? { scale: 1.03, transition: { duration: 0.2 } } : {}}
+          style={{ backfaceVisibility: "hidden" }}
+          className="bg-[#0D1B2A]/90 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:shadow-[#00F5D4]/30 border border-[#1B263B]/50 hover:border-[#00F5D4]/50"
+        >
+          {/* Imagen */}
+          <div className="relative h-64 bg-gradient-to-b from-[#1B263B] to-[#0D1B2A]">
+            <OptimizedImage
+              src={itemImage}
+              alt={item.name || "Fortnite Item"}
+              fallbackSrc={fallbackSVG}
+              fill
+              className="object-contain p-4"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority
+            />
 
-        {/* Badge */}
-        {(item.badge || is13500VBucks || isCrewMonthly) && (
-          <div className="absolute top-2 right-2 bg-[#FF007A] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg transform rotate-3 z-10">
-            {is13500VBucks ? "MEJOR VALOR" : isCrewMonthly ? "EXCLUSIVO" : item.badge}
-          </div>
-        )}
-      </div>
-
-      {/* Detalles */}
-      <div className="p-4">
-        <h3 className="text-lg font-bold text-white mb-1 line-clamp-1">{item.name || "Artículo sin nombre"}</h3>
-        <p className="text-sm text-gray-300 mb-4 line-clamp-2">{item.description || "Sin descripción disponible"}</p>
-
-        <div className="flex justify-between items-center">
-          <div className="flex flex-col">
-            {/* Precio en USD (destacado) */}
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-[#ADFF2F] text-lg">{displayPrice}</span>
-              {regularPrice && finalPrice && regularPrice > finalPrice && (
-                <span className="text-gray-400 text-sm line-through">
-                  ${(regularPrice / 100).toFixed(2)}
-                </span>
-              )}
-            </div>
-
-            {/* Precio en V-Bucks (secundario) */}
-            {hasVBucksPrice && (
-              <div className="flex items-center text-xs text-gray-300 mt-1">
-                <Coins className="w-3 h-3 mr-0.5" />
-                <span>{item.vbucksPrice} V-Bucks</span>
+            {/* Badge */}
+            {(item.badge || is13500VBucks || isCrewMonthly) && (
+              <div className="absolute top-2 right-2 bg-[#FF007A] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg transform rotate-3 z-10">
+                {is13500VBucks ? "MEJOR VALOR" : isCrewMonthly ? "EXCLUSIVO" : item.badge}
               </div>
             )}
           </div>
-          <motion.button
-            onClick={handleAddToCart}
-            disabled={isAdded || isInMaintenance}
-            animate={isAdded ? { scale: [1, 1.1, 1] } : {}}
-            className={`${
-              isInMaintenance
-                ? 'bg-gray-600 cursor-not-allowed opacity-60'
-                : isAdded
-                ? 'bg-[#00F5D4] cursor-default'
-                : 'bg-[#FF007A] hover:bg-[#00F5D4]'
-            } text-white text-sm font-medium px-4 py-2 rounded-full transition-colors duration-300 flex items-center ${!isInMaintenance ? 'neon-border-cyan' : ''}`}
-            aria-label={isInMaintenance ? 'Tienda en mantenimiento' : isAdded ? `${item.name} agregado al carrito` : `Adquirir ${item.name}`}
-            title={isInMaintenance ? 'La tienda está en mantenimiento' : undefined}
+
+          {/* Detalles */}
+          <div className="p-4">
+            <h3 className="text-lg font-bold text-white mb-1 line-clamp-1">{item.name || "Artículo sin nombre"}</h3>
+            <p className="text-sm text-gray-300 mb-4 line-clamp-2">{item.description || "Sin descripción disponible"}</p>
+
+            <div className="flex justify-between items-center">
+              <div className="flex flex-col">
+                {/* Precio en USD (destacado) */}
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-[#ADFF2F] text-lg">{displayPrice}</span>
+                  {regularPrice && finalPrice && regularPrice > finalPrice && (
+                    <span className="text-gray-400 text-sm line-through">
+                      ${(regularPrice / 100).toFixed(2)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Precio en V-Bucks (secundario) */}
+                {hasVBucksPrice && (
+                  <div className="flex items-center text-xs text-gray-300 mt-1">
+                    <Coins className="w-3 h-3 mr-0.5" />
+                    <span>{item.vbucksPrice} V-Bucks</span>
+                  </div>
+                )}
+              </div>
+              <motion.button
+                onClick={handleAddToCart}
+                disabled={isFlipped || isInMaintenance}
+                className={`${
+                  isInMaintenance
+                    ? 'bg-gray-600 cursor-not-allowed opacity-60'
+                    : 'bg-[#FF007A] hover:bg-[#00F5D4]'
+                } text-white text-sm font-medium px-4 py-2 rounded-full transition-colors duration-300 flex items-center ${!isInMaintenance ? 'neon-border-cyan' : ''}`}
+                aria-label={isInMaintenance ? 'Tienda en mantenimiento' : `Adquirir ${item.name}`}
+                title={isInMaintenance ? 'La tienda está en mantenimiento' : undefined}
+              >
+                {isInMaintenance ? (
+                  <>
+                    <Wrench className="w-4 h-4 mr-1" />
+                    En Mantenimiento
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-4 h-4 mr-1" />
+                    Adquirir
+                  </>
+                )}
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Back of card - "Added" message with glow */}
+        <motion.div
+          animate={isFlipped ? {
+            boxShadow: [
+              "0 0 20px rgba(0, 245, 212, 0.6)",
+              "0 0 40px rgba(0, 245, 212, 0.9)",
+              "0 0 20px rgba(0, 245, 212, 0.6)",
+            ]
+          } : {}}
+          transition={isFlipped ? {
+            duration: 0.8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          } : {}}
+          style={{
+            backfaceVisibility: "hidden",
+            transform: "rotateY(180deg)"
+          }}
+          className="absolute inset-0 bg-gradient-to-br from-[#00F5D4] to-[#00C9A7] rounded-lg overflow-hidden flex flex-col items-center justify-center"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={isFlipped ? { scale: 1 } : { scale: 0 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 300 }}
+            className="text-center"
           >
-            {isInMaintenance ? (
-              <>
-                <Wrench className="w-4 h-4 mr-1" />
-                En Mantenimiento
-              </>
-            ) : isAdded ? (
-              <>
-                <Check className="w-4 h-4 mr-1" />
-                ¡Agregado!
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="w-4 h-4 mr-1" />
-                Adquirir
-              </>
-            )}
-          </motion.button>
-        </div>
-      </div>
-    </motion.div>
+            <div className="bg-white/20 rounded-full p-6 mb-4 inline-block">
+              <Check className="w-16 h-16 text-white" strokeWidth={3} />
+            </div>
+            <h3 className="text-3xl font-['Russo_One'] text-white mb-2">¡AGREGADO!</h3>
+            <p className="text-white/80 text-lg">{item.name}</p>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </div>
   )
 })
 

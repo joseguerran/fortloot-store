@@ -47,7 +47,7 @@ const services = [
     link: "/tienda?filter=crew",
   },
   {
-    name: "LOTES",
+    name: "BUNDLES",
     icon: <Gift className="w-8 h-8 text-white" />,
     description: "Combos especiales con múltiples items a precios reducidos",
     image: "/skins-actualizacion-930-fortnite.webp",
