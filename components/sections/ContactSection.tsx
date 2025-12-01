@@ -7,13 +7,16 @@ import { PhoneIcon as WhatsApp, Instagram, Facebook } from "lucide-react"
 import { AnimatedTitle } from "@/components/ui/AnimatedTitle"
 import { IMAGES } from "@/config/images"
 
+const glowCyan = "0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.5), 0 0 45px rgba(0, 255, 255, 0.3)"
+
 const socialLinks = [
   {
     icon: <WhatsApp className="w-6 h-6" />,
     name: "WhatsApp",
     color: "bg-green-500",
-    neon: "neon-border-lime",
+    neon: "neon-border-cyan",
     hoverColor: "#10B981",
+    glowColor: glowCyan,
     href: "https://wa.me/+5491169755444/?text=Hola, me gustaría obtener más información.",
   },
   {
@@ -22,31 +25,35 @@ const socialLinks = [
     color: "bg-blue-600",
     neon: "neon-border-cyan",
     hoverColor: "#2563EB",
+    glowColor: glowCyan,
   },
   {
     icon: <Instagram className="w-6 h-6" />,
     name: "Instagram",
     color: "bg-primary",
-    neon: "neon-border",
+    neon: "neon-border-cyan",
     hoverColor: "#FF3E9A",
+    glowColor: glowCyan,
     href: "https://www.instagram.com/fortlootlatam?igsh=bnE1dDZqbWExN3d6&utm_source=qr",
   },
   {
     icon: (
       <div className="relative w-6 h-6 flex items-center justify-center">
         <Image
-          src={IMAGES.X_LOGO || "/placeholder.svg"}
-          alt="X logo"
+          src={IMAGES.TIKTOK_LOGO || "/placeholder.svg"}
+          alt="TikTok logo"
           width={24}
           height={24}
           className="object-contain"
         />
       </div>
     ),
-    name: "X",
+    name: "TikTok",
     color: "bg-black",
     neon: "neon-border-cyan",
     noColorChange: true,
+    glowColor: glowCyan,
+    href: "https://www.tiktok.com/@fortlootlatam?_r=1&_t=ZM-91raPSuSrOq",
   },
 ]
 
@@ -101,6 +108,7 @@ interface SocialLinkProps {
     color: string
     neon: string
     hoverColor: string
+    glowColor: string
     noColorChange?: boolean
     href?: string
   }
@@ -117,16 +125,18 @@ const SocialLink = memo(({ social, index }: SocialLinkProps) => (
     viewport={{ once: true }}
     transition={{
       type: "spring",
-      stiffness: 300,
-      damping: 10,
-      delay: index * 0.2,
+      stiffness: 400,
+      damping: 15,
+      delay: index * 0.08,
     }}
     whileHover={{
-      scale: 1.1,
+      scale: 1.15,
       backgroundColor: social.noColorChange ? undefined : social.hoverColor,
       color: social.noColorChange ? undefined : "#0B0F2E",
+      boxShadow: social.glowColor,
+      transition: { duration: 0.15 },
     }}
-    className={`w-14 h-14 rounded-full ${social.color} flex items-center justify-center transition-all duration-300 ${social.neon} shadow-lg`}
+    className={`w-14 h-14 rounded-full ${social.color} flex items-center justify-center transition-all duration-150 ${social.neon} shadow-lg`}
     aria-label={`Contactar por ${social.name}`}
   >
     {social.icon}

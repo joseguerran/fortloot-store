@@ -5,14 +5,20 @@ import { Package, CreditCard, CheckCircle, Gift, XCircle, Clock } from "lucide-r
 
 type OrderStatus =
   | "PENDING"
-  | "PAYMENT_PENDING"
-  | "PAID"
-  | "VERIFYING_EPIC"
-  | "FRIENDSHIP_PENDING"
-  | "GIFTING"
+  | "PENDING_PAYMENT"
+  | "PAYMENT_UPLOADED"
+  | "PAYMENT_VERIFIED"
+  | "WAITING_FRIENDSHIP"
+  | "WAITING_PERIOD"
+  | "QUEUED"
+  | "PROCESSING"
   | "COMPLETED"
   | "CANCELLED"
   | "FAILED"
+  | "PAYMENT_REJECTED"
+  | "EXPIRED"
+  | "ABANDONED"
+  | "REFUNDED"
 
 interface TimelineStep {
   key: string
@@ -26,25 +32,25 @@ const TIMELINE_STEPS: TimelineStep[] = [
     key: "created",
     label: "Pedido",
     icon: <Package className="w-4 h-4" />,
-    statuses: ["PENDING", "PAYMENT_PENDING"],
+    statuses: ["PENDING", "PENDING_PAYMENT", "PAYMENT_UPLOADED"],
   },
   {
     key: "paid",
     label: "Pagado",
     icon: <CreditCard className="w-4 h-4" />,
-    statuses: ["PAID"],
+    statuses: ["PAYMENT_VERIFIED"],
   },
   {
     key: "verified",
     label: "Verificado",
     icon: <CheckCircle className="w-4 h-4" />,
-    statuses: ["VERIFYING_EPIC", "FRIENDSHIP_PENDING"],
+    statuses: ["WAITING_FRIENDSHIP", "WAITING_PERIOD", "QUEUED"],
   },
   {
     key: "gifting",
     label: "Enviando",
     icon: <Gift className="w-4 h-4" />,
-    statuses: ["GIFTING"],
+    statuses: ["PROCESSING"],
   },
   {
     key: "completed",
@@ -55,18 +61,12 @@ const TIMELINE_STEPS: TimelineStep[] = [
 ]
 
 const SPECIAL_STATES: Record<string, { color: string; bgColor: string; icon: React.ReactNode; label: string }> = {
-  CANCELLED: {
-    color: "text-red-400",
-    bgColor: "bg-red-500/20",
-    icon: <XCircle className="w-5 h-5" />,
-    label: "Cancelado",
-  },
-  FAILED: {
-    color: "text-red-400",
-    bgColor: "bg-red-500/20",
-    icon: <XCircle className="w-5 h-5" />,
-    label: "Fallido",
-  },
+  CANCELLED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, label: "Cancelado" },
+  FAILED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, label: "Fallido" },
+  PAYMENT_REJECTED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, label: "Pago Rechazado" },
+  EXPIRED: { color: "text-gray-400", bgColor: "bg-gray-500/20", icon: <XCircle className="w-5 h-5" />, label: "Expirado" },
+  ABANDONED: { color: "text-gray-400", bgColor: "bg-gray-500/20", icon: <XCircle className="w-5 h-5" />, label: "Abandonado" },
+  REFUNDED: { color: "text-yellow-400", bgColor: "bg-yellow-500/20", icon: <XCircle className="w-5 h-5" />, label: "Reembolsado" },
 }
 
 interface OrderTimelineProps {
@@ -96,7 +96,7 @@ export const OrderTimeline = memo(({ status, compact = false }: OrderTimelinePro
   }
 
   const currentStepIndex = getStepIndex(status)
-  const isPending = status === "PENDING" || status === "PAYMENT_PENDING"
+  const isPending = status === "PENDING" || status === "PENDING_PAYMENT" || status === "PAYMENT_UPLOADED"
 
   if (compact) {
     // Vertical compact timeline
@@ -222,14 +222,20 @@ export function getStatusLabel(status: OrderStatus): string {
 
   const statusLabels: Record<OrderStatus, string> = {
     PENDING: "Pendiente de pago",
-    PAYMENT_PENDING: "Esperando pago",
-    PAID: "Pago recibido",
-    VERIFYING_EPIC: "Verificando cuenta",
-    FRIENDSHIP_PENDING: "Esperando amistad",
-    GIFTING: "Enviando regalo",
+    PENDING_PAYMENT: "Esperando pago",
+    PAYMENT_UPLOADED: "Pago subido",
+    PAYMENT_VERIFIED: "Pago verificado",
+    WAITING_FRIENDSHIP: "Esperando amistad",
+    WAITING_PERIOD: "Período de espera",
+    QUEUED: "En cola",
+    PROCESSING: "Procesando regalo",
     COMPLETED: "Completado",
     CANCELLED: "Cancelado",
     FAILED: "Fallido",
+    PAYMENT_REJECTED: "Pago rechazado",
+    EXPIRED: "Expirado",
+    ABANDONED: "Abandonado",
+    REFUNDED: "Reembolsado",
   }
 
   return statusLabels[status] || status

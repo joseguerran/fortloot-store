@@ -2,10 +2,10 @@
 export const IMAGES = {
   // Logos de métodos de pago
   PAYPAL: "/paypal-logo.png",
-  MERCADOPAGO: "/mercadopago-logo.png",
+  CRYPTOMUS: "/cryptomus-logo.png",
   BINANCE: "/binance-logo-new.png",
   PAGOMOVIL: "/pagomovil-logo.png",
-  X_LOGO: "/x-logo-white.png",
+  TIKTOK_LOGO: "/tiktok-logo-white.svg",
 
   // Fondo principal
   NEON_GAMING_NEW: "/neon-gaming-background-new.jpeg",

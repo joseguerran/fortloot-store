@@ -8,7 +8,7 @@ import { AnimatedTitle } from "@/components/ui/AnimatedTitle"
 
 const paymentMethods = [
   { name: "PayPal", image: "/paypal-logo.png" },
-  { name: "Mercado Pago", image: "/mercadopago-logo.png" },
+  { name: "Cryptomus", image: "/cryptomus-logo.png" },
   { name: "Binance", image: "/binance-logo-new.png" },
   { name: "Pagomovil", image: "/pagomovil-logo.png" },
 ]

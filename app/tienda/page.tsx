@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { ArrowLeft, AlertCircle, Info } from "lucide-react"
@@ -47,31 +48,49 @@ export default function StorePage() {
   const { promotions, isLoading: isLoadingPromotions } = usePromotions()
   const hasPromotions = promotions.length > 0
 
-  // Inicializar el estado del cliente y obtener parámetros de URL
+  // Use Next.js searchParams hook to react to URL changes (client-side navigation)
+  const searchParams = useSearchParams()
+  const urlFilter = searchParams.get("filter")
+  const urlSearch = searchParams.get("search")
+  const urlDebug = searchParams.get("debug")
+
+  // Track if initial load has completed to avoid double-setting
+  const initialLoadRef = useRef(false)
+
+  // Inicializar el estado del cliente
   useEffect(() => {
     setIsClient(true)
-
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search)
-      const filter = urlParams.get("filter")
-      const debug = urlParams.get("debug")
-      const search = urlParams.get("search")
-
-      if (filter) {
-        logger.log(`🔄 URL parameter found: "${filter}", setting active filter`)
-        setActiveFilter(filter)
-      }
-
-      if (search) {
-        logger.log(`🔍 URL search parameter found: "${search}", setting search query`)
-        setSearchQuery(search)
-      }
-
-      if (debug === "true") {
-        setDebugMode(true)
-      }
-    }
   }, [])
+
+  // React to URL parameter changes (works for both initial load and client-side navigation)
+  useEffect(() => {
+    if (!isClient) return
+
+    // Set filter from URL
+    if (urlFilter && urlFilter !== activeFilter) {
+      logger.log(`🔄 URL filter parameter changed: "${urlFilter}", updating active filter`)
+      setActiveFilter(urlFilter)
+    } else if (!urlFilter && activeFilter !== "all" && !initialLoadRef.current) {
+      // Only reset to "all" on initial load if no filter in URL
+      // Don't reset if user manually changed filter (which updates URL)
+    }
+
+    // Set search from URL
+    if (urlSearch !== null && urlSearch !== searchQuery) {
+      logger.log(`🔍 URL search parameter changed: "${urlSearch}", updating search query`)
+      setSearchQuery(urlSearch)
+    } else if (urlSearch === null && searchQuery !== "" && initialLoadRef.current) {
+      // Clear search if URL param was removed (e.g., navigating back)
+      setSearchQuery("")
+    }
+
+    // Set debug mode
+    if (urlDebug === "true" && !debugMode) {
+      setDebugMode(true)
+    }
+
+    initialLoadRef.current = true
+  }, [isClient, urlFilter, urlSearch, urlDebug, activeFilter, searchQuery, debugMode])
 
   // Actualizar la URL cuando cambia el filtro activo
   const handleFilterChange = useCallback(

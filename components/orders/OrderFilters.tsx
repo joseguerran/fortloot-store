@@ -102,10 +102,10 @@ export function filterOrdersByStatus(orders: any[], status: OrderStatusFilter): 
 
   const statusMap: Record<OrderStatusFilter, string[]> = {
     all: [],
-    pending: ["PENDING", "PAYMENT_PENDING"],
-    processing: ["PAID", "VERIFYING_EPIC", "FRIENDSHIP_PENDING", "GIFTING"],
+    pending: ["PENDING", "PENDING_PAYMENT", "PAYMENT_UPLOADED"],
+    processing: ["PAYMENT_VERIFIED", "WAITING_FRIENDSHIP", "WAITING_PERIOD", "QUEUED", "PROCESSING"],
     completed: ["COMPLETED"],
-    cancelled: ["CANCELLED", "FAILED"],
+    cancelled: ["CANCELLED", "FAILED", "PAYMENT_REJECTED", "EXPIRED", "ABANDONED", "REFUNDED"],
   }
 
   return orders.filter((order) => statusMap[status].includes(order.status))

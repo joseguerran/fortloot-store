@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { orderAPI, type Order } from "@/lib/api/order"
-import { Loader2, CheckCircle, Clock, XCircle, Package, AlertCircle, Home, FileText, ArrowLeft, ShoppingBag, Bitcoin, ExternalLink } from "lucide-react"
+import { Loader2, CheckCircle, Clock, XCircle, Package, AlertCircle, Home, FileText, ArrowLeft, ShoppingBag, ExternalLink, RefreshCw } from "lucide-react"
+import { toast } from "sonner"
 import { trackOrderStatusViewed, trackOrderCompleted } from "@/lib/analytics"
 
 interface CryptoPaymentStatus {
@@ -129,6 +130,30 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; d
     icon: XCircle,
     description: "Esta orden ha sido cancelada",
   },
+  PAYMENT_REJECTED: {
+    label: "Pago Rechazado",
+    color: "red",
+    icon: XCircle,
+    description: "Tu pago fue rechazado. Contacta a soporte para más información.",
+  },
+  EXPIRED: {
+    label: "Expirada",
+    color: "gray",
+    icon: Clock,
+    description: "Esta orden ha expirado por falta de pago.",
+  },
+  ABANDONED: {
+    label: "Abandonada",
+    color: "gray",
+    icon: Clock,
+    description: "Esta orden fue abandonada.",
+  },
+  REFUNDED: {
+    label: "Reembolsada",
+    color: "yellow",
+    icon: CheckCircle,
+    description: "Esta orden fue reembolsada.",
+  },
 }
 
 export default function OrderStatusPage() {
@@ -140,6 +165,7 @@ export default function OrderStatusPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [cryptoPayment, setCryptoPayment] = useState<CryptoPaymentStatus | null>(null)
+  const [isRegenerating, setIsRegenerating] = useState(false)
   const statusTracked = useRef<string | null>(null)
   const completedTracked = useRef(false)
 
@@ -201,6 +227,45 @@ export default function OrderStatusPage() {
 
     return () => clearInterval(cryptoInterval)
   }, [order?.id, order?.paymentMethod])
+
+  const handleRegeneratePayment = async () => {
+    if (!order || isRegenerating) return
+
+    setIsRegenerating(true)
+    try {
+      const response = await fetch(`/api/crypto/regenerate/${order.id}`, {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.data?.paymentUrl) {
+        // Update local crypto payment state
+        setCryptoPayment(prev => prev ? {
+          ...prev,
+          paymentUrl: data.data.paymentUrl,
+          expiresAt: data.data.expiresAt,
+          id: data.data.cryptoPaymentId,
+          status: 'PENDING',
+          cryptoCurrency: null,
+          network: null,
+          txHash: null,
+          paidAmount: null,
+          paidAt: null,
+        } : null)
+
+        // Open new payment URL
+        window.open(data.data.paymentUrl, '_blank')
+        toast.success('Invoice regenerado - selecciona una nueva moneda/red')
+      } else {
+        toast.error(data.message || 'Error al regenerar el pago')
+      }
+    } catch {
+      toast.error('Error al regenerar el pago')
+    } finally {
+      setIsRegenerating(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -364,12 +429,13 @@ export default function OrderStatusPage() {
               </div>
             )}
 
-            {/* Crypto Payment Section */}
-            {order.paymentMethod === "CRYPTO" && cryptoPayment && (
+            {/* Crypto Payment Section - Only show for active orders */}
+            {order.paymentMethod === "CRYPTO" &&
+             cryptoPayment &&
+             !["CANCELLED", "FAILED", "EXPIRED", "ABANDONED", "REFUNDED", "PAYMENT_REJECTED"].includes(order.status) && (
               <div className="border-t border-light pt-6">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <Bitcoin className="w-5 h-5 text-green-500" />
-                  Pago con Crypto
+                <h3 className="text-xl font-bold text-white mb-4">
+                  Detalle del Pago
                 </h3>
                 <div className="bg-darker rounded-lg p-4 border border-light">
                   {/* Crypto Status Badge */}
@@ -413,7 +479,9 @@ export default function OrderStatusPage() {
                     {cryptoPayment.paidAmount !== null && (
                       <div>
                         <p className="text-sm text-gray-400 mb-1">Monto Pagado</p>
-                        <p className="text-green-500 font-medium">${cryptoPayment.paidAmount.toFixed(2)} USD</p>
+                        <p className="text-green-500 font-medium">
+                          {cryptoPayment.paidAmount.toFixed(2)} {cryptoPayment.cryptoCurrency || 'CRYPTO'}
+                        </p>
                       </div>
                     )}
                     {cryptoPayment.expiresAt && cryptoPayment.status === "PENDING" && (
@@ -444,18 +512,39 @@ export default function OrderStatusPage() {
                     </div>
                   )}
 
-                  {/* Payment Link Button - Only show for pending payments */}
-                  {cryptoPayment.status === "PENDING" && cryptoPayment.paymentUrl && (
-                    <a
-                      href={cryptoPayment.paymentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors"
-                    >
-                      <Bitcoin className="w-5 h-5" />
-                      Ir a Pagar en Cryptomus
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
+                  {/* Payment Actions - Only show for pending payments AND active orders */}
+                  {cryptoPayment.status === "PENDING" &&
+                   cryptoPayment.paymentUrl &&
+                   !["CANCELLED", "FAILED", "EXPIRED", "ABANDONED", "REFUNDED", "PAYMENT_REJECTED"].includes(order.status) && (
+                    <div className="space-y-3">
+                      <a
+                        href={cryptoPayment.paymentUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors"
+                      >
+                        Ir a Pagar
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+
+                      <button
+                        onClick={handleRegeneratePayment}
+                        disabled={isRegenerating}
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-dark hover:bg-light text-white font-medium rounded-lg transition-colors border border-light disabled:opacity-50"
+                      >
+                        {isRegenerating ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Regenerando...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="w-4 h-4" />
+                            Cambiar moneda/red
+                          </>
+                        )}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -482,6 +571,23 @@ export default function OrderStatusPage() {
                   <div>
                     <h4 className="text-red-500 font-bold mb-1">Error en la Orden</h4>
                     <p className="text-sm text-red-400">{order.failureReason}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {(order.status === "CANCELLED" || order.status === "EXPIRED" || order.status === "ABANDONED") && (
+              <div className="bg-red-500/10 border border-red-500 rounded-lg p-6">
+                <div className="flex gap-4">
+                  <XCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-red-500 font-bold mb-1">Orden No Completada</h4>
+                    <p className="text-sm text-red-400">
+                      {order.status === "CANCELLED" && "Esta orden fue cancelada."}
+                      {order.status === "EXPIRED" && "Esta orden expiró por falta de pago."}
+                      {order.status === "ABANDONED" && "Esta orden fue abandonada."}
+                      {" "}Si tienes dudas, contacta a soporte.
+                    </p>
                   </div>
                 </div>
               </div>
