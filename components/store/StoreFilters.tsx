@@ -40,7 +40,7 @@ export const StoreFilters = memo(
               onClick={() => handleFilterChange("crew")}
             />
             <FilterButton
-              label="Lotes"
+              label="Bundles"
               isActive={activeFilter === "bundle"}
               onClick={() => handleFilterChange("bundle")}
             />
