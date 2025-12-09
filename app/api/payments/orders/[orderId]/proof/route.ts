@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Limite de tamaño de archivo: 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
@@ -7,6 +10,19 @@ export async function POST(
   try {
     const { orderId } = await params;
     const formData = await request.formData();
+
+    // Validar tamaño del archivo antes de enviarlo al backend
+    const file = formData.get('proof') as File | null;
+    if (file && file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'FILE_TOO_LARGE',
+          message: 'El archivo es muy grande. El tamaño máximo es 5MB.',
+        },
+        { status: 413 }
+      );
+    }
 
     // Get backend URL from environment
     const apiUrl = process.env.API_URL || 'http://localhost:3001/api';

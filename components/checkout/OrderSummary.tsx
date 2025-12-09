@@ -2,9 +2,21 @@
 
 import { useCart } from "@/context/CartContext"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
-import { Loader2 } from "lucide-react"
+import { Loader2, Clock } from "lucide-react"
+import { format } from "date-fns"
 
-export function OrderSummary() {
+interface ConversionInfo {
+  convertedAmount: number
+  convertedCurrency: string
+  validUntil: Date
+}
+
+interface OrderSummaryProps {
+  conversionInfo?: ConversionInfo | null
+  isLoadingConversion?: boolean
+}
+
+export function OrderSummary({ conversionInfo, isLoadingConversion }: OrderSummaryProps = {}) {
   const { cartItems, cartTotal, isLoadingPrices, totalPrice } = useCart()
 
   return (
@@ -56,6 +68,31 @@ export function OrderSummary() {
             {isLoadingPrices ? <Loader2 className="w-5 h-5 animate-spin inline" /> : `$${totalPrice.toFixed(2)}`}
           </span>
         </div>
+
+        {/* Precio convertido (ej: VES para Pago Móvil) */}
+        {isLoadingConversion && (
+          <div className="flex justify-center py-2">
+            <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+          </div>
+        )}
+        {conversionInfo && !isLoadingConversion && (
+          <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+            <div className="flex justify-between items-center">
+              <span className="text-blue-300 font-medium">Total a pagar:</span>
+              <span className="text-2xl font-bold text-blue-400">
+                {conversionInfo.convertedAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })} {conversionInfo.convertedCurrency}
+              </span>
+            </div>
+            {conversionInfo.validUntil && (
+              <div className="flex items-center gap-1 mt-2 text-xs text-blue-300/70">
+                <Clock className="w-3 h-3" />
+                <span>
+                  Precio valido hasta las {format(new Date(conversionInfo.validUntil), 'h:mm a')}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
