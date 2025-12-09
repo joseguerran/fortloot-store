@@ -648,7 +648,7 @@ export default function CheckoutPage() {
                       <div className="flex justify-between items-center">
                         <span className="text-blue-300 font-medium">Total a pagar:</span>
                         <span className="text-2xl font-bold text-blue-400">
-                          {conversionInfo.convertedAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })} {conversionInfo.convertedCurrency}
+                          {conversionInfo.convertedAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })} {conversionInfo.convertedCurrency === 'VES' ? 'Bs' : conversionInfo.convertedCurrency}
                         </span>
                       </div>
                       {conversionInfo.validUntil && (
