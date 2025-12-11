@@ -76,6 +76,7 @@ export interface CreateOrderRequest {
   subtotalAmount: number
   discountAmount: number
   profitAmount: number
+  locale?: 'es' | 'en'
 }
 
 export interface CreateOrderResponse {

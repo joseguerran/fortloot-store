@@ -7,6 +7,8 @@ import { useCustomer } from "@/context/CustomerContext"
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { IMAGES } from "@/config/images"
+import { useTranslations } from "next-intl"
+import { useLocale } from "next-intl"
 
 // Order components
 import { OrderFilters, type OrderStatusFilter, type DateRangeFilter, filterOrdersByStatus, filterOrdersByDate } from "@/components/orders/OrderFilters"
@@ -52,13 +54,15 @@ interface Customer {
 }
 
 export default function MisComprasPage() {
+  const t = useTranslations("orders.myOrders")
+  const tStatus = useTranslations("orders.status")
+  const locale = useLocale()
   const { customer: contextCustomer, setSessionFromOTP, logout: contextLogout } = useCustomer() || {}
   const [step, setStep] = useState<Step>("loading")
   const [displayName, setDisplayName] = useState("")
   const [otpCode, setOtpCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [message, setMessage] = useState<string | null>(null)
   const [contactMethod, setContactMethod] = useState<ContactMethod | null>(null)
   const [maskedContact, setMaskedContact] = useState<string | null>(null)
   const [customer, setCustomer] = useState<Customer | null>(null)
@@ -104,34 +108,32 @@ export default function MisComprasPage() {
 
   const handleRequestOTP = async () => {
     if (!displayName.trim()) {
-      setError("Ingresa tu nombre de usuario de Fortnite")
+      setError(t("epicId.required"))
       return
     }
 
     setIsLoading(true)
     setError(null)
-    setMessage(null)
 
     try {
       const response = await fetch("/api/otp/request-by-epic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ displayName: displayName.trim() }),
+        body: JSON.stringify({ displayName: displayName.trim(), locale }),
       })
 
       const data = await response.json()
 
       if (!data.success) {
-        setError(data.message || "Error al enviar el codigo")
+        setError(data.message || t("otp.sendError"))
         return
       }
 
-      setMessage(data.message)
       setContactMethod(data.contactMethod)
       setMaskedContact(data.maskedContact)
       setStep("otp")
     } catch {
-      setError("No pudimos conectar con el servidor. Verifica tu conexion e intenta de nuevo.")
+      setError(t("errors.connection"))
     } finally {
       setIsLoading(false)
     }
@@ -139,7 +141,7 @@ export default function MisComprasPage() {
 
   const handleVerifyOTP = async () => {
     if (!otpCode || otpCode.length !== 6) {
-      setError("Ingresa el codigo de 6 digitos")
+      setError(t("otp.invalidCode"))
       return
     }
 
@@ -157,7 +159,7 @@ export default function MisComprasPage() {
       const data = await response.json()
 
       if (!data.success) {
-        setError(data.message || "Codigo invalido")
+        setError(data.message || t("otp.invalidCode"))
         return
       }
 
@@ -173,7 +175,7 @@ export default function MisComprasPage() {
 
       setStep("orders")
     } catch {
-      setError("No pudimos conectar con el servidor. Verifica tu conexion e intenta de nuevo.")
+      setError(t("errors.connection"))
     } finally {
       setIsLoading(false)
     }
@@ -272,7 +274,7 @@ export default function MisComprasPage() {
           >
             <h1 className="text-4xl md:text-5xl font-['Russo_One'] mb-2 relative inline-block">
               <span className="text-white">
-                Mis <span className="text-primary neon-text">Compras</span>
+                {t("titlePart1")} <span className="text-primary neon-text">{t("titlePart2")}</span>
               </span>
               <motion.div
                 initial={{ width: 0 }}
@@ -301,7 +303,7 @@ export default function MisComprasPage() {
                   onClick={handleLogout}
                   className="text-sm text-gray-400 hover:text-[#FF007A] transition-colors"
                 >
-                  Cambiar
+                  {t("changeUser")}
                 </button>
               </div>
             </motion.div>
@@ -316,21 +318,21 @@ export default function MisComprasPage() {
               className="max-w-md mx-auto"
             >
               <div className="bg-[#1B263B]/70 backdrop-blur-sm rounded-xl border border-[#1B263B]/80 p-6 md:p-8">
-                <h2 className="text-xl font-bold text-white mb-2">Accede a tu historial</h2>
+                <h2 className="text-xl font-bold text-white mb-2">{t("epicId.title")}</h2>
                 <p className="text-gray-400 text-sm mb-6">
-                  Ingresa tu nombre de usuario de Fortnite para ver tus compras
+                  {t("epicId.description")}
                 </p>
 
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm text-gray-400 mb-2 block">
-                      Nombre de usuario de Fortnite
+                      {t("epicId.label")}
                     </label>
                     <div className="relative">
                       <Gamepad2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
                       <input
                         type="text"
-                        placeholder="Ej: MiNombre123"
+                        placeholder={t("epicId.placeholder")}
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         className="w-full bg-[#0D1B2A] text-white border border-[#1B263B] rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:border-[#00F5D4] transition-colors"
@@ -338,7 +340,7 @@ export default function MisComprasPage() {
                       />
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
-                      Es el mismo nombre de usuario que usaste para realizar tus compras
+                      {t("epicId.hint")}
                     </p>
                   </div>
 
@@ -352,11 +354,11 @@ export default function MisComprasPage() {
                     className="w-full bg-[#FF007A] hover:bg-[#FF007A]/90 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-lg shadow-[#FF007A]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                    Continuar
+                    {t("epicId.button")}
                   </button>
 
                   <p className="text-xs text-gray-500 text-center">
-                    Te enviaremos un codigo de verificacion a tu medio de contacto registrado
+                    {t("epicId.otpNote")}
                   </p>
                 </div>
               </div>
@@ -372,14 +374,14 @@ export default function MisComprasPage() {
               className="max-w-md mx-auto"
             >
               <div className="bg-[#1B263B]/70 backdrop-blur-sm rounded-xl border border-[#1B263B]/80 p-6 md:p-8">
-                <h2 className="text-xl font-bold text-white mb-2">Ingresa el codigo</h2>
+                <h2 className="text-xl font-bold text-white mb-2">{t("otp.title")}</h2>
                 <p className="text-gray-400 text-sm mb-6">
-                  {message || "Te enviamos un codigo de verificacion"}
+                  {t("otp.description")}
                 </p>
 
                 <div className="space-y-4">
                   {/* Contact method indicator */}
-                  {contactMethod && (
+                  {contactMethod && maskedContact && (
                     <div className="flex items-center gap-2 p-3 bg-[#0D1B2A] rounded-lg">
                       {contactMethod === "EMAIL" ? (
                         <Mail className="h-5 w-5 text-blue-400" />
@@ -387,14 +389,14 @@ export default function MisComprasPage() {
                         <WhatsAppIcon className="h-5 w-5 text-green-400" />
                       )}
                       <span className="text-sm text-gray-300">
-                        Codigo enviado a {maskedContact}
+                        {t("otp.sentTo", { contact: maskedContact })}
                       </span>
                     </div>
                   )}
 
                   <div>
                     <label className="text-sm text-gray-400 mb-2 block">
-                      Codigo de verificacion
+                      {t("otp.label")}
                     </label>
                     <input
                       type="text"
@@ -417,7 +419,7 @@ export default function MisComprasPage() {
                     className="w-full bg-[#FF007A] hover:bg-[#FF007A]/90 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-lg shadow-[#FF007A]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                    Verificar Codigo
+                    {t("otp.verifyButton")}
                   </button>
 
                   <div className="flex justify-between items-center text-sm">
@@ -429,14 +431,14 @@ export default function MisComprasPage() {
                       }}
                       className="text-gray-400 hover:text-white transition-colors"
                     >
-                      Cambiar usuario
+                      {t("otp.changeUser")}
                     </button>
                     <button
                       onClick={handleResendOTP}
                       disabled={isLoading}
                       className="text-[#FF007A] hover:text-[#FF007A]/80 transition-colors"
                     >
-                      Reenviar codigo
+                      {t("otp.resend")}
                     </button>
                   </div>
                 </div>
@@ -480,23 +482,23 @@ export default function MisComprasPage() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-[#00F5D4]">{customer.totalOrders}</p>
-                      <p className="text-xs text-gray-400">Total Ordenes</p>
+                      <p className="text-xs text-gray-400">{t("stats.totalOrders")}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-[#FF007A]">
                         {orders.filter((o) => o.status === "COMPLETED").length}
                       </p>
-                      <p className="text-xs text-gray-400">Completadas</p>
+                      <p className="text-xs text-gray-400">{t("stats.completed")}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-yellow-400">
                         {orders.filter((o) => ["PENDING", "PAYMENT_PENDING", "PAID", "VERIFYING_EPIC", "FRIENDSHIP_PENDING", "GIFTING"].includes(o.status)).length}
                       </p>
-                      <p className="text-xs text-gray-400">En Proceso</p>
+                      <p className="text-xs text-gray-400">{t("stats.inProgress")}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-[#C1FF00]">{customer.tier}</p>
-                      <p className="text-xs text-gray-400">Tu Nivel</p>
+                      <p className="text-xs text-gray-400">{t("stats.tier")}</p>
                     </div>
                   </div>
                 </motion.div>

@@ -26,11 +26,16 @@ import { sortItemsByPriority } from "@/utils/sortItems"
 import { IMAGES } from "@/config/images"
 import { logger } from "@/utils/logger"
 import { trackViewItemList, trackFilterApplied, trackSearch } from "@/lib/analytics"
+import { useTranslations } from "next-intl"
+import { useLocale } from "next-intl"
 
 // Constantes
 const ITEMS_PER_PAGE = 20
 
 export default function StorePage() {
+  const t = useTranslations("store.page")
+  const locale = useLocale()
+
   // Estados
   const [items, setItems] = useState<StoreItemType[]>([])
   const [activeFilter, setActiveFilter] = useState<string>("all")
@@ -296,9 +301,9 @@ export default function StorePage() {
         <main className="container mx-auto px-4 py-8">
           {/* Back Button (Mobile) */}
           <div className="md:hidden mb-4">
-            <Link href="/" className="inline-flex items-center text-[#00F5D4] hover:text-[#FF007A] transition-colors">
+            <Link href={`/${locale}`} className="inline-flex items-center text-[#00F5D4] hover:text-[#FF007A] transition-colors">
               <ArrowLeft className="w-4 h-4 mr-1" />
-              <span>Volver</span>
+              <span>{t("back")}</span>
             </Link>
           </div>
 
@@ -315,7 +320,7 @@ export default function StorePage() {
               >
                 <h1 className="text-4xl md:text-5xl font-['Russo_One'] mb-2 relative inline-block">
                   <span className="text-white">
-                    Tienda <span className="text-primary neon-text">FortLoot</span>
+                    {t("title")} <span className="text-primary neon-text">FortLoot</span>
                   </span>
                   <motion.div
                     initial={{ width: 0 }}
@@ -325,7 +330,7 @@ export default function StorePage() {
                   />
                 </h1>
                 <p className="text-xl text-secondary neon-text-cyan mt-4 mb-6">
-                  ¡Tienda y Ofertas actualizados diariamente!
+                  {t("subtitle")}
                 </p>
               </motion.div>
             )}
@@ -347,7 +352,7 @@ export default function StorePage() {
               className="bg-yellow-500/20 border border-yellow-500/50 text-white p-4 rounded-lg mb-6 flex items-center"
             >
               <Info className="w-5 h-5 mr-2 flex-shrink-0 text-yellow-400" />
-              <p>Mostrando datos de respaldo debido a problemas de conexión con la API externa.</p>
+              <p>{t("fallbackNotice")}</p>
             </motion.div>
           )}
 

@@ -15,6 +15,8 @@ import { UserSession } from "@/components/checkout/UserSession"
 import { orderAPI } from "@/lib/api/order"
 import { ChevronLeft, ChevronRight, Check, Loader2, ArrowLeft, AlertTriangle } from "lucide-react"
 import { trackBeginCheckout, trackEpicIdConfirmed, trackPurchase, setUserId, setUserProperties } from "@/lib/analytics"
+import { useTranslations } from "next-intl"
+import { useLocale } from "next-intl"
 
 interface PaymentMethod {
   id: string
@@ -39,16 +41,18 @@ interface ConversionInfo {
   validUntil: Date
 }
 
-const STEPS = [
-  { id: 1, name: "Verificar Cuenta", description: "Epic ID" },
-  { id: 2, name: "Método de Pago", description: "Selecciona tu método" },
-  { id: 3, name: "Revisar Orden", description: "Confirma tu compra" },
-  { id: 4, name: "Comprobante", description: "Sube tu comprobante" },
-]
-
 export default function CheckoutPage() {
+  const t = useTranslations("checkout.page")
+  const locale = useLocale()
   const router = useRouter()
   const { cartItems, cartTotal, clearCart, hasManualItems, totalPrice } = useCart()
+
+  const STEPS = [
+    { id: 1, name: t("steps.verify"), description: t("steps.verifyDesc") },
+    { id: 2, name: t("steps.payment"), description: t("steps.paymentDesc") },
+    { id: 3, name: t("steps.review"), description: t("steps.reviewDesc") },
+    { id: 4, name: t("steps.upload"), description: t("steps.uploadDesc") },
+  ]
   const { manualCheckoutEnabled } = useConfig()
   const { isInMaintenance, maintenanceMessage } = useMaintenance()
   const customerContext = useCustomer()
@@ -92,9 +96,9 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (cartItems.length === 0 && currentStep < 4) {
-      router.push("/tienda")
+      router.push(`/${locale}/store`)
     }
-  }, [cartItems, router, currentStep])
+  }, [cartItems, router, currentStep, locale])
 
   // Fetch payment methods
   useEffect(() => {
@@ -176,20 +180,20 @@ export default function CheckoutPage() {
 
   // Get payment method name by slug
   const getPaymentMethodName = (slug: string | null): string => {
-    if (!slug) return "No seleccionado"
-    if (slug === 'crypto') return "Pago con Crypto (USDT/USDC)"
+    if (!slug) return t("notSelected")
+    if (slug === 'crypto') return t("cryptoPayment")
     const method = paymentMethods.find(m => m.slug === slug)
     return method?.name || slug
   }
 
   const handleCreateOrder = async () => {
     if (!customer || !paymentMethod) {
-      setOrderError("Falta informacion del cliente o metodo de pago")
+      setOrderError(t("errors.missingInfo"))
       return
     }
 
     if (cartItems.length === 0) {
-      setOrderError("El carrito esta vacio")
+      setOrderError(t("errors.emptyCart"))
       return
     }
 
@@ -240,6 +244,7 @@ export default function CheckoutPage() {
         subtotalAmount,
         discountAmount: totalDiscount,
         profitAmount: totalProfit,
+        locale: locale as 'es' | 'en',
       }
 
       const response = await orderAPI.create(orderData)
@@ -276,10 +281,10 @@ export default function CheckoutPage() {
             window.location.href = cryptoData.data.paymentUrl
             return
           } else {
-            throw new Error(cryptoData.message || 'Error creando factura crypto')
+            throw new Error(cryptoData.message || t("errors.cryptoInvoiceError"))
           }
         } catch (cryptoErr: any) {
-          setOrderError(cryptoErr.message || 'Error procesando pago crypto. Intenta con otro metodo.')
+          setOrderError(cryptoErr.message || t("errors.cryptoProcessError"))
           setIsCreatingOrder(false)
           return
         }
@@ -295,7 +300,7 @@ export default function CheckoutPage() {
       } as any)
       setCurrentStep(4)
     } catch (err: any) {
-      setOrderError(err.message || "Error creando orden. Por favor intenta de nuevo.")
+      setOrderError(err.message || t("errors.orderCreationError"))
     } finally {
       setIsCreatingOrder(false)
     }
@@ -303,7 +308,7 @@ export default function CheckoutPage() {
 
   const handleUploadSuccess = () => {
     clearCart()
-    router.push(`/order-status/${createdOrder.id}`)
+    router.push(`/${locale}/order-status/${createdOrder.id}`)
   }
 
   const handleManualCheckoutWhatsApp = async () => {
@@ -342,6 +347,7 @@ export default function CheckoutPage() {
         emailConfirmed: customer.email,
         checkoutStartedAt: new Date().toISOString(),
         hasManualItems: true,
+        locale: locale as 'es' | 'en',
       }
 
       await orderAPI.create(orderData)
@@ -412,20 +418,20 @@ export default function CheckoutPage() {
               </div>
             </div>
             <h1 className="text-3xl font-russo text-amber-500 mb-4">
-              {maintenanceMessage?.title || 'Estamos en Mantenimiento'}
+              {maintenanceMessage?.title || t("maintenance.title")}
             </h1>
             <p className="text-lg text-gray-300 mb-6">
-              {maintenanceMessage?.message || 'Estamos trabajando para mejorar tu experiencia. Por favor, vuelve en unos minutos.'}
+              {maintenanceMessage?.message || t("maintenance.message")}
             </p>
             <p className="text-sm text-gray-400 mb-8">
-              Las compras estan temporalmente deshabilitadas. Disculpa las molestias.
+              {t("maintenance.disabled")}
             </p>
             <button
-              onClick={() => router.push('/tienda')}
+              onClick={() => router.push(`/${locale}/store`)}
               className="inline-flex items-center px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
-              Volver a la Tienda
+              {t("backToStore")}
             </button>
           </div>
         </div>
@@ -438,16 +444,16 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="mb-8">
           <button
-            onClick={() => router.push("/tienda")}
+            onClick={() => router.push(`/${locale}/store`)}
             className="inline-flex items-center text-secondary hover:text-primary transition-colors"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Volver a la Tienda
+            {t("backToStore")}
           </button>
         </div>
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-russo text-white mb-2 neon-text">Finalizar Compra</h1>
-          <p className="text-gray-400">Completa los pasos para procesar tu orden</p>
+          <h1 className="text-4xl font-russo text-white mb-2 neon-text">{t("title")}</h1>
+          <p className="text-gray-400">{t("subtitle")}</p>
         </div>
 
         <UserSession onLogout={() => setCurrentStep(1)} />
@@ -532,25 +538,25 @@ export default function CheckoutPage() {
             {currentStep === 2 && !shouldUseManualFlow && <PaymentMethodSelector selectedMethod={paymentMethod} onSelect={handlePaymentMethodSelect} />}
             {currentStep === 3 && (
               <div className="bg-dark border border-light rounded-lg p-6">
-                <h2 className="text-2xl font-russo text-white mb-4">Confirmar Orden</h2>
+                <h2 className="text-2xl font-russo text-white mb-4">{t("confirmOrder.title")}</h2>
                 <div className="space-y-4 mb-6">
                   {/* Datos del cliente */}
                   <div className="bg-darker rounded-lg p-4">
-                    <h3 className="text-lg font-bold text-white mb-3">Datos del Cliente</h3>
+                    <h3 className="text-lg font-bold text-white mb-3">{t("confirmOrder.customerData")}</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Epic ID:</p>
-                        <p className="text-white font-medium text-sm">{customer?.displayName || customer?.epicAccountId || "No disponible"}</p>
+                        <p className="text-sm text-gray-400 mb-1">{t("confirmOrder.epicId")}:</p>
+                        <p className="text-white font-medium text-sm">{customer?.displayName || customer?.epicAccountId || t("confirmOrder.notAvailable")}</p>
                         {customer?.displayName && (
                           <p className="text-gray-500 font-mono text-xs mt-0.5">{customer.epicAccountId}</p>
                         )}
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Email:</p>
-                        <p className="text-white text-sm">{customer?.email || "No disponible"}</p>
+                        <p className="text-sm text-gray-400 mb-1">{t("confirmOrder.email")}:</p>
+                        <p className="text-white text-sm">{customer?.email || t("confirmOrder.notAvailable")}</p>
                       </div>
                       <div className="col-span-2">
-                        <p className="text-sm text-gray-400 mb-1">Método de Pago:</p>
+                        <p className="text-sm text-gray-400 mb-1">{t("confirmOrder.paymentMethod")}:</p>
                         <p className="text-white text-sm">
                           {getPaymentMethodName(paymentMethod)}
                         </p>
@@ -561,10 +567,10 @@ export default function CheckoutPage() {
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                               </svg>
-                              No pudimos obtener la tasa de cambio
+                              {t("confirmOrder.conversionError")}
                             </p>
                             <p className="text-base text-amber-200/80 mb-4">
-                              No te preocupes, puedes recibir las instrucciones de pago directamente por WhatsApp.
+                              {t("confirmOrder.conversionErrorMessage")}
                             </p>
                             <button
                               onClick={handleConversionFallbackWhatsApp}
@@ -573,7 +579,7 @@ export default function CheckoutPage() {
                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                               </svg>
-                              Recibir instrucciones por WhatsApp
+                              {t("confirmOrder.whatsappInstructions")}
                             </button>
                           </div>
                         ) : selectedPaymentMethod?.instructions && (
@@ -582,7 +588,7 @@ export default function CheckoutPage() {
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                               </svg>
-                              Instrucciones para realizar el pago
+                              {t("confirmOrder.paymentInstructions")}
                             </p>
                             <p className="text-base text-white leading-relaxed">{selectedPaymentMethod.instructions}</p>
                           </div>
@@ -593,7 +599,7 @@ export default function CheckoutPage() {
 
                   {/* Detalle de productos */}
                   <div className="bg-darker rounded-lg p-4">
-                    <h3 className="text-lg font-bold text-white mb-3">Productos a Comprar</h3>
+                    <h3 className="text-lg font-bold text-white mb-3">{t("confirmOrder.products")}</h3>
                     <div className="space-y-3">
                       {cartItems.map((item) => (
                         <div key={item.id} className="flex items-center gap-3 p-3 bg-dark rounded-lg border border-light">
@@ -602,13 +608,13 @@ export default function CheckoutPage() {
                           )}
                           <div className="flex-1">
                             <p className="text-white font-medium">{item.name}</p>
-                            <p className="text-sm text-gray-400">Cantidad: {item.quantity}</p>
+                            <p className="text-sm text-gray-400">{t("confirmOrder.quantity")}: {item.quantity}</p>
                           </div>
                           <div className="text-right">
                             <p className="text-white font-bold">${((item.price?.finalPrice || 0) / 100).toFixed(2)}</p>
                             {item.quantity > 1 && (
                               <p className="text-xs text-gray-400">
-                                ${(((item.price?.finalPrice || 0) / 100) * item.quantity).toFixed(2)} total
+                                ${(((item.price?.finalPrice || 0) / 100) * item.quantity).toFixed(2)} {t("confirmOrder.total")}
                               </p>
                             )}
                           </div>
@@ -620,22 +626,22 @@ export default function CheckoutPage() {
                   {/* Desglose de comisiones (si aplica) */}
                   {feeInfo && feeInfo.length > 0 && (
                     <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
-                      <p className="text-amber-300 font-medium mb-2">Desglose de precio:</p>
+                      <p className="text-amber-300 font-medium mb-2">{t("confirmOrder.priceBreakdown")}:</p>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-300">Subtotal:</span>
+                          <span className="text-gray-300">{t("confirmOrder.subtotal")}:</span>
                           <span className="text-white">${totalPrice.toFixed(2)}</span>
                         </div>
                         {feeInfo.map((fee, index) => (
                           <div key={index} className="flex justify-between">
                             <span className="text-gray-300">
-                              {fee.description || 'Comision'}:
+                              {fee.description || t("confirmOrder.fee")}:
                             </span>
                             <span className="text-amber-400">+${fee.amount.toFixed(2)}</span>
                           </div>
                         ))}
                         <div className="flex justify-between border-t border-amber-500/30 pt-2 mt-2">
-                          <span className="text-white font-medium">Total a pagar:</span>
+                          <span className="text-white font-medium">{t("confirmOrder.totalToPay")}:</span>
                           <span className="text-xl font-bold text-amber-400">${finalPrice?.toFixed(2) || totalPrice.toFixed(2)}</span>
                         </div>
                       </div>
@@ -646,14 +652,14 @@ export default function CheckoutPage() {
                   {conversionInfo && (
                     <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-blue-300 font-medium">Total a pagar:</span>
+                        <span className="text-blue-300 font-medium">{t("confirmOrder.totalToPay")}:</span>
                         <span className="text-2xl font-bold text-blue-400">
                           {conversionInfo.convertedAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })} {conversionInfo.convertedCurrency === 'VES' ? 'Bs' : conversionInfo.convertedCurrency}
                         </span>
                       </div>
                       {conversionInfo.validUntil && (
                         <p className="text-xs text-blue-300/70 mt-2">
-                          Precio valido hasta las {new Date(conversionInfo.validUntil).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                          {t("confirmOrder.priceValidUntil", { time: new Date(conversionInfo.validUntil).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', hour12: true }) })}
                         </p>
                       )}
                     </div>
@@ -672,12 +678,12 @@ export default function CheckoutPage() {
                   {isCreatingOrder ? (
                     <>
                       <Loader2 className="w-6 h-6 mr-2 animate-spin" />
-                      Creando Orden...
+                      {t("confirmOrder.creating")}
                     </>
                   ) : (
                     <>
                       <Check className="w-6 h-6 mr-2" />
-                      Confirmar y Continuar
+                      {t("confirmOrder.confirmAndContinue")}
                     </>
                   )}
                 </button>
@@ -696,7 +702,7 @@ export default function CheckoutPage() {
                   className="w-full py-3 bg-dark hover:bg-light text-white font-bold rounded-lg transition-colors border border-light flex items-center justify-center"
                 >
                   <ChevronLeft className="w-5 h-5 mr-2" />
-                  Volver a Revisar Orden
+                  {t("backToReview")}
                 </button>
               </div>
             )}
@@ -707,14 +713,14 @@ export default function CheckoutPage() {
                   className="flex-1 py-3 bg-dark hover:bg-light text-white font-bold rounded-lg transition-colors border border-light flex items-center justify-center"
                 >
                   <ChevronLeft className="w-5 h-5 mr-2" />
-                  Anterior
+                  {t("previous")}
                 </button>
                 {currentStep === 2 && paymentMethod && (
                   <button
                     onClick={() => setCurrentStep(3)}
                     className="flex-1 py-3 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition-colors flex items-center justify-center neon-border-cyan"
                   >
-                    Siguiente
+                    {t("next")}
                     <ChevronRight className="w-5 h-5 ml-2" />
                   </button>
                 )}

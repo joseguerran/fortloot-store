@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react"
 
 import { memo } from "react"
@@ -6,6 +8,7 @@ import Image from "next/image"
 import { PhoneIcon as WhatsApp, Instagram, Facebook } from "lucide-react"
 import { AnimatedTitle } from "@/components/ui/AnimatedTitle"
 import { IMAGES } from "@/config/images"
+import { useTranslations } from "next-intl"
 
 const glowCyan = "0 0 15px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.5), 0 0 45px rgba(0, 255, 255, 0.3)"
 
@@ -58,16 +61,17 @@ const socialLinks = [
 ]
 
 export const ContactSection = memo(() => {
+  const t = useTranslations("home.contact")
+
   return (
     <section id="contacto" className="min-h-screen py-16 bg-dark text-white flex items-center justify-center">
       <div className="container mx-auto px-4">
-        <AnimatedTitle color="text-secondary">Contacto</AnimatedTitle>
+        <AnimatedTitle color="text-secondary">{t("title")}</AnimatedTitle>
 
         <div className="max-w-3xl mx-auto text-center mt-12">
-          <h3 className="text-2xl font-['Russo_One'] mb-6 text-white">¿Tienes Preguntas?</h3>
+          <h3 className="text-2xl font-['Russo_One'] mb-6 text-white">{t("heading")}</h3>
           <p className="text-gray-300 mb-8">
-            Nuestro equipo está disponible 24/7 para ayudarte con cualquier duda o problema que puedas tener.
-            Contáctanos a través de cualquiera de nuestros canales de comunicación.
+            {t("description")}
           </p>
 
           <div className="flex justify-center gap-12 mb-12">
@@ -137,7 +141,7 @@ const SocialLink = memo(({ social, index }: SocialLinkProps) => (
       transition: { duration: 0.15 },
     }}
     className={`w-14 h-14 rounded-full ${social.color} flex items-center justify-center transition-all duration-150 ${social.neon} shadow-lg`}
-    aria-label={`Contactar por ${social.name}`}
+    aria-label={`Contact via ${social.name}`}
   >
     {social.icon}
   </motion.a>

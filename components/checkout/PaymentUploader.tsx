@@ -2,9 +2,11 @@
 
 import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Upload, FileImage, X, Loader2, CheckCircle, ShoppingCart } from "lucide-react"
+import { Upload, FileImage, X, Loader2, CheckCircle, ShoppingCart, AlertCircle } from "lucide-react"
 import { orderAPI } from "@/lib/api/order"
 import { PaymentCountdownTimer } from "./PaymentCountdownTimer"
+import { useTranslations } from "next-intl"
+import { useLocale } from "next-intl"
 
 interface PaymentMethod {
   name: string
@@ -20,6 +22,8 @@ interface PaymentUploaderProps {
 
 export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSuccess }: PaymentUploaderProps) {
   const router = useRouter()
+  const locale = useLocale()
+  const t = useTranslations("checkout.paymentUploader")
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [transactionId, setTransactionId] = useState("")
@@ -37,7 +41,7 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
 
   const handleTimerExpire = () => {
     setIsTimerExpired(true)
-    setError("El tiempo para subir el comprobante ha expirado. Esta orden ha sido marcada como abandonada. Por favor, realiza una nueva compra desde el inicio.")
+    setError(t("errors.timerExpired"))
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,14 +52,14 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
 
     // Validar tamaño (max 5MB)
     if (selectedFile.size > 5 * 1024 * 1024) {
-      setError("El archivo no debe superar 5MB")
+      setError(t("errors.fileTooLarge"))
       return
     }
 
     // Validar tipo
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "application/pdf"]
     if (!validTypes.includes(selectedFile.type)) {
-      setError("Solo se permiten imágenes JPG, PNG o archivos PDF")
+      setError(t("errors.invalidFileType"))
       return
     }
 
@@ -108,13 +112,13 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
     } catch (err: any) {
       // Handle specific error for expired orders
       if (err.error === 'ORDER_EXPIRED') {
-        setError(err.message || "Esta orden ha expirado. Por favor, realiza una nueva compra desde el inicio para garantizar la disponibilidad de los items.")
+        setError(err.message || t("errors.orderExpired"))
         setIsExpired(true)
       } else if (err.message && err.message.includes('JSON')) {
         // Handle JSON parsing errors with friendly message
-        setError("Hubo un problema al procesar la respuesta del servidor. Por favor, verifica tu conexión e inténtalo de nuevo.")
+        setError(t("errors.serverError"))
       } else {
-        setError(err.message || "No pudimos procesar tu comprobante de pago. Por favor, verifica que el archivo sea válido e inténtalo nuevamente.")
+        setError(err.message || t("errors.uploadError"))
       }
     } finally {
       setIsUploading(false)
@@ -123,8 +127,8 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
 
   return (
     <div className="bg-dark border border-light rounded-lg p-6">
-      <h2 className="text-2xl font-russo text-white mb-2">Subir Comprobante</h2>
-      <p className="text-gray-400 mb-4">Sube una captura de pantalla o foto de tu comprobante de pago</p>
+      <h2 className="text-2xl font-russo text-white mb-2">{t("title")}</h2>
+      <p className="text-gray-400 mb-4">{t("subtitle")}</p>
 
       {/* Countdown Timer */}
       <div className="mb-6">
@@ -142,7 +146,7 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
             <div className="flex-1">
-              <h3 className="text-blue-400 font-bold text-2xl mb-2">Instrucciones para realizar el pago</h3>
+              <h3 className="text-blue-400 font-bold text-2xl mb-2">{t("instructionsTitle")}</h3>
               <p className="text-white text-base leading-relaxed whitespace-pre-line">{paymentInstructions}</p>
             </div>
           </div>
@@ -157,9 +161,9 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
           className="border-2 border-dashed border-secondary/50 rounded-lg p-12 text-center cursor-pointer hover:border-secondary hover:bg-secondary/5 transition-all"
         >
           <Upload className="w-16 h-16 text-secondary mx-auto mb-4" />
-          <p className="text-white font-medium text-lg mb-2">Arrastra tu archivo aquí</p>
-          <p className="text-gray-400 mb-1">o haz clic para seleccionar</p>
-          <p className="text-sm text-gray-500">JPG, PNG o PDF - Máximo 5MB</p>
+          <p className="text-white font-medium text-lg mb-2">{t("dropzone.title")}</p>
+          <p className="text-gray-400 mb-1">{t("dropzone.subtitle")}</p>
+          <p className="text-sm text-gray-500">{t("dropzone.formats")}</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -192,30 +196,30 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
           <div className="space-y-4">
             <div>
               <label htmlFor="transactionId" className="block text-sm font-medium text-gray-300 mb-2">
-                ID de Transacción (Opcional)
+                {t("fields.transactionId.label")}
               </label>
               <p className="text-xs text-gray-400 mb-2">
-                Si tu banco o método de pago te proporcionó un número de referencia o ID de la transacción, ingrésalo aquí
+                {t("fields.transactionId.hint")}
               </p>
               <input
                 id="transactionId"
                 type="text"
                 value={transactionId}
                 onChange={(e) => setTransactionId(e.target.value)}
-                placeholder="Ej: REF-123456789 o número de confirmación"
+                placeholder={t("fields.transactionId.placeholder")}
                 className="w-full px-4 py-3 bg-darker border border-light rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors"
                 disabled={isUploading}
               />
             </div>
             <div>
               <label htmlFor="notes" className="block text-sm font-medium text-gray-300 mb-2">
-                Notas Adicionales (Opcional)
+                {t("fields.notes.label")}
               </label>
               <textarea
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Cualquier información adicional que quieras compartir sobre tu pago..."
+                placeholder={t("fields.notes.placeholder")}
                 rows={3}
                 className="w-full px-4 py-3 bg-darker border border-light rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-primary transition-colors resize-none"
                 disabled={isUploading}
@@ -238,11 +242,11 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
               </div>
               {(isExpired || isTimerExpired) && (
                 <button
-                  onClick={() => router.push('/tienda')}
+                  onClick={() => router.push(`/${locale}/store`)}
                   className="w-full mt-3 py-3 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
-                  Volver a la Tienda
+                  {t("backToStore")}
                 </button>
               )}
             </div>
@@ -256,18 +260,18 @@ export function PaymentUploader({ orderId, orderExpiresAt, paymentMethod, onSucc
             {isUploading ? (
               <>
                 <Loader2 className="w-6 h-6 mr-2 animate-spin" />
-                Subiendo Comprobante...
+                {t("uploading")}
               </>
             ) : (
               <>
                 <CheckCircle className="w-6 h-6 mr-2" />
-                Confirmar y Subir Comprobante
+                {t("confirmAndUpload")}
               </>
             )}
           </button>
 
           <p className="text-sm text-gray-400 text-center">
-            Una vez subido, nuestro equipo verificará tu pago y procesará tu orden
+            {t("verificationNote")}
           </p>
         </div>
       )}

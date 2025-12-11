@@ -1,0 +1,791 @@
+{
+  "common": {
+    "header": {
+      "home": "Inicio",
+      "services": "Servicios",
+      "howItWorks": "Cómo Funciona",
+      "paymentMethods": "Métodos de Pago",
+      "contact": "Contacto",
+      "store": "Tienda",
+      "myOrders": "Mis Compras",
+      "goToStore": "Ir a la Tienda",
+      "menu": "Menú",
+      "closeMenu": "Cerrar menú"
+    },
+    "footer": {
+      "slogan": "Tu destino de confianza para monedas y artículos de gaming",
+      "quickLinks": "Enlaces Rápidos",
+      "legal": "Legal",
+      "contact": "Contacto",
+      "termsConditions": "Términos y Condiciones",
+      "privacyPolicy": "Política de Privacidad",
+      "refundPolicy": "Política de Devoluciones",
+      "rights": "Todos los derechos reservados",
+      "disclaimer": "No estamos afiliados con Epic Games."
+    },
+    "cart": {
+      "title": "Carrito",
+      "empty": "Tu carrito está vacío",
+      "emptyDescription": "Agrega items de la tienda para empezar",
+      "continueShopping": "Seguir Comprando",
+      "checkout": "Ir al Checkout",
+      "checkoutWhatsApp": "Checkout por WhatsApp",
+      "checkoutDisabled": "Checkout Deshabilitado",
+      "calculating": "Calculando...",
+      "total": "Total",
+      "item": "artículo",
+      "items": "artículos",
+      "remove": "Eliminar",
+      "clear": "Vaciar Carrito",
+      "clearConfirm": "¿Estás seguro de que deseas vaciar el carrito?",
+      "quantity": "Cantidad",
+      "subtotal": "Subtotal",
+      "closeCart": "Cerrar carrito",
+      "comingSoon": "Próximamente",
+      "comingSoonDesc": "El checkout automático por bot estará disponible pronto"
+    },
+    "buttons": {
+      "addToCart": "Agregar al Carrito",
+      "buy": "Comprar",
+      "buyNow": "Comprar Ahora",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar",
+      "back": "Volver",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "submit": "Enviar",
+      "close": "Cerrar",
+      "save": "Guardar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "search": "Buscar",
+      "loading": "Cargando...",
+      "retry": "Reintentar",
+      "continue": "Continuar",
+      "viewDetails": "Ver Detalles",
+      "backToStore": "Volver a la Tienda",
+      "backToHome": "Volver al Inicio",
+      "copied": "¡Copiado!",
+      "copy": "Copiar",
+      "copyId": "Copiar ID",
+      "upload": "Subir",
+      "uploading": "Subiendo..."
+    },
+    "errors": {
+      "generic": "Algo salió mal. Por favor intenta de nuevo.",
+      "network": "Error de conexión. Verifica tu internet.",
+      "notFound": "No encontrado",
+      "serverError": "Error del servidor. Intenta más tarde.",
+      "systemUnavailable": "Error: Sistema no disponible"
+    },
+    "languages": {
+      "es": "Español",
+      "en": "English",
+      "switchLanguage": "Cambiar idioma"
+    },
+    "labels": {
+      "order": "Orden",
+      "customer": "Cliente",
+      "amount": "Monto",
+      "status": "Estado",
+      "date": "Fecha",
+      "expires": "Expira",
+      "created": "Creado",
+      "total": "Total",
+      "subtotal": "Subtotal",
+      "discount": "Descuento",
+      "type": "Tipo"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "¡Tu Arsenal Definitivo de Fortnite!",
+      "subtitle": "Compra segura, entrega rápida y los mejores precios. Consigue V-Bucks, skins y items exclusivos.",
+      "cta": "Ver Tienda",
+      "ctaSecondary": "Cómo Funciona"
+    },
+    "products": {
+      "title": "Nuestros Servicios",
+      "subtitle": "Ofrecemos los mejores servicios para mejorar tu experiencia en Fortnite",
+      "immediateDelivery": "Entrega inmediata",
+      "vbucks": {
+        "title": "PAVOS",
+        "description": "Moneda virtual para comprar artículos en la tienda de Fortnite"
+      },
+      "store": {
+        "title": "TIENDA",
+        "description": "Personaliza tu personaje con los mejores diseños y atuendos"
+      },
+      "crew": {
+        "title": "FORTNITE CREW",
+        "description": "Suscripción mensual con beneficios exclusivos y contenido premium"
+      },
+      "bundles": {
+        "title": "BUNDLES",
+        "description": "Combos especiales con múltiples items a precios reducidos"
+      }
+    },
+    "howItWorks": {
+      "title": "¿Cómo Funciona?",
+      "subtitle": "Compra segura en 3 simples pasos",
+      "step1": {
+        "title": "Selecciona tu Servicio",
+        "description": "Elige todos los productos que deseas y añádelos al carrito"
+      },
+      "step2": {
+        "title": "Pago Seguro",
+        "description": "Realiza tu pago de forma segura con múltiples métodos disponibles"
+      },
+      "step3": {
+        "title": "Entrega Rápida",
+        "description": "Recibe tu compra en el mínimo tiempo posible"
+      }
+    },
+    "paymentMethods": {
+      "title": "Métodos de Pago",
+      "subtitle": "Ofrecemos múltiples opciones de pago seguras y convenientes para que puedas realizar tus compras con total confianza.",
+      "securityNote": "Todas nuestras transacciones están protegidas y avaladas bajo nuestras políticas de reembolso y privacidad garantizando la protección de tus datos."
+    },
+    "contact": {
+      "title": "Contacto",
+      "heading": "¿Tienes Preguntas?",
+      "subtitle": "¿Tienes preguntas? Estamos aquí para ayudarte",
+      "description": "Nuestro equipo está disponible 24/7 para ayudarte con cualquier duda o inquietud.",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "instagram": "Instagram",
+      "discord": "Discord"
+    }
+  },
+  "store": {
+    "title": "Tienda FortLoot",
+    "subtitle": "¡Tienda y Ofertas actualizados diariamente!",
+    "back": "Volver",
+    "page": {
+      "title": "Tienda",
+      "subtitle": "¡Tienda y Ofertas actualizados diariamente!",
+      "back": "Volver",
+      "fallbackNotice": "Mostrando datos de respaldo debido a problemas de conexión con la API externa."
+    },
+    "filters": {
+      "all": "Todos",
+      "vbucks": "Pavos",
+      "shop": "Tienda",
+      "crew": "Fortnite Crew",
+      "bundles": "Bundles",
+      "search": "Buscar artículos...",
+      "searchAria": "Buscar artículos",
+      "noResults": "No se encontraron items",
+      "categories": {
+        "outfit": "Skins",
+        "pickaxe": "Picos",
+        "glider": "Alas Delta",
+        "emote": "Gestos",
+        "wrap": "Envolturas",
+        "backpack": "Mochilas",
+        "bundle": "Paquetes",
+        "vbucks": "V-Bucks",
+        "crew": "Fortnite Crew"
+      }
+    },
+    "item": {
+      "addedToCart": "¡AGREGADO!",
+      "outOfStock": "Agotado",
+      "limited": "Edición Limitada",
+      "new": "Nuevo",
+      "sale": "Oferta",
+      "bestValue": "MEJOR VALOR",
+      "exclusive": "EXCLUSIVO",
+      "acquire": "Adquirir",
+      "inMaintenance": "En Mantenimiento",
+      "maintenanceAria": "Tienda en mantenimiento",
+      "acquireAria": "Adquirir {name}",
+      "noName": "Artículo sin nombre",
+      "noDescription": "Sin descripción disponible"
+    },
+    "empty": {
+      "title": "No se encontraron artículos",
+      "description": "No hay artículos que coincidan con tu búsqueda. Intenta con otros filtros o términos de búsqueda.",
+      "resetFilters": "Mostrar todos los artículos"
+    },
+    "fallback": {
+      "notice": "Mostrando datos de respaldo debido a problemas de conexión."
+    },
+    "countdown": {
+      "title": "Próxima actualización de la tienda en:",
+      "hours": "Horas",
+      "minutes": "Minutos",
+      "seconds": "Segundos"
+    },
+    "loading": {
+      "items": "Cargando artículos...",
+      "error": "Error al cargar los artículos"
+    }
+  },
+  "checkout": {
+    "title": "Finalizar Compra",
+    "subtitle": "Completa los pasos para procesar tu orden",
+    "page": {
+      "title": "Finalizar Compra",
+      "subtitle": "Completa los pasos para procesar tu orden",
+      "backToStore": "Volver a la Tienda",
+      "backToReview": "Volver a Revisar Orden",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "notSelected": "No seleccionado",
+      "cryptoPayment": "Pago con Crypto (USDT/USDC)",
+      "steps": {
+        "verify": "Verificar Cuenta",
+        "verifyDesc": "Epic ID",
+        "payment": "Método de Pago",
+        "paymentDesc": "Selecciona tu método",
+        "review": "Revisar Orden",
+        "reviewDesc": "Confirma tu compra",
+        "upload": "Comprobante",
+        "uploadDesc": "Sube tu comprobante"
+      },
+      "confirmOrder": {
+        "title": "Confirmar Orden",
+        "customerData": "Datos del Cliente",
+        "epicId": "Epic ID",
+        "email": "Email",
+        "notAvailable": "No disponible",
+        "paymentMethod": "Método de Pago",
+        "conversionError": "No pudimos obtener la tasa de cambio",
+        "conversionErrorMessage": "No te preocupes, puedes recibir las instrucciones de pago directamente por WhatsApp.",
+        "whatsappInstructions": "Recibir instrucciones por WhatsApp",
+        "paymentInstructions": "Instrucciones para realizar el pago",
+        "products": "Productos a Comprar",
+        "quantity": "Cantidad",
+        "total": "total",
+        "priceBreakdown": "Desglose de precio",
+        "subtotal": "Subtotal",
+        "fee": "Comisión",
+        "totalToPay": "Total a pagar",
+        "priceValidUntil": "Precio válido hasta las {time}",
+        "creating": "Creando Orden...",
+        "confirmAndContinue": "Confirmar y Continuar"
+      },
+      "errors": {
+        "missingInfo": "Falta información del cliente o método de pago",
+        "emptyCart": "El carrito está vacío",
+        "cryptoInvoiceError": "Error creando factura crypto",
+        "cryptoProcessError": "Error procesando pago crypto. Intenta con otro método.",
+        "orderCreationError": "Error creando orden. Por favor intenta de nuevo."
+      },
+      "maintenance": {
+        "title": "Estamos en Mantenimiento",
+        "message": "Estamos trabajando para mejorar tu experiencia. Por favor, vuelve en unos minutos.",
+        "disabled": "Las compras están temporalmente deshabilitadas. Disculpa las molestias."
+      }
+    },
+    "steps": {
+      "verify": {
+        "title": "Verificar Cuenta",
+        "short": "Verificar Cuenta",
+        "description": "Epic ID"
+      },
+      "payment": {
+        "title": "Método de Pago",
+        "short": "Método de Pago",
+        "description": "Selecciona tu método"
+      },
+      "review": {
+        "title": "Revisar Orden",
+        "short": "Revisar Orden",
+        "description": "Confirma tu compra"
+      },
+      "proof": {
+        "title": "Comprobante",
+        "short": "Comprobante",
+        "description": "Sube tu comprobante"
+      }
+    },
+    "epicVerifier": {
+      "loading": "Cargando...",
+      "form": {
+        "title": "Verificación de Cuenta",
+        "subtitle": "Ingresa tu Epic ID y email para continuar",
+        "epicIdLabel": "Epic ID",
+        "epicIdPlaceholder": "Ej: TheProPlayer#1",
+        "epicIdHint": "Tu nombre de usuario en Fortnite (lo encuentras en el lobby o perfil)",
+        "contactPreferenceLabel": "¿Cómo prefieres que te contactemos?",
+        "whatsappLabel": "Número de WhatsApp",
+        "emailLabel": "Correo electrónico",
+        "contactHint": "Aquí recibirás el código para ver tus compras",
+        "verifying": "Verificando...",
+        "successMessage": "¡Verificado! Continuando...",
+        "continue": "Continuar"
+      },
+      "verified": {
+        "title": "Cuenta Verificada",
+        "subtitle": "Revisa tus datos antes de continuar",
+        "epicIdLabel": "Epic ID",
+        "tierMessage": "Cliente {tier} - Descuentos especiales aplicados",
+        "storeItemsWarning": "Tienes {count} item(s) de la tienda. Se verificará tu amistad con nuestros bots al continuar.",
+        "changeAccount": "Cambiar Cuenta",
+        "verifying": "Verificando...",
+        "continue": "Continuar"
+      },
+      "errors": {
+        "epicIdRequired": "Por favor ingresa tu Epic ID",
+        "whatsappRequired": "Por favor ingresa tu número de WhatsApp",
+        "emailRequired": "Por favor ingresa tu email",
+        "invalidEmail": "Por favor ingresa un email válido",
+        "invalidWhatsapp": "Por favor ingresa un número de WhatsApp válido (ej: +56912345678)",
+        "systemUnavailable": "Error: Sistema no disponible",
+        "verificationError": "Error verificando cuenta",
+        "friendshipError": "Error verificando amistad con bots"
+      },
+      "friendRequest": {
+        "greeting": "Hola",
+        "title": "Necesitas agregar a nuestros Bots como amigos para continuar",
+        "description": "Detectamos que tienes {count} item(s) de la tienda en tu carrito. Estos items se envían como regalos a través de nuestros Bots de Fortnite, por lo que necesitas tenerlos agregados como amigos.",
+        "tipLabel": "Consejo:",
+        "tipText": "Por lo general tendrás mejores resultados si agregas más de un Bot.",
+        "availableBots": "Bots Disponibles:",
+        "copied": "¡Copiado!",
+        "copyId": "Copiar ID",
+        "importantLabel": "Importante:",
+        "waitTime": "Por políticas de la tienda, no podemos enviarte tu compra hasta 48 horas después de que aceptes la amistad.",
+        "dailyLimitLabel": "Límite diario:",
+        "dailyLimitText": "Cada Bot solo puede enviar 5 items al día, por eso recomendamos agregar varios Bots.",
+        "stepsLabel": "Pasos a seguir:",
+        "stepsText": "Copia el ID del Bot, agrégalo como amigo en Fortnite, espera a que acepte la solicitud y luego de 48 horas regresa aquí para que puedas continuar con tu compra.",
+        "alternativeLabel": "Opción alternativa:",
+        "alternativeText": "Tienes {count} item(s) en tu carrito que no requieren amistad con los Bots (V-Bucks, Crew o Paquetes). Puedes continuar tu compra solo con esos items.",
+        "continueWithoutStore": "Continuar solo con esos items",
+        "backToStore": "Volver a la Tienda"
+      }
+    },
+    "paymentMethod": {
+      "title": "Método de Pago",
+      "subtitle": "Selecciona como deseas pagar tu orden",
+      "label": "Método de Pago:",
+      "crypto": "Pago con Crypto (USDT/USDC)",
+      "notSelected": "No seleccionado",
+      "loading": "Cargando métodos de pago...",
+      "error": "Error al cargar métodos de pago",
+      "retry": "Reintentar",
+      "noMethods": "No hay métodos de pago disponibles en este momento.",
+      "cryptoOption": {
+        "title": "Pago con Crypto",
+        "description": "Paga con criptomonedas - Procesamiento automático"
+      },
+      "cryptoDisclaimer": "Para pagos crypto, te recomendamos elegir redes con comisiones bajas como <bold>LTC, Polygon o TRON</bold> para evitar costos elevados de red.",
+      "orPayManually": "O paga manualmente"
+    },
+    "review": {
+      "title": "Confirmar Orden",
+      "customerData": "Datos del Cliente",
+      "epicId": "Epic ID",
+      "email": "Email",
+      "whatsApp": "WhatsApp",
+      "paymentMethod": "Método de Pago:",
+      "productsTitle": "Productos a Comprar",
+      "quantity": "Cantidad:",
+      "feeBreakdown": "Desglose de precio:",
+      "productPrice": "Precio del producto",
+      "paymentFee": "Comisión de pago",
+      "subtotal": "Subtotal",
+      "fee": "Comisión",
+      "totalToPay": "Total a pagar:",
+      "priceValidUntil": "Precio válido hasta las",
+      "confirmAndContinue": "Confirmar y Continuar",
+      "creatingOrder": "Creando Orden...",
+      "paymentInstructions": "Instrucciones para realizar el pago"
+    },
+    "paymentUploader": {
+      "title": "Subir Comprobante",
+      "subtitle": "Sube una captura de pantalla o foto de tu comprobante de pago",
+      "instructionsTitle": "Instrucciones para realizar el pago",
+      "dropzone": {
+        "title": "Arrastra tu archivo aquí",
+        "subtitle": "o haz clic para seleccionar",
+        "formats": "JPG, PNG o PDF - Máximo 5MB"
+      },
+      "fields": {
+        "transactionId": {
+          "label": "ID de Transacción (Opcional)",
+          "hint": "Si tu banco o método de pago te proporcionó un número de referencia o ID de transacción, ingrésalo aquí",
+          "placeholder": "Ej: REF-123456789 o número de confirmación"
+        },
+        "notes": {
+          "label": "Notas Adicionales (Opcional)",
+          "placeholder": "Cualquier información adicional que quieras compartir sobre tu pago..."
+        }
+      },
+      "uploading": "Subiendo Comprobante...",
+      "confirmAndUpload": "Confirmar y Subir Comprobante",
+      "verificationNote": "Una vez subido, nuestro equipo verificará tu pago y procesará tu orden",
+      "backToStore": "Volver a la Tienda",
+      "errors": {
+        "timerExpired": "El tiempo para subir el comprobante ha expirado. Esta orden ha sido marcada como abandonada. Por favor, realiza una nueva compra desde el inicio.",
+        "fileTooLarge": "El archivo no debe superar 5MB",
+        "invalidFileType": "Solo se permiten imágenes JPG, PNG o archivos PDF",
+        "orderExpired": "Esta orden ha expirado. Por favor, realiza una nueva compra desde el inicio para garantizar la disponibilidad de los items.",
+        "serverError": "Hubo un problema al procesar la respuesta del servidor. Por favor, verifica tu conexión e inténtalo de nuevo.",
+        "uploadError": "No pudimos procesar tu comprobante de pago. Por favor, verifica que el archivo sea válido e inténtalo nuevamente."
+      }
+    },
+    "proofUpload": {
+      "title": "Subir Comprobante",
+      "description": "Sube una captura de pantalla o foto de tu comprobante de pago",
+      "dragDrop": "Arrastra tu archivo aquí",
+      "orClick": "o haz clic para seleccionar",
+      "formats": "JPG, PNG o PDF - Máximo 5MB",
+      "transactionId": "ID de Transacción (Opcional)",
+      "transactionIdHelp": "Si tu banco o método de pago te proporcionó un número de referencia o ID de transacción, ingrésalo aquí.",
+      "transactionIdPlaceholder": "Ej: REF-123456789 o número de confirmación",
+      "notes": "Notas Adicionales (Opcional)",
+      "notesPlaceholder": "Cualquier información adicional que quieras compartir sobre tu pago...",
+      "uploading": "Subiendo Comprobante...",
+      "submit": "Confirmar y Subir Comprobante",
+      "afterUpload": "Una vez subido, nuestro equipo verificará tu pago en minutos.",
+      "errors": {
+        "expired": "El tiempo para subir el comprobante ha expirado. Esta orden ha sido marcada como abandonada. Por favor inicia una nueva orden.",
+        "maxSize": "El archivo no debe superar 5MB",
+        "invalidFormat": "Solo se permiten imágenes JPG, PNG o archivos PDF",
+        "orderExpired": "Esta orden ha expirado. Por favor, realiza una nueva compra desde el inicio.",
+        "serverError": "Hubo un problema al procesar la respuesta del servidor. Intenta de nuevo o contacta a soporte.",
+        "uploadError": "No pudimos procesar tu comprobante de pago. Intenta de nuevo o contacta a soporte."
+      }
+    },
+    "errors": {
+      "missingInfo": "Falta información del cliente o método de pago",
+      "emptyCart": "El carrito está vacío",
+      "createOrder": "Error creando orden. Por favor intenta de nuevo.",
+      "cryptoInvoice": "Error creando factura crypto",
+      "cryptoPayment": "Error procesando pago crypto. Intenta con otro método."
+    },
+    "maintenance": {
+      "title": "Estamos en Mantenimiento",
+      "message": "Estamos trabajando para mejorar tu experiencia. Por favor, vuelve en unos minutos.",
+      "disabled": "Las compras están temporalmente deshabilitadas. Disculpa las molestias.",
+      "backToStore": "Volver a la Tienda"
+    },
+    "manualCheckout": {
+      "title": "Proceso Manual Requerido",
+      "description": "Tu carrito contiene items que requieren un proceso manual de verificación y entrega. Para continuar con tu compra, deberás contactarnos vía WhatsApp.",
+      "itemsTitle": "Items que requieren proceso manual:",
+      "quantity": "Cantidad",
+      "whatNext": "¿Qué sigue?",
+      "step1": "Haz clic en el botón de WhatsApp a continuación",
+      "step2": "Se abrirá una conversación con toda la información de tu pedido",
+      "step3": "Nuestro equipo te guiará en el proceso de pago y entrega",
+      "step4": "Recibirás tu compra una vez completado el proceso",
+      "continueWhatsapp": "Continuar por WhatsApp"
+    },
+    "orderSummary": {
+      "title": "Resumen de Orden",
+      "quantity": "Cantidad",
+      "subtotal": "Subtotal",
+      "discount": "Descuento",
+      "total": "Total",
+      "totalToPay": "Total a pagar",
+      "priceValidUntil": "Precio válido hasta las {time}"
+    },
+    "userSession": {
+      "buyingAs": "Comprando como",
+      "logout": "Cerrar sesión",
+      "notYou": "¿No eres tú?"
+    },
+    "summary": {
+      "title": "Resumen de Orden",
+      "items": "Items",
+      "discount": "Descuento",
+      "total": "Total"
+    },
+    "conversionError": {
+      "title": "No pudimos obtener la tasa de cambio",
+      "description": "No te preocupes, puedes recibir las instrucciones de pago directamente por WhatsApp.",
+      "whatsappButton": "Recibir instrucciones por WhatsApp"
+    },
+    "loadingOrder": "Cargando orden...",
+    "orderNotFound": "Orden No Encontrada",
+    "orderLoadError": "No se pudo cargar la orden"
+  },
+  "orders": {
+    "title": "Mis Órdenes",
+    "subtitle": "Consulta el historial de tus órdenes",
+    "search": {
+      "label": "Epic ID",
+      "placeholder": "Ej: TheProPlayer#1",
+      "button": "Buscar Órdenes",
+      "searching": "Buscando...",
+      "noResults": "No se encontraron órdenes para este Epic ID",
+      "error": "Error al cargar tus órdenes. Por favor intenta de nuevo.",
+      "required": "Por favor ingresa tu Epic ID",
+      "statsError": "Error al obtener estadísticas"
+    },
+    "stats": {
+      "title": "Estadísticas de Cliente",
+      "tier": "Tier",
+      "totalOrders": "Total Órdenes",
+      "totalSpent": "Total Gastado",
+      "lifetimeValue": "Lifetime Value"
+    },
+    "history": {
+      "title": "Historial de Órdenes",
+      "order": "Orden",
+      "total": "Total",
+      "discount": "Descuento",
+      "date": "Fecha",
+      "items": "Items:",
+      "viewDetails": "Ver Detalles",
+      "noOrders": "No se encontraron órdenes"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "pendingPayment": "Esperando Pago",
+      "paymentUploaded": "Comprobante Subido",
+      "paymentVerified": "Pago Verificado",
+      "paymentRejected": "Pago Rechazado",
+      "waitingFriendship": "Esperando Amistad",
+      "waitingPeriod": "Periodo de Espera 48h",
+      "queued": "En Cola",
+      "processing": "Enviando Regalo",
+      "completed": "Completado",
+      "failed": "Fallido",
+      "cancelled": "Cancelado",
+      "expired": "Expirada",
+      "abandoned": "Abandonada",
+      "refunded": "Reembolsada"
+    },
+    "statusDescriptions": {
+      "pending": "Tu orden ha sido creada y está esperando procesamiento",
+      "pendingPayment": "Sube tu comprobante de pago para continuar",
+      "paymentUploaded": "Estamos verificando tu comprobante de pago",
+      "paymentVerified": "Tu pago ha sido verificado exitosamente",
+      "paymentRejected": "Tu pago fue rechazado. Contacta a soporte para más información.",
+      "waitingFriendship": "Esperando que aceptes la solicitud de amistad en Fortnite",
+      "waitingPeriod": "Epic Games requiere 48 horas antes de poder enviar regalos",
+      "queued": "Tu orden está en cola para ser procesada",
+      "processing": "Estamos enviando tu regalo ahora",
+      "completed": "¡Tu regalo ha sido enviado exitosamente!",
+      "failed": "Hubo un problema procesando tu orden. Contacta a soporte.",
+      "cancelled": "Esta orden ha sido cancelada",
+      "expired": "Esta orden ha expirado por falta de pago.",
+      "abandoned": "Esta orden fue abandonada.",
+      "refunded": "Esta orden fue reembolsada."
+    },
+    "detail": {
+      "title": "Estado del Pedido",
+      "orderNumber": "Orden",
+      "currentStatus": "Estado Actual",
+      "orderExpired": "Esta orden ha expirado",
+      "orderDetails": "Detalles del Pedido",
+      "quantity": "Cantidad",
+      "subtotal": "Subtotal",
+      "discount": "Descuento",
+      "total": "Total",
+      "created": "Creado",
+      "expires": "Expira",
+      "backToStore": "Volver a la Tienda",
+      "backToHome": "Volver al Inicio",
+      "loading": "Cargando orden...",
+      "notFound": "Orden No Encontrada",
+      "notFoundDesc": "No pudimos encontrar esta orden",
+      "loadError": "No se pudo cargar la orden",
+      "unknownError": "Error desconocido",
+      "upload": {
+        "title": "Subir Comprobante de Pago",
+        "resubmitTitle": "Reenviar Comprobante de Pago",
+        "desc": "Por favor sube tu comprobante de pago para que podamos verificar tu orden.",
+        "resubmitDesc": "Tu comprobante fue rechazado. Por favor sube un nuevo comprobante válido.",
+        "button": "Subir Comprobante"
+      },
+      "paymentInfo": {
+        "title": "Información de Pago",
+        "method": "Método de Pago",
+        "transactionId": "ID de Transacción",
+        "uploadedAt": "Comprobante Subido",
+        "proofLabel": "Comprobante de Pago",
+        "proofAlt": "Comprobante de pago",
+        "clickToEnlarge": "Haz clic en la imagen para ver en tamaño completo"
+      },
+      "modal": {
+        "title": "Subir Comprobante de Pago",
+        "paymentMethod": "Método de Pago",
+        "selectMethod": "Seleccionar...",
+        "transactionId": "ID de Transacción",
+        "proofImage": "Comprobante (Imagen)",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Información adicional...",
+        "cancel": "Cancelar",
+        "submit": "Subir",
+        "uploading": "Subiendo...",
+        "methods": {
+          "transfer": "Transferencia Bancaria",
+          "other": "Otro"
+        },
+        "errors": {
+          "requiredFields": "Por favor completa todos los campos requeridos",
+          "uploadFailed": "Error al subir comprobante",
+          "unknown": "Error desconocido"
+        }
+      }
+    },
+    "proofModal": {
+      "paymentMethodLabel": "Método de Pago *",
+      "selectPlaceholder": "Seleccionar...",
+      "bankTransfer": "Transferencia Bancaria",
+      "paypal": "PayPal",
+      "zelle": "Zelle",
+      "binance": "Binance",
+      "other": "Otro",
+      "transactionIdLabel": "ID de Transacción *",
+      "transactionIdPlaceholder": "ABC123...",
+      "proofLabel": "Comprobante (Imagen) *",
+      "notesLabel": "Notas (Opcional)",
+      "cancel": "Cancelar",
+      "upload": "Subir",
+      "requiredFields": "Por favor completa todos los campos requeridos"
+    },
+    "crypto": {
+      "paymentDetail": "Detalle del Pago",
+      "currency": "Moneda",
+      "network": "Red",
+      "amount": "Monto",
+      "paidAmount": "Monto Pagado",
+      "expires": "Expira",
+      "paidAt": "Fecha de Pago",
+      "txHash": "Hash de Transacción",
+      "goToPay": "Ir a Pagar",
+      "changeCurrency": "Cambiar moneda/red",
+      "regenerating": "Regenerando...",
+      "regenerated": "Invoice regenerado - selecciona una nueva moneda/red",
+      "regenerateError": "Error al regenerar el pago",
+      "status": {
+        "pending": "Esperando Pago",
+        "pendingDesc": "Realiza el pago en la página de Cryptomus",
+        "confirming": "Confirmando",
+        "confirmingDesc": "Pago detectado, esperando confirmaciones en la blockchain",
+        "paid": "Pagado",
+        "paidDesc": "Pago confirmado exitosamente",
+        "paidOver": "Pagado (exceso)",
+        "paidOverDesc": "Pagaste más del monto requerido",
+        "wrongAmount": "Monto Incorrecto",
+        "wrongAmountDesc": "El monto pagado no coincide con el requerido",
+        "expired": "Expirado",
+        "expiredDesc": "La factura ha expirado",
+        "cancelled": "Cancelado",
+        "cancelledDesc": "El pago fue cancelado",
+        "failed": "Fallido",
+        "failedDesc": "El pago falló"
+      }
+    },
+    "statusPage": {
+      "products": "Producto(s)",
+      "type": "Tipo",
+      "quantity": "Cantidad",
+      "unitPrice": "Precio unitario",
+      "orderTotal": "Total de la Orden",
+      "orderInfo": "Información de la Orden",
+      "epicId": "Epic ID",
+      "orderDate": "Fecha de Orden",
+      "estimatedDelivery": "Entrega Estimada",
+      "verifyingProof": "Verificando Comprobante",
+      "verifyingProofDesc": "Tu comprobante está siendo verificado por nuestro equipo. Te notificaremos cuando sea aprobado.",
+      "giftSent": "¡Regalo Enviado!",
+      "giftSentDesc": "Tu regalo ha sido enviado exitosamente. Revisa tu cuenta de Fortnite para reclamar tu item.",
+      "orderError": "Error en la Orden",
+      "orderNotCompleted": "Orden No Completada",
+      "cancelledMessage": "Esta orden fue cancelada.",
+      "expiredMessage": "Esta orden expiró por falta de pago.",
+      "abandonedMessage": "Esta orden fue abandonada.",
+      "contactSupport": "Si tienes dudas, contacta a soporte.",
+      "back": "Volver",
+      "buyMore": "Comprar Más"
+    },
+    "myOrders": {
+      "titlePart1": "Mis",
+      "titlePart2": "Compras",
+      "changeUser": "Cambiar",
+      "epicId": {
+        "title": "Accede a tu historial",
+        "description": "Ingresa tu nombre de usuario de Fortnite para ver tus compras",
+        "label": "Nombre de usuario de Fortnite",
+        "placeholder": "Ej: MiNombre123",
+        "hint": "Es el mismo nombre de usuario que usaste para realizar tus compras",
+        "button": "Continuar",
+        "otpNote": "Te enviaremos un código de verificación a tu medio de contacto registrado",
+        "required": "Ingresa tu nombre de usuario de Fortnite"
+      },
+      "otp": {
+        "title": "Ingresa el código",
+        "description": "Te enviamos un código de verificación",
+        "label": "Código de verificación",
+        "sentTo": "Código enviado a {contact}",
+        "verifyButton": "Verificar Código",
+        "changeUser": "Cambiar usuario",
+        "resend": "Reenviar código",
+        "invalidCode": "Ingresa el código de 6 dígitos",
+        "sendError": "Error al enviar el código"
+      },
+      "errors": {
+        "connection": "No pudimos conectar con el servidor. Verifica tu conexión e intenta de nuevo."
+      },
+      "stats": {
+        "totalOrders": "Total Órdenes",
+        "completed": "Completadas",
+        "inProgress": "En Proceso",
+        "tier": "Tu Nivel"
+      },
+      "filters": {
+        "all": "Todas",
+        "pending": "Pendientes",
+        "processing": "En Proceso",
+        "completed": "Completadas",
+        "cancelled": "Canceladas",
+        "dateRanges": {
+          "30d": "Últimos 30 días",
+          "3m": "Últimos 3 meses",
+          "1y": "Último año",
+          "all": "Todas las fechas"
+        },
+        "dateFilterLabel": "Filtrar por fecha"
+      },
+      "timeline": {
+        "created": "Pedido",
+        "paid": "Pagado",
+        "verified": "Verificado",
+        "gifting": "Enviando",
+        "completed": "Completado"
+      },
+      "card": {
+        "andMore": "y {count} más",
+        "total": "Total"
+      }
+    }
+  },
+  "userSession": {
+    "buyingAs": "Comprando como:",
+    "logout": "Cerrar sesión",
+    "notYou": "¿No eres tú?"
+  },
+  "legal": {
+    "terms": {
+      "title": "Términos y Condiciones"
+    },
+    "privacy": {
+      "title": "Política de Privacidad"
+    },
+    "refund": {
+      "title": "Política de Devoluciones"
+    }
+  },
+  "cookies": {
+    "banner": {
+      "title": "Usamos cookies",
+      "description": "Utilizamos cookies para mejorar tu experiencia y analizar el tráfico del sitio.",
+      "accept": "Aceptar",
+      "reject": "Rechazar",
+      "customize": "Personalizar"
+    }
+  },
+  "metadata": {
+    "title": "FortLoot - Gaming Currencies",
+    "description": "La mejor tienda de monedas y objetos virtuales para tus juegos favoritos."
+  }
+}

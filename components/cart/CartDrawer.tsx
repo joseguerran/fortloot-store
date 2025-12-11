@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { useLocale, useTranslations } from "next-intl"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Trash2, ShoppingCart, Coins, CreditCard, MessageCircle, Wrench } from "lucide-react"
 import { useCart, type CartItem } from "@/context/CartContext"
@@ -13,6 +14,9 @@ import { useToast } from "@/components/ui/use-toast"
 import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon"
 
 export function CartDrawer() {
+  const t = useTranslations('common.cart')
+  const tMaintenance = useTranslations('checkout.maintenance')
+  const locale = useLocale()
   const { cartItems, isCartOpen, closeCart, removeFromCart, clearCart, totalItems, totalPrice, isLoadingPrices } =
     useCart()
   const { checkoutMode } = useConfig()
@@ -26,20 +30,18 @@ export function CartDrawer() {
       return
     }
 
-    // Lógica condicional según el modo de checkout configurado
+    // Conditional logic based on configured checkout mode
     if (checkoutMode === "wizard") {
-      // Modo nuevo: navegar al checkout de 4 pasos
       closeCart()
-      router.push("/checkout")
+      router.push(`/${locale}/checkout`)
     } else if (checkoutMode === "bot-wizard") {
-      // Modo bot-wizard: próximamente
       toast({
-        title: "Próximamente",
-        description: "El checkout automático por bot estará disponible pronto.",
+        title: locale === 'es' ? "Próximamente" : "Coming Soon",
+        description: locale === 'es' ? "El checkout automático por bot estará disponible pronto." : "Automatic bot checkout will be available soon.",
         variant: "default",
       })
     } else {
-      // Modo whatsapp (default): abrir WhatsApp con el carrito
+      // WhatsApp mode (default)
       openWhatsAppWithCart(cartItems, totalPrice)
       closeCart()
     }
@@ -47,10 +49,10 @@ export function CartDrawer() {
 
   const handleContinueShopping = () => {
     closeCart()
-    router.push("/tienda")
+    router.push(`/${locale}/store`)
   }
 
-  // Cerrar el carrito al hacer clic fuera de él
+  // Close cart on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cartRef.current && !cartRef.current.contains(event.target as Node) && isCartOpen) {
@@ -64,7 +66,7 @@ export function CartDrawer() {
     }
   }, [isCartOpen, closeCart])
 
-  // Prevenir scroll cuando el carrito está abierto
+  // Prevent scroll when cart is open
   useEffect(() => {
     if (isCartOpen) {
       document.body.style.overflow = "hidden"
@@ -104,12 +106,12 @@ export function CartDrawer() {
             <div className="p-4 border-b border-light flex justify-between items-center bg-dark">
               <h2 className="text-xl font-['Russo_One'] text-white flex items-center">
                 <ShoppingCart className="mr-2 text-primary" />
-                Carrito de Compras
+                {t('title')}
               </h2>
               <button
                 onClick={closeCart}
                 className="p-2 rounded-full hover:bg-light transition-colors"
-                aria-label="Cerrar carrito"
+                aria-label={locale === 'es' ? "Cerrar carrito" : "Close cart"}
               >
                 <X className="w-5 h-5 text-white" />
               </button>
@@ -120,13 +122,13 @@ export function CartDrawer() {
               {cartItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center">
                   <ShoppingCart className="w-16 h-16 text-gray-500 mb-4" />
-                  <p className="text-gray-300 text-lg mb-2">Tu carrito está vacío</p>
-                  <p className="text-gray-500 mb-6">Añade productos desde la tienda para comenzar</p>
+                  <p className="text-gray-300 text-lg mb-2">{t('empty')}</p>
+                  <p className="text-gray-500 mb-6">{t('emptyDescription')}</p>
                   <button
                     onClick={handleContinueShopping}
                     className="py-3 px-6 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition-colors neon-border-cyan"
                   >
-                    Ir a la Tienda
+                    {t('continueShopping')}
                   </button>
                 </div>
               ) : (
@@ -147,20 +149,20 @@ export function CartDrawer() {
                     <div className="flex items-center gap-2 text-primary">
                       <Wrench className="w-5 h-5 animate-pulse" />
                       <div>
-                        <p className="font-bold text-sm">{maintenanceMessage?.title || 'Tienda en Mantenimiento'}</p>
-                        <p className="text-xs text-gray-300">{maintenanceMessage?.message || 'Las compras están temporalmente deshabilitadas'}</p>
+                        <p className="font-bold text-sm">{maintenanceMessage?.title || tMaintenance('title')}</p>
+                        <p className="text-xs text-gray-300">{maintenanceMessage?.message || tMaintenance('disabled')}</p>
                       </div>
                     </div>
                   </div>
                 )}
 
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-gray-300">Total ({totalItems} items):</span>
+                  <span className="text-gray-300">{t('total')} ({totalItems} {totalItems === 1 ? t('item') : t('items')}):</span>
                   <div className="flex flex-col items-end">
                     <span className="text-white font-bold text-lg">
                       ${isLoadingPrices ? "..." : totalPrice.toFixed(2)}
                     </span>
-                    {isLoadingPrices && <span className="text-xs text-gray-400">Calculando...</span>}
+                    {isLoadingPrices && <span className="text-xs text-gray-400">{locale === 'es' ? 'Calculando...' : 'Calculating...'}</span>}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -178,17 +180,17 @@ export function CartDrawer() {
                     {isInMaintenance ? (
                       <>
                         <Wrench className="w-5 h-5 mr-2" />
-                        Checkout Deshabilitado
+                        {locale === 'es' ? 'Checkout Deshabilitado' : 'Checkout Disabled'}
                       </>
                     ) : checkoutMode === "whatsapp" ? (
                       <>
                         <WhatsAppIcon className="w-5 h-5 mr-2" size={20} />
-                        Finalizar Compra por WhatsApp
+                        {locale === 'es' ? 'Finalizar Compra por WhatsApp' : 'Complete Purchase via WhatsApp'}
                       </>
                     ) : (
                       <>
                         <CreditCard className="w-5 h-5 mr-2" />
-                        Proceder al Pago
+                        {t('checkout')}
                       </>
                     )}
                   </button>
@@ -198,13 +200,13 @@ export function CartDrawer() {
                       className="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center justify-center transition-colors"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
-                      Vaciar
+                      {t('clear')}
                     </button>
                     <button
                       onClick={handleContinueShopping}
                       className="flex-1 py-2 px-4 bg-[#00F5D4] hover:bg-[#00D5C0] text-darker font-bold rounded-lg transition-colors"
                     >
-                      Seguir Comprando
+                      {t('continueShopping')}
                     </button>
                   </div>
                 </div>
@@ -218,27 +220,28 @@ export function CartDrawer() {
 }
 
 function CartItemCard({ item }: { item: CartItem }) {
+  const t = useTranslations('common.cart')
   const { removeFromCart } = useCart()
 
-  // Obtener el precio del backend (ya viene calculado en centavos)
+  // Get price from backend (already calculated in cents)
   const finalPrice = item.price?.finalPrice || 0
   const displayPrice = `$${(finalPrice / 100).toFixed(2)}`
 
   return (
     <div className="bg-light rounded-lg overflow-hidden flex">
-      {/* Imagen */}
+      {/* Image */}
       <div className="w-24 h-24 relative flex-shrink-0">
         <OptimizedImage src={item.image} alt={item.name} fill className="object-cover" />
       </div>
 
-      {/* Detalles */}
+      {/* Details */}
       <div className="flex-1 p-3 flex flex-col">
         <div className="flex justify-between">
           <h3 className="font-medium text-white line-clamp-1">{item.name}</h3>
           <button
             onClick={() => removeFromCart(item.id)}
             className="text-gray-400 hover:text-red-500 transition-colors"
-            aria-label="Eliminar item"
+            aria-label={t('remove')}
           >
             <X className="w-4 h-4" />
           </button>

@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { Loader2, Clock } from "lucide-react"
 import { format } from "date-fns"
+import { useTranslations } from "next-intl"
 
 interface ConversionInfo {
   convertedAmount: number
@@ -18,10 +19,11 @@ interface OrderSummaryProps {
 
 export function OrderSummary({ conversionInfo, isLoadingConversion }: OrderSummaryProps = {}) {
   const { cartItems, cartTotal, isLoadingPrices, totalPrice } = useCart()
+  const t = useTranslations("checkout.orderSummary")
 
   return (
     <div className="bg-dark border border-light rounded-lg p-6">
-      <h2 className="text-2xl font-russo text-white mb-4">Resumen de Orden</h2>
+      <h2 className="text-2xl font-russo text-white mb-4">{t("title")}</h2>
 
       <div className="space-y-4 mb-6">
         {cartItems.map((item) => {
@@ -35,7 +37,7 @@ export function OrderSummary({ conversionInfo, isLoadingConversion }: OrderSumma
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-white font-medium text-sm truncate">{item.name}</h3>
-                <p className="text-xs text-gray-400">Cantidad: {item.quantity}</p>
+                <p className="text-xs text-gray-400">{t("quantity")}: {item.quantity}</p>
               </div>
               <div className="text-right flex-shrink-0">
                 <p className="text-accent font-bold text-sm">
@@ -51,19 +53,19 @@ export function OrderSummary({ conversionInfo, isLoadingConversion }: OrderSumma
         {cartTotal && (
           <>
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Subtotal:</span>
+              <span className="text-gray-400">{t("subtotal")}:</span>
               <span className="text-white">${cartTotal.subtotal.toFixed(2)}</span>
             </div>
             {cartTotal.totalDiscount > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Descuento:</span>
+                <span className="text-gray-400">{t("discount")}:</span>
                 <span className="text-green-500">-${cartTotal.totalDiscount.toFixed(2)}</span>
               </div>
             )}
           </>
         )}
         <div className="flex justify-between text-lg font-bold pt-2 border-t border-light">
-          <span className="text-white">Total:</span>
+          <span className="text-white">{t("total")}:</span>
           <span className="text-accent">
             {isLoadingPrices ? <Loader2 className="w-5 h-5 animate-spin inline" /> : `$${totalPrice.toFixed(2)}`}
           </span>
@@ -78,7 +80,7 @@ export function OrderSummary({ conversionInfo, isLoadingConversion }: OrderSumma
         {conversionInfo && !isLoadingConversion && (
           <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
             <div className="flex justify-between items-center">
-              <span className="text-blue-300 font-medium">Total a pagar:</span>
+              <span className="text-blue-300 font-medium">{t("totalToPay")}:</span>
               <span className="text-2xl font-bold text-blue-400">
                 {conversionInfo.convertedAmount.toLocaleString('es-VE', { minimumFractionDigits: 2 })} {conversionInfo.convertedCurrency === 'VES' ? 'Bs' : conversionInfo.convertedCurrency}
               </span>
@@ -87,7 +89,7 @@ export function OrderSummary({ conversionInfo, isLoadingConversion }: OrderSumma
               <div className="flex items-center gap-1 mt-2 text-xs text-blue-300/70">
                 <Clock className="w-3 h-3" />
                 <span>
-                  Precio valido hasta las {format(new Date(conversionInfo.validUntil), 'h:mm a')}
+                  {t("priceValidUntil", { time: format(new Date(conversionInfo.validUntil), 'h:mm a') })}
                 </span>
               </div>
             )}

@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useEffect, memo } from "react"
+import { useTranslations } from "next-intl"
 import type { TimeRemaining } from "@/types"
 
 export const CountdownTimer = () => {
+  const t = useTranslations("store.countdown")
   const [timeRemaining, setTimeRemaining] = useState<TimeRemaining>({
     hours: 0,
     minutes: 0,
@@ -36,11 +38,11 @@ export const CountdownTimer = () => {
   return (
     <div className="mt-12 text-center">
       <div className="bg-[#1B263B]/70 backdrop-blur-sm rounded-lg p-6 inline-block border border-[#1B263B]/80">
-        <h3 className="text-lg font-medium text-gray-300 mb-2">Próxima actualización de la tienda en:</h3>
+        <h3 className="text-lg font-medium text-gray-300 mb-2">{t("title")}</h3>
         <div className="flex justify-center gap-4">
-          <TimeUnit value={timeRemaining.hours} label="Horas" />
-          <TimeUnit value={timeRemaining.minutes} label="Minutos" />
-          <TimeUnit value={timeRemaining.seconds} label="Segundos" />
+          <TimeUnit value={timeRemaining.hours} label={t("hours")} />
+          <TimeUnit value={timeRemaining.minutes} label={t("minutes")} />
+          <TimeUnit value={timeRemaining.seconds} label={t("seconds")} />
         </div>
       </div>
     </div>

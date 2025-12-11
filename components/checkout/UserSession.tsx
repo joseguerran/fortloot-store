@@ -2,6 +2,7 @@
 
 import { User, LogOut } from "lucide-react"
 import { useCustomer } from "@/context/CustomerContext"
+import { useTranslations } from "next-intl"
 
 interface UserSessionProps {
   onLogout?: () => void
@@ -11,6 +12,7 @@ export function UserSession({ onLogout }: UserSessionProps) {
   const customerContext = useCustomer()
   const customer = customerContext?.customer || null
   const logout = customerContext?.logout
+  const t = useTranslations("checkout.userSession")
 
   if (!customer) return null
 
@@ -31,7 +33,7 @@ export function UserSession({ onLogout }: UserSessionProps) {
             <User className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <p className="text-sm text-gray-400">Comprando como:</p>
+            <p className="text-sm text-gray-400">{t("buyingAs")}:</p>
             <p className="text-white font-medium">{customer.displayName || customer.epicAccountId}</p>
             {customer.displayName && (
               <p className="text-gray-500 font-mono text-xs mt-0.5">{customer.epicAccountId}</p>
@@ -41,9 +43,9 @@ export function UserSession({ onLogout }: UserSessionProps) {
         <button
           onClick={handleLogout}
           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-light/50 rounded-lg transition-colors"
-          title="Cerrar sesión"
+          title={t("logout")}
         >
-          <span className="hidden sm:inline">¿No eres tú?</span>
+          <span className="hidden sm:inline">{t("notYou")}</span>
           <LogOut className="w-4 h-4" />
         </button>
       </div>

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import { ScrollToTop } from "@/components/ui/ScrollToTop"
 import { RefundPolicyModal } from "@/components/modals/RefundPolicyModal"
@@ -20,7 +19,6 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-dark">
-      <Header />
       <main>
         <HeroSection />
         <ProductsSection />

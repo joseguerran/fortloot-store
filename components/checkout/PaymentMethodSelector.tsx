@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Building2, Wallet, Loader2, Bitcoin, AlertCircle } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 interface PaymentMethod {
   id: string
@@ -31,6 +32,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 }
 
 export function PaymentMethodSelector({ selectedMethod, onSelect }: PaymentMethodSelectorProps) {
+  const t = useTranslations("checkout.paymentMethod")
   const [methods, setMethods] = useState<PaymentMethod[]>([])
   const [cryptoAvailable, setCryptoAvailable] = useState<CryptoAvailability | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -67,7 +69,7 @@ export function PaymentMethodSelector({ selectedMethod, onSelect }: PaymentMetho
         throw new Error('Failed to fetch payment methods')
       }
     } catch {
-      setError('Error al cargar métodos de pago')
+      setError(t("error"))
     } finally {
       setIsLoading(false)
     }
@@ -78,10 +80,11 @@ export function PaymentMethodSelector({ selectedMethod, onSelect }: PaymentMetho
     const IconComponent = ICON_MAP[iconName]
     return IconComponent ? <IconComponent className="w-6 h-6" /> : <Wallet className="w-6 h-6" />
   }
+
   if (isLoading) {
     return (
       <div className="bg-dark border border-light rounded-lg p-6">
-        <h2 className="text-2xl font-russo text-white mb-4">Método de Pago</h2>
+        <h2 className="text-2xl font-russo text-white mb-4">{t("title")}</h2>
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 text-primary animate-spin" />
         </div>
@@ -92,14 +95,14 @@ export function PaymentMethodSelector({ selectedMethod, onSelect }: PaymentMetho
   if (error) {
     return (
       <div className="bg-dark border border-light rounded-lg p-6">
-        <h2 className="text-2xl font-russo text-white mb-4">Método de Pago</h2>
+        <h2 className="text-2xl font-russo text-white mb-4">{t("title")}</h2>
         <div className="bg-red-500/10 border border-red-500 rounded-lg p-4">
           <p className="text-sm text-red-500">{error}</p>
           <button
             onClick={fetchPaymentMethods}
             className="mt-3 text-sm text-white underline hover:text-primary"
           >
-            Reintentar
+            {t("retry")}
           </button>
         </div>
       </div>
@@ -109,16 +112,16 @@ export function PaymentMethodSelector({ selectedMethod, onSelect }: PaymentMetho
   if (methods.length === 0) {
     return (
       <div className="bg-dark border border-light rounded-lg p-6">
-        <h2 className="text-2xl font-russo text-white mb-4">Método de Pago</h2>
-        <p className="text-gray-400">No hay métodos de pago disponibles en este momento.</p>
+        <h2 className="text-2xl font-russo text-white mb-4">{t("title")}</h2>
+        <p className="text-gray-400">{t("noMethods")}</p>
       </div>
     )
   }
 
   return (
     <div className="bg-dark border border-light rounded-lg p-6">
-      <h2 className="text-2xl font-russo text-white mb-4">Metodo de Pago</h2>
-      <p className="text-gray-400 mb-6">Selecciona como deseas pagar tu orden</p>
+      <h2 className="text-2xl font-russo text-white mb-4">{t("title")}</h2>
+      <p className="text-gray-400 mb-6">{t("subtitle")}</p>
 
       <div className="grid gap-4">
         {/* Crypto Payment Option - Shown first if available */}
@@ -141,9 +144,9 @@ export function PaymentMethodSelector({ selectedMethod, onSelect }: PaymentMetho
                   <Bitcoin className="w-6 h-6" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-white font-bold text-lg">Pago con Crypto</h3>
+                  <h3 className="text-white font-bold text-lg">{t("cryptoOption.title")}</h3>
                   <p className="text-sm text-gray-400">
-                    Paga con criptomonedas - Procesamiento automatico
+                    {t("cryptoOption.description")}
                   </p>
                 </div>
                 {selectedMethod === 'crypto' && (
@@ -160,7 +163,9 @@ export function PaymentMethodSelector({ selectedMethod, onSelect }: PaymentMetho
             <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
               <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-yellow-200/80">
-                Para pagos crypto, te recomendamos elegir redes con comisiones bajas como <span className="font-semibold">LTC, Polygon o TRON</span> para evitar costos elevados de red.
+                {t.rich("cryptoDisclaimer", {
+                  bold: (chunks) => <span className="font-semibold">{chunks}</span>
+                })}
               </p>
             </div>
           </div>
@@ -170,7 +175,7 @@ export function PaymentMethodSelector({ selectedMethod, onSelect }: PaymentMetho
         {cryptoAvailable?.available && methods.length > 0 && (
           <div className="flex items-center gap-4 py-2">
             <div className="flex-1 h-px bg-light"></div>
-            <span className="text-sm text-gray-500">O paga manualmente</span>
+            <span className="text-sm text-gray-500">{t("orPayManually")}</span>
             <div className="flex-1 h-px bg-light"></div>
           </div>
         )}

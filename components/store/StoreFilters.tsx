@@ -4,6 +4,7 @@ import { memo } from "react"
 import { motion } from "framer-motion"
 import { Search } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useTranslations } from "next-intl"
 
 interface StoreFiltersProps {
   activeFilter: string
@@ -14,6 +15,8 @@ interface StoreFiltersProps {
 
 export const StoreFilters = memo(
   ({ activeFilter, handleFilterChange, searchQuery, setSearchQuery }: StoreFiltersProps) => {
+    const t = useTranslations("store.filters")
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -23,24 +26,24 @@ export const StoreFilters = memo(
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#1B263B]/70 backdrop-blur-sm p-4 rounded-lg border border-[#1B263B]/80">
           <div className="flex flex-wrap gap-2">
-            <FilterButton label="Todos" isActive={activeFilter === "all"} onClick={() => handleFilterChange("all")} />
+            <FilterButton label={t("all")} isActive={activeFilter === "all"} onClick={() => handleFilterChange("all")} />
             <FilterButton
-              label="Pavos"
+              label={t("vbucks")}
               isActive={activeFilter === "vbucks"}
               onClick={() => handleFilterChange("vbucks")}
             />
             <FilterButton
-              label="Tienda"
+              label={t("shop")}
               isActive={activeFilter === "store"}
               onClick={() => handleFilterChange("store")}
             />
             <FilterButton
-              label="Fortnite Crew"
+              label={t("crew")}
               isActive={activeFilter === "crew"}
               onClick={() => handleFilterChange("crew")}
             />
             <FilterButton
-              label="Bundles"
+              label={t("bundles")}
               isActive={activeFilter === "bundle"}
               onClick={() => handleFilterChange("bundle")}
             />
@@ -66,14 +69,14 @@ export const StoreFilters = memo(
             >
               <input
                 type="text"
-                placeholder="Buscar artículos..."
+                placeholder={t("search")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
                   "w-full bg-[#0D1B2A] text-white border rounded-full py-2 pl-10 pr-4 focus:outline-none transition-colors",
                   searchQuery ? "border-[#00F5D4]" : "border-[#1B263B] focus:border-[#00F5D4]"
                 )}
-                aria-label="Buscar artículos"
+                aria-label={t("searchAria")}
               />
             </motion.div>
             <Search className={cn(

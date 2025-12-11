@@ -6,6 +6,8 @@ import { orderAPI, type Order } from "@/lib/api/order"
 import { Loader2, CheckCircle, Clock, XCircle, Package, AlertCircle, Home, FileText, ArrowLeft, ShoppingBag, ExternalLink, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
 import { trackOrderStatusViewed, trackOrderCompleted } from "@/lib/analytics"
+import { useTranslations } from "next-intl"
+import { useLocale } from "next-intl"
 
 interface CryptoPaymentStatus {
   id: string
@@ -20,147 +22,46 @@ interface CryptoPaymentStatus {
   paidAt: string | null
 }
 
-const CRYPTO_STATUS_CONFIG: Record<string, { label: string; color: string; description: string }> = {
-  PENDING: {
-    label: "Esperando Pago",
-    color: "yellow",
-    description: "Realiza el pago en la pagina de Cryptomus",
-  },
-  CONFIRMING: {
-    label: "Confirmando",
-    color: "blue",
-    description: "Pago detectado, esperando confirmaciones en la blockchain",
-  },
-  PAID: {
-    label: "Pagado",
-    color: "green",
-    description: "Pago confirmado exitosamente",
-  },
-  PAID_OVER: {
-    label: "Pagado (exceso)",
-    color: "green",
-    description: "Pagaste mas del monto requerido",
-  },
-  WRONG_AMOUNT: {
-    label: "Monto Incorrecto",
-    color: "red",
-    description: "El monto pagado no coincide con el requerido",
-  },
-  EXPIRED: {
-    label: "Expirado",
-    color: "red",
-    description: "La factura ha expirado",
-  },
-  CANCELLED: {
-    label: "Cancelado",
-    color: "red",
-    description: "El pago fue cancelado",
-  },
-  FAILED: {
-    label: "Fallido",
-    color: "red",
-    description: "El pago fallo",
-  },
+const CRYPTO_STATUS_CONFIG: Record<string, { key: string; color: string }> = {
+  PENDING: { key: "pending", color: "yellow" },
+  CONFIRMING: { key: "confirming", color: "blue" },
+  PAID: { key: "paid", color: "green" },
+  PAID_OVER: { key: "paidOver", color: "green" },
+  WRONG_AMOUNT: { key: "wrongAmount", color: "red" },
+  EXPIRED: { key: "expired", color: "red" },
+  CANCELLED: { key: "cancelled", color: "red" },
+  FAILED: { key: "failed", color: "red" },
 }
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; description: string }> = {
-  PENDING: {
-    label: "Pendiente",
-    color: "gray",
-    icon: Clock,
-    description: "Tu orden ha sido creada y está esperando procesamiento",
-  },
-  PENDING_PAYMENT: {
-    label: "Esperando Pago",
-    color: "yellow",
-    icon: Clock,
-    description: "Sube tu comprobante de pago para continuar",
-  },
-  PAYMENT_UPLOADED: {
-    label: "Comprobante Subido",
-    color: "blue",
-    icon: Package,
-    description: "Estamos verificando tu comprobante de pago",
-  },
-  PAYMENT_VERIFIED: {
-    label: "Pago Verificado",
-    color: "green",
-    icon: CheckCircle,
-    description: "Tu pago ha sido verificado exitosamente",
-  },
-  WAITING_FRIENDSHIP: {
-    label: "Esperando Amistad",
-    color: "blue",
-    icon: Clock,
-    description: "Esperando que aceptes la solicitud de amistad en Fortnite",
-  },
-  WAITING_PERIOD: {
-    label: "Periodo de Espera 48h",
-    color: "blue",
-    icon: Clock,
-    description: "Epic Games requiere 48 horas antes de poder enviar regalos",
-  },
-  QUEUED: {
-    label: "En Cola",
-    color: "blue",
-    icon: Package,
-    description: "Tu orden está en cola para ser procesada",
-  },
-  PROCESSING: {
-    label: "Enviando Regalo",
-    color: "blue",
-    icon: Package,
-    description: "Estamos enviando tu regalo ahora",
-  },
-  COMPLETED: {
-    label: "Completado",
-    color: "green",
-    icon: CheckCircle,
-    description: "¡Tu regalo ha sido enviado exitosamente!",
-  },
-  FAILED: {
-    label: "Fallido",
-    color: "red",
-    icon: XCircle,
-    description: "Hubo un problema procesando tu orden. Contacta a soporte.",
-  },
-  CANCELLED: {
-    label: "Cancelado",
-    color: "red",
-    icon: XCircle,
-    description: "Esta orden ha sido cancelada",
-  },
-  PAYMENT_REJECTED: {
-    label: "Pago Rechazado",
-    color: "red",
-    icon: XCircle,
-    description: "Tu pago fue rechazado. Contacta a soporte para más información.",
-  },
-  EXPIRED: {
-    label: "Expirada",
-    color: "gray",
-    icon: Clock,
-    description: "Esta orden ha expirado por falta de pago.",
-  },
-  ABANDONED: {
-    label: "Abandonada",
-    color: "gray",
-    icon: Clock,
-    description: "Esta orden fue abandonada.",
-  },
-  REFUNDED: {
-    label: "Reembolsada",
-    color: "yellow",
-    icon: CheckCircle,
-    description: "Esta orden fue reembolsada.",
-  },
+const STATUS_CONFIG: Record<string, { key: string; color: string; icon: any }> = {
+  PENDING: { key: "pending", color: "gray", icon: Clock },
+  PENDING_PAYMENT: { key: "pendingPayment", color: "yellow", icon: Clock },
+  PAYMENT_UPLOADED: { key: "paymentUploaded", color: "blue", icon: Package },
+  PAYMENT_VERIFIED: { key: "paymentVerified", color: "green", icon: CheckCircle },
+  WAITING_FRIENDSHIP: { key: "waitingFriendship", color: "blue", icon: Clock },
+  WAITING_PERIOD: { key: "waitingPeriod", color: "blue", icon: Clock },
+  QUEUED: { key: "queued", color: "blue", icon: Package },
+  PROCESSING: { key: "processing", color: "blue", icon: Package },
+  COMPLETED: { key: "completed", color: "green", icon: CheckCircle },
+  FAILED: { key: "failed", color: "red", icon: XCircle },
+  CANCELLED: { key: "cancelled", color: "red", icon: XCircle },
+  PAYMENT_REJECTED: { key: "paymentRejected", color: "red", icon: XCircle },
+  EXPIRED: { key: "expired", color: "gray", icon: Clock },
+  ABANDONED: { key: "abandoned", color: "gray", icon: Clock },
+  REFUNDED: { key: "refunded", color: "yellow", icon: CheckCircle },
 }
 
 export default function OrderStatusPage() {
+  const t = useTranslations("orders")
+  const tStatus = useTranslations("orders.status")
+  const tDesc = useTranslations("orders.statusDescriptions")
+  const tCrypto = useTranslations("orders.crypto")
+  const tCryptoStatus = useTranslations("orders.crypto.status")
+  const locale = useLocale()
   const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const fromMisCompras = searchParams.get("from") === "mis-compras"
+  const fromMisCompras = searchParams.get("from") === "my-orders"
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -193,7 +94,7 @@ export default function OrderStatusPage() {
           }
         }
       } catch (err: any) {
-        setError(err.message || "Error cargando la orden")
+        setError(err.message || t("detail.loadError"))
       } finally {
         setIsLoading(false)
       }
@@ -256,12 +157,12 @@ export default function OrderStatusPage() {
 
         // Open new payment URL
         window.open(data.data.paymentUrl, '_blank')
-        toast.success('Invoice regenerado - selecciona una nueva moneda/red')
+        toast.success(tCrypto('regenerated'))
       } else {
-        toast.error(data.message || 'Error al regenerar el pago')
+        toast.error(data.message || tCrypto('regenerateError'))
       }
     } catch {
-      toast.error('Error al regenerar el pago')
+      toast.error(tCrypto('regenerateError'))
     } finally {
       setIsRegenerating(false)
     }
@@ -272,7 +173,7 @@ export default function OrderStatusPage() {
       <div className="min-h-screen bg-darker flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-16 h-16 text-primary animate-spin mx-auto mb-4" />
-          <p className="text-white">Cargando orden...</p>
+          <p className="text-white">{t("detail.loading")}</p>
         </div>
       </div>
     )
@@ -283,10 +184,10 @@ export default function OrderStatusPage() {
       <div className="min-h-screen bg-darker flex items-center justify-center">
         <div className="text-center max-w-md">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Orden No Encontrada</h2>
-          <p className="text-gray-400 mb-6">{error || "No pudimos encontrar esta orden"}</p>
-          <button onClick={() => router.push("/")} className="px-6 py-3 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition-colors">
-            Volver al Inicio
+          <h2 className="text-2xl font-bold text-white mb-2">{t("detail.notFound")}</h2>
+          <p className="text-gray-400 mb-6">{error || t("detail.notFoundDesc")}</p>
+          <button onClick={() => router.push(`/${locale}`)} className="px-6 py-3 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition-colors">
+            {t("detail.backToHome")}
           </button>
         </div>
       </div>
@@ -314,22 +215,22 @@ export default function OrderStatusPage() {
                 statusConfig.color === "red" ? "text-red-500" : "text-gray-500"
               }`} />
             </div>
-            <h1 className="text-3xl font-russo text-white mb-2">Orden #{order.orderNumber}</h1>
+            <h1 className="text-3xl font-russo text-white mb-2">{t("history.order")} #{order.orderNumber}</h1>
             <p className={`text-xl font-medium mb-2 ${
               statusConfig.color === "green" ? "text-green-500" :
               statusConfig.color === "blue" ? "text-blue-500" :
               statusConfig.color === "yellow" ? "text-yellow-500" :
               statusConfig.color === "red" ? "text-red-500" : "text-gray-500"
             }`}>
-              {statusConfig.label}
+              {tStatus(statusConfig.key)}
             </p>
-            <p className="text-gray-400">{statusConfig.description}</p>
+            <p className="text-gray-400">{tDesc(statusConfig.key)}</p>
           </div>
 
           <div className="space-y-6">
             {/* Producto(s) de la Orden */}
             <div className="border-t border-light pt-6">
-              <h3 className="text-xl font-bold text-white mb-4">Producto(s)</h3>
+              <h3 className="text-xl font-bold text-white mb-4">{t("statusPage.products")}</h3>
               <div className="space-y-3">
                 {order.orderItems && order.orderItems.length > 0 ? (
                   order.orderItems.map((item: any) => (
@@ -337,18 +238,18 @@ export default function OrderStatusPage() {
                       <div className="flex items-start gap-4">
                         <div className="flex-1">
                           <p className="text-white font-bold text-lg mb-1">{item.productName}</p>
-                          <p className="text-sm text-gray-400 mb-2">Tipo: {item.productType}</p>
+                          <p className="text-sm text-gray-400 mb-2">{t("statusPage.type")}: {item.productType}</p>
                           <div className="flex items-center gap-4">
                             <p className="text-sm text-gray-400">
-                              Cantidad: <span className="text-white font-medium">{item.quantity}</span>
+                              {t("statusPage.quantity")}: <span className="text-white font-medium">{item.quantity}</span>
                             </p>
                             <p className="text-sm text-gray-400">
-                              Precio unitario: <span className="text-white font-medium">\${item.finalPrice.toFixed(2)}</span>
+                              {t("statusPage.unitPrice")}: <span className="text-white font-medium">\${item.finalPrice.toFixed(2)}</span>
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-400 mb-1">Subtotal</p>
+                          <p className="text-sm text-gray-400 mb-1">{t("detail.subtotal")}</p>
                           <p className="text-white font-bold text-xl">\${(item.finalPrice * item.quantity).toFixed(2)}</p>
                         </div>
                       </div>
@@ -360,18 +261,18 @@ export default function OrderStatusPage() {
                     <div className="flex items-start gap-4">
                       <div className="flex-1">
                         <p className="text-white font-bold text-lg mb-1">{order.productName}</p>
-                        <p className="text-sm text-gray-400 mb-2">Tipo: {order.productType}</p>
+                        <p className="text-sm text-gray-400 mb-2">{t("statusPage.type")}: {order.productType}</p>
                         <div className="flex items-center gap-4">
                           <p className="text-sm text-gray-400">
-                            Cantidad: <span className="text-white font-medium">{order.quantity}</span>
+                            {t("statusPage.quantity")}: <span className="text-white font-medium">{order.quantity}</span>
                           </p>
                           <p className="text-sm text-gray-400">
-                            Precio unitario: <span className="text-white font-medium">\${order.finalPrice.toFixed(2)}</span>
+                            {t("statusPage.unitPrice")}: <span className="text-white font-medium">\${order.finalPrice.toFixed(2)}</span>
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-gray-400 mb-1">Total</p>
+                        <p className="text-sm text-gray-400 mb-1">{t("detail.total")}</p>
                         <p className="text-white font-bold text-2xl">\${(order.finalPrice * order.quantity).toFixed(2)}</p>
                       </div>
                     </div>
@@ -382,7 +283,7 @@ export default function OrderStatusPage() {
                 {order.orderItems && order.orderItems.length > 1 && (
                   <div className="bg-primary/10 border border-primary rounded-lg p-4">
                     <div className="flex justify-between items-center">
-                      <p className="text-white font-bold text-lg">Total de la Orden</p>
+                      <p className="text-white font-bold text-lg">{t("statusPage.orderTotal")}</p>
                       <p className="text-primary font-bold text-2xl">\${order.finalPrice.toFixed(2)}</p>
                     </div>
                   </div>
@@ -392,10 +293,10 @@ export default function OrderStatusPage() {
 
             {/* Detalles de la Orden */}
             <div className="border-t border-light pt-6">
-              <h3 className="text-xl font-bold text-white mb-4">Información de la Orden</h3>
+              <h3 className="text-xl font-bold text-white mb-4">{t("statusPage.orderInfo")}</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-darker rounded-lg p-4">
-                  <p className="text-sm text-gray-400 mb-1">Epic ID</p>
+                  <p className="text-sm text-gray-400 mb-1">{t("statusPage.epicId")}</p>
                   <p className="text-white font-medium text-sm">{order.customer?.displayName || order.customerName || order.customerEpicId}</p>
                   {(order.customer?.epicAccountId || order.customerEpicId) &&
                    (order.customer?.displayName || order.customerName) !== (order.customer?.epicAccountId || order.customerEpicId) && (
@@ -403,13 +304,13 @@ export default function OrderStatusPage() {
                   )}
                 </div>
                 <div className="bg-darker rounded-lg p-4">
-                  <p className="text-sm text-gray-400 mb-1">Fecha de Orden</p>
-                  <p className="text-white">{new Date(order.createdAt).toLocaleString("es-AR")}</p>
+                  <p className="text-sm text-gray-400 mb-1">{t("statusPage.orderDate")}</p>
+                  <p className="text-white">{new Date(order.createdAt).toLocaleString(locale)}</p>
                 </div>
                 {order.estimatedDelivery && (
                   <div className="bg-darker rounded-lg p-4 md:col-span-2">
-                    <p className="text-sm text-gray-400 mb-1">Entrega Estimada</p>
-                    <p className="text-white">{new Date(order.estimatedDelivery).toLocaleString("es-AR")}</p>
+                    <p className="text-sm text-gray-400 mb-1">{t("statusPage.estimatedDelivery")}</p>
+                    <p className="text-white">{new Date(order.estimatedDelivery).toLocaleString(locale)}</p>
                   </div>
                 )}
               </div>
@@ -420,9 +321,9 @@ export default function OrderStatusPage() {
                 <div className="flex gap-4">
                   <Package className="w-6 h-6 text-blue-500 flex-shrink-0" />
                   <div>
-                    <h4 className="text-blue-500 font-bold mb-1">Verificando Comprobante</h4>
+                    <h4 className="text-blue-500 font-bold mb-1">{t("statusPage.verifyingProof")}</h4>
                     <p className="text-sm text-blue-400">
-                      Tu comprobante está siendo verificado por nuestro equipo. Te notificaremos cuando sea aprobado.
+                      {t("statusPage.verifyingProofDesc")}
                     </p>
                   </div>
                 </div>
@@ -435,7 +336,7 @@ export default function OrderStatusPage() {
              !["CANCELLED", "FAILED", "EXPIRED", "ABANDONED", "REFUNDED", "PAYMENT_REJECTED"].includes(order.status) && (
               <div className="border-t border-light pt-6">
                 <h3 className="text-xl font-bold text-white mb-4">
-                  Detalle del Pago
+                  {tCrypto("paymentDetail")}
                 </h3>
                 <div className="bg-darker rounded-lg p-4 border border-light">
                   {/* Crypto Status Badge */}
@@ -450,9 +351,9 @@ export default function OrderStatusPage() {
                             cryptoConfig.color === "yellow" ? "bg-yellow-500/20 text-yellow-500" :
                             cryptoConfig.color === "red" ? "bg-red-500/20 text-red-500" : "bg-gray-500/20 text-gray-500"
                           }`}>
-                            {cryptoConfig.label}
+                            {tCryptoStatus(cryptoConfig.key)}
                           </span>
-                          <p className="text-sm text-gray-400 mt-2">{cryptoConfig.description}</p>
+                          <p className="text-sm text-gray-400 mt-2">{tCryptoStatus(`${cryptoConfig.key}Desc`)}</p>
                         </div>
                       </div>
                     )
@@ -462,23 +363,23 @@ export default function OrderStatusPage() {
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
                     {cryptoPayment.cryptoCurrency && (
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Moneda</p>
+                        <p className="text-sm text-gray-400 mb-1">{tCrypto("currency")}</p>
                         <p className="text-white font-medium">{cryptoPayment.cryptoCurrency}</p>
                       </div>
                     )}
                     {cryptoPayment.network && (
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Red</p>
+                        <p className="text-sm text-gray-400 mb-1">{tCrypto("network")}</p>
                         <p className="text-white font-medium">{cryptoPayment.network}</p>
                       </div>
                     )}
                     <div>
-                      <p className="text-sm text-gray-400 mb-1">Monto</p>
+                      <p className="text-sm text-gray-400 mb-1">{tCrypto("amount")}</p>
                       <p className="text-white font-medium">${cryptoPayment.amount.toFixed(2)} USD</p>
                     </div>
                     {cryptoPayment.paidAmount !== null && (
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Monto Pagado</p>
+                        <p className="text-sm text-gray-400 mb-1">{tCrypto("paidAmount")}</p>
                         <p className="text-green-500 font-medium">
                           {cryptoPayment.paidAmount.toFixed(2)} {cryptoPayment.cryptoCurrency || 'CRYPTO'}
                         </p>
@@ -486,17 +387,17 @@ export default function OrderStatusPage() {
                     )}
                     {cryptoPayment.expiresAt && cryptoPayment.status === "PENDING" && (
                       <div className="md:col-span-2">
-                        <p className="text-sm text-gray-400 mb-1">Expira</p>
+                        <p className="text-sm text-gray-400 mb-1">{tCrypto("expires")}</p>
                         <p className="text-yellow-500 font-medium">
-                          {new Date(cryptoPayment.expiresAt).toLocaleString("es-AR")}
+                          {new Date(cryptoPayment.expiresAt).toLocaleString(locale)}
                         </p>
                       </div>
                     )}
                     {cryptoPayment.paidAt && (
                       <div className="md:col-span-2">
-                        <p className="text-sm text-gray-400 mb-1">Fecha de Pago</p>
+                        <p className="text-sm text-gray-400 mb-1">{tCrypto("paidAt")}</p>
                         <p className="text-green-500 font-medium">
-                          {new Date(cryptoPayment.paidAt).toLocaleString("es-AR")}
+                          {new Date(cryptoPayment.paidAt).toLocaleString(locale)}
                         </p>
                       </div>
                     )}
@@ -505,7 +406,7 @@ export default function OrderStatusPage() {
                   {/* Transaction Hash */}
                   {cryptoPayment.txHash && (
                     <div className="mb-4">
-                      <p className="text-sm text-gray-400 mb-1">Hash de Transaccion</p>
+                      <p className="text-sm text-gray-400 mb-1">{tCrypto("txHash")}</p>
                       <p className="text-white font-mono text-xs break-all bg-dark p-2 rounded">
                         {cryptoPayment.txHash}
                       </p>
@@ -523,7 +424,7 @@ export default function OrderStatusPage() {
                         rel="noopener noreferrer"
                         className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition-colors"
                       >
-                        Ir a Pagar
+                        {tCrypto("goToPay")}
                         <ExternalLink className="w-4 h-4" />
                       </a>
 
@@ -535,12 +436,12 @@ export default function OrderStatusPage() {
                         {isRegenerating ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            Regenerando...
+                            {tCrypto("regenerating")}
                           </>
                         ) : (
                           <>
                             <RefreshCw className="w-4 h-4" />
-                            Cambiar moneda/red
+                            {tCrypto("changeCurrency")}
                           </>
                         )}
                       </button>
@@ -555,9 +456,9 @@ export default function OrderStatusPage() {
                 <div className="flex gap-4">
                   <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
                   <div>
-                    <h4 className="text-green-500 font-bold mb-1">¡Regalo Enviado!</h4>
+                    <h4 className="text-green-500 font-bold mb-1">{t("statusPage.giftSent")}</h4>
                     <p className="text-sm text-green-400">
-                      Tu regalo ha sido enviado exitosamente. Revisa tu cuenta de Fortnite para reclamar tu item.
+                      {t("statusPage.giftSentDesc")}
                     </p>
                   </div>
                 </div>
@@ -569,7 +470,7 @@ export default function OrderStatusPage() {
                 <div className="flex gap-4">
                   <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
                   <div>
-                    <h4 className="text-red-500 font-bold mb-1">Error en la Orden</h4>
+                    <h4 className="text-red-500 font-bold mb-1">{t("statusPage.orderError")}</h4>
                     <p className="text-sm text-red-400">{order.failureReason}</p>
                   </div>
                 </div>
@@ -581,12 +482,12 @@ export default function OrderStatusPage() {
                 <div className="flex gap-4">
                   <XCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
                   <div>
-                    <h4 className="text-red-500 font-bold mb-1">Orden No Completada</h4>
+                    <h4 className="text-red-500 font-bold mb-1">{t("statusPage.orderNotCompleted")}</h4>
                     <p className="text-sm text-red-400">
-                      {order.status === "CANCELLED" && "Esta orden fue cancelada."}
-                      {order.status === "EXPIRED" && "Esta orden expiró por falta de pago."}
-                      {order.status === "ABANDONED" && "Esta orden fue abandonada."}
-                      {" "}Si tienes dudas, contacta a soporte.
+                      {order.status === "CANCELLED" && t("statusPage.cancelledMessage")}
+                      {order.status === "EXPIRED" && t("statusPage.expiredMessage")}
+                      {order.status === "ABANDONED" && t("statusPage.abandonedMessage")}
+                      {" "}{t("statusPage.contactSupport")}
                     </p>
                   </div>
                 </div>
@@ -597,27 +498,27 @@ export default function OrderStatusPage() {
           <div className="mt-8 flex gap-4 justify-center">
             {fromMisCompras ? (
               <button
-                onClick={() => router.push("/mis-compras")}
+                onClick={() => router.push(`/${locale}/my-orders`)}
                 className="px-6 py-3 bg-dark hover:bg-light text-white font-bold rounded-lg transition-colors border border-light flex items-center gap-2"
               >
                 <ArrowLeft className="w-5 h-5" />
-                Volver
+                {t("statusPage.back")}
               </button>
             ) : (
               <button
-                onClick={() => router.push("/")}
+                onClick={() => router.push(`/${locale}`)}
                 className="px-6 py-3 bg-dark hover:bg-light text-white font-bold rounded-lg transition-colors border border-light flex items-center gap-2"
               >
                 <Home className="w-5 h-5" />
-                Volver al Inicio
+                {t("detail.backToHome")}
               </button>
             )}
             {order.status === "COMPLETED" && (
               <button
-                onClick={() => router.push("/tienda")}
+                onClick={() => router.push(`/${locale}/store`)}
                 className="px-6 py-3 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition-colors neon-border-cyan"
               >
-                Comprar Más
+                {t("statusPage.buyMore")}
               </button>
             )}
           </div>

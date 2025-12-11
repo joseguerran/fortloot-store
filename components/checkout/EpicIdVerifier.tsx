@@ -7,6 +7,8 @@ import { WhatsAppIcon } from "@/components/icons/WhatsAppIcon"
 import { useCart } from "@/context/CartContext"
 import { useRouter } from "next/navigation"
 import { customerAPI } from "@/lib/api/customer"
+import { useTranslations } from "next-intl"
+import { useLocale } from "next-intl"
 
 interface EpicIdVerifierProps {
   onVerified: () => void
@@ -29,6 +31,8 @@ function normalizePhoneNumber(phone: string): string {
 
 export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
   const router = useRouter()
+  const locale = useLocale()
+  const t = useTranslations("checkout.epicVerifier")
   const customerContext = useCustomer()
   const { cartItems, removeFromCart } = useCart()
   const [epicId, setEpicId] = useState("")
@@ -52,7 +56,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
   if (!customerContext) {
     return (
       <div className="bg-dark border border-light rounded-lg p-6">
-        <p className="text-white">Cargando...</p>
+        <p className="text-white">{t("loading")}</p>
       </div>
     )
   }
@@ -65,20 +69,20 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
     setAvailableBots([])
 
     if (!epicId.trim()) {
-      setLocalError("Por favor ingresa tu Epic ID")
+      setLocalError(t("errors.epicIdRequired"))
       return
     }
 
     if (!contactValue.trim()) {
       setLocalError(contactPreference === 'WHATSAPP'
-        ? "Por favor ingresa tu número de WhatsApp"
-        : "Por favor ingresa tu email")
+        ? t("errors.whatsappRequired")
+        : t("errors.emailRequired"))
       return
     }
 
     // Validar formato según preferencia
     if (contactPreference === 'EMAIL' && !contactValue.includes("@")) {
-      setLocalError("Por favor ingresa un email válido")
+      setLocalError(t("errors.invalidEmail"))
       return
     }
 
@@ -86,13 +90,13 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
       // Validar que sea un número de teléfono básico
       const phoneRegex = /^\+?[0-9\s-]{8,20}$/
       if (!phoneRegex.test(contactValue.replace(/\s/g, ''))) {
-        setLocalError("Por favor ingresa un número de WhatsApp válido (ej: +56912345678)")
+        setLocalError(t("errors.invalidWhatsapp"))
         return
       }
     }
 
     if (!createSession) {
-      setLocalError("Error: Sistema no disponible")
+      setLocalError(t("errors.systemUnavailable"))
       return
     }
 
@@ -130,7 +134,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
         }, 1000)
       } else {
         // Para otros errores, mostrar mensaje inline
-        const friendlyMessage = err.message || "Error verificando cuenta"
+        const friendlyMessage = err.message || t("errors.verificationError")
         setLocalError(friendlyMessage)
       }
     }
@@ -140,7 +144,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
     setShowNoBotsModal(false)
     setAvailableBots([])
     setSubmittedEpicId("")
-    router.push("/tienda")
+    router.push(`/${locale}/store`)
   }
 
   const handleContinueWithoutStoreItems = () => {
@@ -202,7 +206,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
         setSubmittedEpicId(customer!.displayName || customer!.epicAccountId)
         setShowNoBotsModal(true)
       } else {
-        setLocalError(err.message || "Error verificando amistad con bots")
+        setLocalError(err.message || t("errors.friendshipError"))
       }
     } finally {
       setIsVerifyingFriendships(false)
@@ -217,14 +221,14 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
             <Check className="w-6 h-6 text-secondary" />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-bold text-white">Cuenta Verificada</h3>
-            <p className="text-sm text-gray-400">Revisa tus datos antes de continuar</p>
+            <h3 className="text-lg font-bold text-white">{t("verified.title")}</h3>
+            <p className="text-sm text-gray-400">{t("verified.subtitle")}</p>
           </div>
         </div>
 
         <div className="bg-darker rounded-lg p-4 mb-4 space-y-3">
           <div>
-            <p className="text-xs text-gray-500 mb-1">Epic ID</p>
+            <p className="text-xs text-gray-500 mb-1">{t("verified.epicIdLabel")}</p>
             <p className="text-white font-medium text-base">{customer.displayName || customer.epicAccountId}</p>
             {customer.displayName && (
               <p className="text-gray-500 font-mono text-xs mt-1">{customer.epicAccountId}</p>
@@ -253,7 +257,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
         {customer.tier !== "REGULAR" && (
           <div className="bg-accent/10 border border-accent rounded-lg p-3 mb-4">
             <p className="text-sm text-accent font-medium">
-              ⭐ Cliente {customer.tier} - Descuentos especiales aplicados
+              ⭐ {t("verified.tierMessage", { tier: customer.tier })}
             </p>
           </div>
         )}
@@ -262,7 +266,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
         {storeItems.length > 0 && (
           <div className="bg-blue-500/10 border border-blue-500 rounded-lg p-3 mb-4">
             <p className="text-sm text-blue-400">
-              ℹ️ Tienes {storeItems.length} {storeItems.length === 1 ? 'item' : 'items'} de la tienda. Se verificará tu amistad con nuestros bots al continuar.
+              ℹ️ {t("verified.storeItemsWarning", { count: storeItems.length })}
             </p>
           </div>
         )}
@@ -287,7 +291,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
             disabled={isVerifyingFriendships}
             className="flex-1 py-3 bg-dark hover:bg-light text-white font-medium rounded-lg transition-colors border border-light disabled:opacity-50"
           >
-            Cambiar Cuenta
+            {t("verified.changeAccount")}
           </button>
           <button
             onClick={handleContinueWithExistingSession}
@@ -297,10 +301,10 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
             {isVerifyingFriendships ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Verificando...
+                {t("verified.verifying")}
               </>
             ) : (
-              "Continuar"
+              t("verified.continue")
             )}
           </button>
         </div>
@@ -310,32 +314,32 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
 
   return (
     <div className="bg-dark border border-light rounded-lg p-6">
-      <h2 className="text-2xl font-russo text-white mb-2">Verificación de Cuenta</h2>
-      <p className="text-gray-400 mb-6">Ingresa tu Epic ID y email para continuar</p>
+      <h2 className="text-2xl font-russo text-white mb-2">{t("form.title")}</h2>
+      <p className="text-gray-400 mb-6">{t("form.subtitle")}</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="epicId" className="block text-sm font-medium text-gray-300 mb-2">
-            Epic ID *
+            {t("form.epicIdLabel")} *
           </label>
           <input
             type="text"
             id="epicId"
             value={epicId}
             onChange={(e) => setEpicId(e.target.value)}
-            placeholder="Ej: TheProPlayer#1"
+            placeholder={t("form.epicIdPlaceholder")}
             className="w-full px-4 py-3 bg-darker border border-light rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-secondary transition-colors"
             disabled={isLoading}
           />
           <p className="text-xs text-gray-500 mt-1">
-            Tu nombre de usuario en Fortnite (lo encuentras en el lobby o perfil)
+            {t("form.epicIdHint")}
           </p>
         </div>
 
         {/* Selector de preferencia de contacto */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
-            ¿Cómo prefieres que te contactemos? *
+            {t("form.contactPreferenceLabel")} *
           </label>
           <div className="flex gap-3">
             <button
@@ -370,19 +374,19 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
         {/* Campo dinámico según preferencia */}
         <div>
           <label htmlFor="contactValue" className="block text-sm font-medium text-gray-300 mb-2">
-            {contactPreference === 'WHATSAPP' ? 'Número de WhatsApp' : 'Correo electrónico'} *
+            {contactPreference === 'WHATSAPP' ? t("form.whatsappLabel") : t("form.emailLabel")} *
           </label>
           <input
             type={contactPreference === 'WHATSAPP' ? 'tel' : 'email'}
             id="contactValue"
             value={contactValue}
             onChange={(e) => setContactValue(e.target.value)}
-            placeholder={contactPreference === 'WHATSAPP' ? '+56 9 1234 5678' : 'tu@email.com'}
+            placeholder={contactPreference === 'WHATSAPP' ? '+56 9 1234 5678' : 'you@email.com'}
             className="w-full px-4 py-3 bg-darker border border-light rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-secondary transition-colors"
             disabled={isLoading}
           />
           <p className="text-xs text-gray-500 mt-1">
-            Aquí recibirás el código para ver tus compras
+            {t("form.contactHint")}
           </p>
         </div>
 
@@ -405,15 +409,15 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
           {showSuccess ? (
             <>
               <Check className="w-5 h-5 mr-2" />
-              ¡Verificado! Continuando...
+              {t("form.successMessage")}
             </>
           ) : isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Verificando...
+              {t("form.verifying")}
             </>
           ) : (
-            "Continuar"
+            t("form.continue")
           )}
         </button>
       </form>
@@ -428,13 +432,13 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
                 <AlertCircle className="w-8 h-8 text-secondary flex-shrink-0 mt-1" />
                 <div className="flex-1">
                   <h2 className="text-2xl font-russo text-white mb-2">
-                    Hola <span className="text-primary">{submittedEpicId}</span>
+                    {t("friendRequest.greeting")} <span className="text-primary">{submittedEpicId}</span>
                   </h2>
                   <p className="text-base text-white font-semibold">
-                    Necesitas agregar a nuestros Bots como amigos para continuar
+                    {t("friendRequest.title")}
                   </p>
                   <p className="text-sm text-gray-300 mt-2">
-                    Detectamos que tienes <strong className="text-white">{storeItems.length} {storeItems.length === 1 ? 'item' : 'items'}</strong> de la tienda en tu carrito. Estos items se envían como regalos a través de nuestros Bots de Fortnite, por lo que necesitas tenerlos agregados como amigos.
+                    {t("friendRequest.description", { count: storeItems.length })}
                   </p>
                 </div>
               </div>
@@ -444,13 +448,13 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
             <div className="p-6 space-y-4">
               <div className="bg-secondary/10 border border-secondary/30 rounded-lg p-4">
                 <p className="text-base text-white leading-relaxed">
-                  <strong className="text-secondary">💡 Consejo:</strong> Por lo general tendrás mejores resultados si agregas más de un Bot.
+                  <strong className="text-secondary">💡 {t("friendRequest.tipLabel")}</strong> {t("friendRequest.tipText")}
                 </p>
               </div>
 
               <div>
                 <p className="text-base text-white font-medium mb-3">
-                  🤖 Bots Disponibles:
+                  🤖 {t("friendRequest.availableBots")}
                 </p>
                 <div className="space-y-2">
                   {availableBots.map((bot) => (
@@ -469,12 +473,12 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
                         {copiedBotId === bot.epicId ? (
                           <>
                             <Check className="w-4 h-4" />
-                            ¡Copiado!
+                            {t("friendRequest.copied")}
                           </>
                         ) : (
                           <>
                             <Copy className="w-4 h-4" />
-                            Copiar ID
+                            {t("friendRequest.copyId")}
                           </>
                         )}
                       </button>
@@ -485,13 +489,13 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
 
               <div className="bg-dark border border-light rounded-lg p-5 space-y-3">
                 <p className="text-sm text-gray-200">
-                  <strong className="text-white text-base">⏱️ Importante:</strong> Por políticas de la tienda, no podemos enviarte tu compra hasta <strong className="text-white">48 horas después</strong> de que aceptes la amistad.
+                  <strong className="text-white text-base">⏱️ {t("friendRequest.importantLabel")}</strong> {t("friendRequest.waitTime")}
                 </p>
                 <p className="text-sm text-gray-200">
-                  <strong className="text-white text-base">📦 Límite diario:</strong> Cada Bot solo puede enviar <strong className="text-white">5 items al día</strong>, por eso recomendamos agregar varios Bots.
+                  <strong className="text-white text-base">📦 {t("friendRequest.dailyLimitLabel")}</strong> {t("friendRequest.dailyLimitText")}
                 </p>
                 <p className="text-sm text-gray-200 mt-3 pt-3 border-t border-light/30">
-                  <strong className="text-primary text-base">📝 Pasos a seguir:</strong> Copia el ID del Bot, agrégalo como amigo en Fortnite, espera a que acepte la solicitud y luego de 48 horas regresa aquí para que puedas continuar con tu compra.
+                  <strong className="text-primary text-base">📝 {t("friendRequest.stepsLabel")}</strong> {t("friendRequest.stepsText")}
                 </p>
               </div>
             </div>
@@ -502,7 +506,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
                 <>
                   <div className="bg-accent/10 border border-accent rounded-lg p-4">
                     <p className="text-sm text-white leading-relaxed">
-                      <strong className="text-accent">✨ Opción alternativa:</strong> Tienes <strong>{nonStoreItems.length} {nonStoreItems.length === 1 ? 'item' : 'items'}</strong> en tu carrito que no requieren amistad con los Bots (V-Bucks, Crew o Paquetes). Puedes continuar tu compra solo con {nonStoreItems.length === 1 ? 'ese item' : 'esos items'}.
+                      <strong className="text-accent">✨ {t("friendRequest.alternativeLabel")}</strong> {t("friendRequest.alternativeText", { count: nonStoreItems.length })}
                     </p>
                   </div>
                   <button
@@ -510,7 +514,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
                     className="w-full py-3 bg-accent hover:bg-accent/80 text-dark font-bold rounded-lg transition-colors flex items-center justify-center"
                   >
                     <Check className="w-5 h-5 mr-2" />
-                    Continuar solo con {nonStoreItems.length === 1 ? 'ese item' : 'esos items'}
+                    {t("friendRequest.continueWithoutStore", { count: nonStoreItems.length })}
                   </button>
                 </>
               )}
@@ -519,7 +523,7 @@ export function EpicIdVerifier({ onVerified }: EpicIdVerifierProps) {
                 className="w-full py-3 bg-primary hover:bg-secondary text-white font-bold rounded-lg transition-colors flex items-center justify-center neon-border-cyan"
               >
                 <X className="w-5 h-5 mr-2" />
-                Volver a la Tienda
+                {t("friendRequest.backToStore")}
               </button>
             </div>
           </div>

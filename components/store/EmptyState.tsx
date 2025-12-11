@@ -2,12 +2,15 @@
 
 import { memo } from "react"
 import { motion } from "framer-motion"
+import { useTranslations } from "next-intl"
 
 interface EmptyStateProps {
   onReset: () => void
 }
 
 export const EmptyState = memo(({ onReset }: EmptyStateProps) => {
+  const t = useTranslations("store.empty")
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -24,15 +27,15 @@ export const EmptyState = memo(({ onReset }: EmptyStateProps) => {
           />
         </svg>
       </div>
-      <h3 className="text-xl font-bold text-white mb-2">No se encontraron artículos</h3>
+      <h3 className="text-xl font-bold text-white mb-2">{t("title")}</h3>
       <p className="text-gray-400 max-w-md mx-auto">
-        No hay artículos que coincidan con tu búsqueda. Intenta con otros filtros o términos de búsqueda.
+        {t("description")}
       </p>
       <button
         onClick={onReset}
         className="mt-4 bg-[#00F5D4] hover:bg-[#FF007A] text-[#0D1B2A] font-medium px-6 py-2 rounded-full transition-colors"
       >
-        Mostrar todos los artículos
+        {t("resetFilters")}
       </button>
     </motion.div>
   )

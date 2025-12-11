@@ -6,37 +6,40 @@ import { memo } from "react"
 import { motion } from "framer-motion"
 import { ShoppingCart, CreditCard, Package } from "lucide-react"
 import { AnimatedTitle } from "@/components/ui/AnimatedTitle"
-
-const steps = [
-  {
-    icon: <ShoppingCart className="w-12 h-12 text-accent" />,
-    title: "Selecciona tu Servicio",
-    description: "Elige todos los productos que deseas y añadelos al carrito.",
-    borderColor: "border-accent",
-    neonClass: "neon-border-lime",
-  },
-  {
-    icon: <CreditCard className="w-12 h-12 text-primary" />,
-    title: "Pago Seguro",
-    description: "Realiza tu pago de forma segura con múltiples métodos disponibles.",
-    borderColor: "border-primary",
-    neonClass: "neon-border",
-  },
-  {
-    icon: <Package className="w-12 h-12 text-secondary" />,
-    title: "Entrega Rápida",
-    description: "Recibe tu compra en el mínimo tiempo posible.",
-    borderColor: "border-secondary",
-    neonClass: "neon-border-cyan",
-  },
-]
+import { useTranslations } from "next-intl"
 
 export const HowItWorksSection = memo(() => {
+  const t = useTranslations("home.howItWorks")
+
+  const steps = [
+    {
+      icon: <ShoppingCart className="w-12 h-12 text-accent" />,
+      title: t("step1.title"),
+      description: t("step1.description"),
+      borderColor: "border-accent",
+      neonClass: "neon-border-lime",
+    },
+    {
+      icon: <CreditCard className="w-12 h-12 text-primary" />,
+      title: t("step2.title"),
+      description: t("step2.description"),
+      borderColor: "border-primary",
+      neonClass: "neon-border",
+    },
+    {
+      icon: <Package className="w-12 h-12 text-secondary" />,
+      title: t("step3.title"),
+      description: t("step3.description"),
+      borderColor: "border-secondary",
+      neonClass: "neon-border-cyan",
+    },
+  ]
+
   return (
     <section id="como-funciona" className="min-h-screen py-16 bg-dark flex items-center justify-center">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <AnimatedTitle color="text-primary">¿Cómo Funciona?</AnimatedTitle>
+          <AnimatedTitle color="text-primary">{t("title")}</AnimatedTitle>
         </div>
 
         <div className="max-w-5xl mx-auto">

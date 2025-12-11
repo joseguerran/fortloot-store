@@ -5,26 +5,22 @@ import type React from "react"
 import { memo, useCallback, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useLocale, useTranslations } from "next-intl"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Menu } from "lucide-react"
 import { useScrollDetection } from "@/hooks/useScrollDetection"
 import { scrollToSection } from "@/utils/helpers"
 import { CartButton } from "@/components/cart/CartButton"
+import { LanguageSwitcher } from "@/components/LanguageSwitcher"
 import { useMaintenance } from "@/context/AnnouncementContext"
 
-const navItems = [
-  { name: "Inicio", id: "inicio" },
-  { name: "Servicios", id: "productos" },
-  { name: "Cómo Funciona", id: "como-funciona" },
-  { name: "Métodos de Pago", id: "metodos-de-pago" },
-  { name: "Contacto", id: "contacto" },
-]
-
 export const Header = memo(() => {
+  const t = useTranslations('common.header')
+  const locale = useLocale()
   const scrolled = useScrollDetection(50)
   const pathname = usePathname()
-  const isStoreView = pathname.includes("/tienda")
-  const isMisComprasView = pathname.includes("/mis-compras")
+  const isStoreView = pathname.includes("/store") || pathname.includes("/tienda")
+  const isMisComprasView = pathname.includes("/my-orders") || pathname.includes("/mis-compras")
   const isSimplifiedNav = isStoreView || isMisComprasView
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { isInMaintenance, isLoading: maintenanceLoading } = useMaintenance()
@@ -32,10 +28,19 @@ export const Header = memo(() => {
   // Determine if maintenance banner is showing (only after loading)
   const showingMaintenanceBanner = !maintenanceLoading && isInMaintenance
 
+  // Navigation items with translations
+  const navItems = [
+    { name: t('home'), id: "inicio" },
+    { name: t('services'), id: "productos" },
+    { name: t('howItWorks'), id: "como-funciona" },
+    { name: t('paymentMethods'), id: "metodos-de-pago" },
+    { name: t('contact'), id: "contacto" },
+  ]
+
   const handleNavClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault()
     scrollToSection(id)
-    setIsMobileMenuOpen(false) // Cerrar el menú móvil al hacer clic en un enlace
+    setIsMobileMenuOpen(false)
   }, [])
 
   const toggleMobileMenu = () => {
@@ -45,6 +50,11 @@ export const Header = memo(() => {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false)
   }
+
+  // Localized paths
+  const storePath = `/${locale}/store`
+  const myOrdersPath = `/${locale}/my-orders`
+  const homePath = `/${locale}`
 
   return (
     <>
@@ -60,7 +70,7 @@ export const Header = memo(() => {
       >
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="flex items-center" onClick={closeMobileMenu}>
+            <Link href={homePath} className="flex items-center" onClick={closeMobileMenu}>
               <span className="text-white font-['Russo_One'] text-3xl">Fort</span>
               <span className="text-primary font-['Russo_One'] text-3xl neon-text">Loot</span>
             </Link>
@@ -70,7 +80,7 @@ export const Header = memo(() => {
                 <nav className="hidden md:flex space-x-8">
                   {navItems.map((item) => (
                     <Link
-                      key={item.name}
+                      key={item.id}
                       href={`#${item.id}`}
                       className="text-white hover:text-secondary transition-colors duration-300 relative group"
                       onClick={(e) => handleNavClick(e, item.id)}
@@ -80,62 +90,65 @@ export const Header = memo(() => {
                     </Link>
                   ))}
                   <Link
-                    href="/tienda"
+                    href={storePath}
                     className="text-white hover:text-secondary transition-colors duration-300 relative group"
                   >
-                    Tienda
+                    {t('store')}
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                   <Link
-                    href="/mis-compras"
+                    href={myOrdersPath}
                     className="text-white hover:text-secondary transition-colors duration-300 relative group"
                   >
-                    Mis Compras
+                    {t('myOrders')}
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                 </nav>
               ) : (
                 <nav className="hidden md:flex space-x-8">
                   <Link
-                    href="/"
+                    href={homePath}
                     className="text-white hover:text-secondary transition-colors duration-300 relative group"
                   >
-                    Inicio
+                    {t('home')}
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                   <Link
-                    href="/tienda"
+                    href={storePath}
                     className="text-white hover:text-secondary transition-colors duration-300 relative group"
                   >
-                    Tienda
+                    {t('store')}
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                   {!isMisComprasView && (
                     <Link
-                      href="/mis-compras"
+                      href={myOrdersPath}
                       className="text-white hover:text-secondary transition-colors duration-300 relative group"
                     >
-                      Mis Compras
+                      {t('myOrders')}
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all duration-300 group-hover:w-full"></span>
                     </Link>
                   )}
                 </nav>
               )}
+
+              <div className="hidden md:block">
+                <LanguageSwitcher />
+              </div>
+
               <CartButton />
 
-              {!isSimplifiedNav && (
-                <button className="md:hidden text-white p-2" aria-label="Menú" onClick={toggleMobileMenu}>
-                  {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                </button>
-              )}
+              <button className="md:hidden text-white p-2" aria-label={t('menu')} onClick={toggleMobileMenu}>
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
             </div>
           </div>
         </div>
       </motion.header>
 
-      {/* Menú móvil */}
+      {/* Mobile menu */}
       <AnimatePresence>
-        {isMobileMenuOpen && !isSimplifiedNav && (
+        {isMobileMenuOpen && (
           <>
             {/* Overlay */}
             <motion.div
@@ -147,7 +160,7 @@ export const Header = memo(() => {
               onClick={closeMobileMenu}
             />
 
-            {/* Menú móvil */}
+            {/* Mobile menu */}
             <motion.div
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
@@ -156,26 +169,26 @@ export const Header = memo(() => {
               className="fixed top-0 right-0 h-full w-80 bg-darker z-50 shadow-xl md:hidden"
             >
               <div className="flex flex-col h-full">
-                {/* Header del menú móvil */}
+                {/* Mobile menu header */}
                 <div className="flex justify-between items-center p-6 border-b border-light">
-                  <Link href="/" className="flex items-center" onClick={closeMobileMenu}>
+                  <Link href={homePath} className="flex items-center" onClick={closeMobileMenu}>
                     <span className="text-white font-['Russo_One'] text-2xl">Fort</span>
                     <span className="text-primary font-['Russo_One'] text-2xl neon-text">Loot</span>
                   </Link>
                   <button
                     onClick={closeMobileMenu}
                     className="p-2 rounded-full hover:bg-light transition-colors"
-                    aria-label="Cerrar menú"
+                    aria-label={t('closeMenu')}
                   >
                     <X className="w-6 h-6 text-white" />
                   </button>
                 </div>
 
-                {/* Enlaces de navegación */}
+                {/* Navigation links */}
                 <nav className="flex-1 px-6 py-8">
                   <ul className="space-y-6">
-                    {navItems.map((item) => (
-                      <li key={item.name}>
+                    {!isSimplifiedNav && navItems.map((item) => (
+                      <li key={item.id}>
                         <Link
                           href={`#${item.id}`}
                           className="block text-white text-lg font-medium hover:text-secondary transition-colors duration-300 py-2"
@@ -187,33 +200,43 @@ export const Header = memo(() => {
                     ))}
                     <li>
                       <Link
-                        href="/tienda"
+                        href={homePath}
                         className="block text-white text-lg font-medium hover:text-secondary transition-colors duration-300 py-2"
                         onClick={closeMobileMenu}
                       >
-                        Tienda
+                        {t('home')}
                       </Link>
                     </li>
                     <li>
                       <Link
-                        href="/mis-compras"
+                        href={storePath}
                         className="block text-white text-lg font-medium hover:text-secondary transition-colors duration-300 py-2"
                         onClick={closeMobileMenu}
                       >
-                        Mis Compras
+                        {t('store')}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href={myOrdersPath}
+                        className="block text-white text-lg font-medium hover:text-secondary transition-colors duration-300 py-2"
+                        onClick={closeMobileMenu}
+                      >
+                        {t('myOrders')}
                       </Link>
                     </li>
                   </ul>
                 </nav>
 
-                {/* Footer del menú móvil */}
-                <div className="p-6 border-t border-light">
+                {/* Mobile menu footer */}
+                <div className="p-6 border-t border-light space-y-4">
+                  <LanguageSwitcher />
                   <Link
-                    href="/tienda"
+                    href={storePath}
                     className="block w-full bg-primary hover:bg-secondary text-white text-center font-bold py-3 px-4 rounded-lg transition-colors duration-300"
                     onClick={closeMobileMenu}
                   >
-                    Ir a la Tienda
+                    {t('goToStore')}
                   </Link>
                 </div>
               </div>

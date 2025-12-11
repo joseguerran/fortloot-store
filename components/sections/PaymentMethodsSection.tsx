@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { Shield } from "lucide-react"
 import { AnimatedTitle } from "@/components/ui/AnimatedTitle"
+import { useTranslations } from "next-intl"
 
 const paymentMethods = [
   { name: "PayPal", image: "/paypal-logo.png" },
@@ -14,11 +15,13 @@ const paymentMethods = [
 ]
 
 export const PaymentMethodsSection = memo(() => {
+  const t = useTranslations("home.paymentMethods")
+
   return (
     <section id="metodos-de-pago" className="min-h-screen py-16 bg-darker text-white flex items-center justify-center">
       <div className="container mx-auto px-4">
         <div className="text-center">
-          <AnimatedTitle color="text-accent">Métodos de Pago</AnimatedTitle>
+          <AnimatedTitle color="text-accent">{t("title")}</AnimatedTitle>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -27,8 +30,7 @@ export const PaymentMethodsSection = memo(() => {
             transition={{ duration: 0.5 }}
             className="text-xl text-center text-gray-300 max-w-2xl mx-auto mb-12"
           >
-            Ofrecemos múltiples opciones de pago seguras y convenientes para que puedas realizar tus compras con total
-            confianza.
+            {t("subtitle")}
           </motion.p>
         </div>
 
@@ -48,8 +50,7 @@ export const PaymentMethodsSection = memo(() => {
           >
             <Shield className="w-12 h-12 text-primary mr-4 flex-shrink-0" />
             <p className="text-lg">
-              Todas nuestras transacciones están protegidas y avaladas bajo nuestras políticas de reembolso y privacidad
-              garantizando la protección de tus datos.
+              {t("securityNote")}
             </p>
           </motion.div>
         </div>

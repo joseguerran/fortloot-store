@@ -4,11 +4,13 @@ import { memo } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { OptimizedImage } from "@/components/ui/OptimizedImage"
 import { IMAGES } from "@/config/images"
+import { useTranslations } from "next-intl"
 
 export const HeroSection = memo(() => {
   const { scrollY } = useScroll()
   const y = useTransform(scrollY, [0, 500], [0, 150])
   const opacity = useTransform(scrollY, [0, 300], [1, 0.5])
+  const t = useTranslations("home.hero")
 
   return (
     <section id="inicio" className="min-h-screen pt-20 relative overflow-hidden flex items-center">
@@ -25,10 +27,10 @@ export const HeroSection = memo(() => {
               <span className="text-primary neon-text">Loot</span>
             </h1>
             <p className="text-xl md:text-2xl text-secondary neon-text-cyan mb-6">
-              ¡Tu Arsenal Definitivo de Fortnite!
+              {t("title")}
             </p>
             <p className="text-lg text-gray-200 mb-8 mx-auto">
-              Compra segura, entrega rápida y los mejores precios para monedas y objetos de tu juego favorito.
+              {t("subtitle")}
             </p>
           </motion.div>
         </div>

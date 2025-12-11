@@ -3,6 +3,7 @@
 import { memo } from "react"
 import { motion } from "framer-motion"
 import { ChevronDown } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 export type OrderStatusFilter = "all" | "pending" | "processing" | "completed" | "cancelled"
 export type DateRangeFilter = "30d" | "3m" | "1y" | "all"
@@ -14,23 +15,13 @@ interface OrderFiltersProps {
   onDateRangeChange: (range: DateRangeFilter) => void
 }
 
-const STATUS_FILTERS: { key: OrderStatusFilter; label: string }[] = [
-  { key: "all", label: "Todas" },
-  { key: "pending", label: "Pendientes" },
-  { key: "processing", label: "En Proceso" },
-  { key: "completed", label: "Completadas" },
-  { key: "cancelled", label: "Canceladas" },
-]
-
-const DATE_RANGES: { key: DateRangeFilter; label: string }[] = [
-  { key: "30d", label: "Últimos 30 días" },
-  { key: "3m", label: "Últimos 3 meses" },
-  { key: "1y", label: "Último año" },
-  { key: "all", label: "Todas las fechas" },
-]
+const STATUS_FILTER_KEYS: OrderStatusFilter[] = ["all", "pending", "processing", "completed", "cancelled"]
+const DATE_RANGE_KEYS: DateRangeFilter[] = ["30d", "3m", "1y", "all"]
 
 export const OrderFilters = memo(
   ({ activeStatus, onStatusChange, dateRange, onDateRangeChange }: OrderFiltersProps) => {
+    const t = useTranslations("orders.myOrders.filters")
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -41,12 +32,12 @@ export const OrderFilters = memo(
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-[#1B263B]/70 backdrop-blur-sm p-4 rounded-lg border border-[#1B263B]/80">
           {/* Status filters */}
           <div className="flex flex-wrap gap-2">
-            {STATUS_FILTERS.map((filter) => (
+            {STATUS_FILTER_KEYS.map((key) => (
               <FilterButton
-                key={filter.key}
-                label={filter.label}
-                isActive={activeStatus === filter.key}
-                onClick={() => onStatusChange(filter.key)}
+                key={key}
+                label={t(key)}
+                isActive={activeStatus === key}
+                onClick={() => onStatusChange(key)}
               />
             ))}
           </div>
@@ -57,11 +48,11 @@ export const OrderFilters = memo(
               value={dateRange}
               onChange={(e) => onDateRangeChange(e.target.value as DateRangeFilter)}
               className="appearance-none w-full md:w-48 bg-[#0D1B2A] text-white border border-[#1B263B] rounded-full py-2 pl-4 pr-10 focus:outline-none focus:border-[#00F5D4] transition-colors cursor-pointer"
-              aria-label="Filtrar por fecha"
+              aria-label={t("dateFilterLabel")}
             >
-              {DATE_RANGES.map((range) => (
-                <option key={range.key} value={range.key}>
-                  {range.label}
+              {DATE_RANGE_KEYS.map((key) => (
+                <option key={key} value={key}>
+                  {t(`dateRanges.${key}`)}
                 </option>
               ))}
             </select>

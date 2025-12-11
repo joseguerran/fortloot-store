@@ -8,6 +8,7 @@ import type { StoreItem as StoreItemType } from "@/types"
 import { IMAGES } from "@/config/images"
 import { useCart } from "@/context/CartContext"
 import { useMaintenance } from "@/context/AnnouncementContext"
+import { useTranslations } from "next-intl"
 
 interface StoreItemProps {
   item: StoreItemType
@@ -17,6 +18,7 @@ export const StoreItem = memo(({ item }: StoreItemProps) => {
   const { addToCart } = useCart()
   const { isInMaintenance } = useMaintenance()
   const [isFlipped, setIsFlipped] = useState(false)
+  const t = useTranslations("store.item")
 
   // Filtrar: solo mostrar la tarjeta de Crew de 1 mes
   if (item.type === "crew" && item.id !== "crew-2") {
@@ -120,15 +122,15 @@ export const StoreItem = memo(({ item }: StoreItemProps) => {
             {/* Badge */}
             {(item.badge || is13500VBucks || isCrewMonthly) && (
               <div className="absolute top-2 right-2 bg-[#FF007A] text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg transform rotate-3 z-10">
-                {is13500VBucks ? "MEJOR VALOR" : isCrewMonthly ? "EXCLUSIVO" : item.badge}
+                {is13500VBucks ? t("bestValue") : isCrewMonthly ? t("exclusive") : item.badge}
               </div>
             )}
           </div>
 
           {/* Detalles */}
           <div className="p-4">
-            <h3 className="text-lg font-bold text-white mb-1 line-clamp-1">{item.name || "Artículo sin nombre"}</h3>
-            <p className="text-sm text-gray-300 mb-4 line-clamp-2">{item.description || "Sin descripción disponible"}</p>
+            <h3 className="text-lg font-bold text-white mb-1 line-clamp-1">{item.name || t("noName")}</h3>
+            <p className="text-sm text-gray-300 mb-4 line-clamp-2">{item.description || t("noDescription")}</p>
 
             <div className="flex justify-between items-center">
               <div className="flex flex-col">
@@ -158,18 +160,18 @@ export const StoreItem = memo(({ item }: StoreItemProps) => {
                     ? 'bg-gray-600 cursor-not-allowed opacity-60'
                     : 'bg-[#FF007A] hover:bg-[#00F5D4]'
                 } text-white text-sm font-medium px-4 py-2 rounded-full transition-colors duration-300 flex items-center ${!isInMaintenance ? 'neon-border-cyan' : ''}`}
-                aria-label={isInMaintenance ? 'Tienda en mantenimiento' : `Adquirir ${item.name}`}
-                title={isInMaintenance ? 'La tienda está en mantenimiento' : undefined}
+                aria-label={isInMaintenance ? t("maintenanceAria") : t("acquireAria", { name: item.name })}
+                title={isInMaintenance ? t("maintenanceAria") : undefined}
               >
                 {isInMaintenance ? (
                   <>
                     <Wrench className="w-4 h-4 mr-1" />
-                    En Mantenimiento
+                    {t("inMaintenance")}
                   </>
                 ) : (
                   <>
                     <ShoppingCart className="w-4 h-4 mr-1" />
-                    Adquirir
+                    {t("acquire")}
                   </>
                 )}
               </motion.button>
@@ -206,7 +208,7 @@ export const StoreItem = memo(({ item }: StoreItemProps) => {
             <div className="bg-white/20 rounded-full p-6 mb-4 inline-block">
               <Check className="w-16 h-16 text-white" strokeWidth={3} />
             </div>
-            <h3 className="text-3xl font-['Russo_One'] text-white mb-2">¡AGREGADO!</h3>
+            <h3 className="text-3xl font-['Russo_One'] text-white mb-2">{t("addedToCart")}</h3>
             <p className="text-white/80 text-lg">{item.name}</p>
           </motion.div>
         </motion.div>

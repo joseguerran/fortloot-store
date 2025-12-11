@@ -1,0 +1,791 @@
+{
+  "common": {
+    "header": {
+      "home": "Home",
+      "services": "Services",
+      "howItWorks": "How It Works",
+      "paymentMethods": "Payment Methods",
+      "contact": "Contact",
+      "store": "Store",
+      "myOrders": "My Orders",
+      "goToStore": "Go to Store",
+      "menu": "Menu",
+      "closeMenu": "Close menu"
+    },
+    "footer": {
+      "slogan": "Your trusted destination for gaming currencies and items",
+      "quickLinks": "Quick Links",
+      "legal": "Legal",
+      "contact": "Contact",
+      "termsConditions": "Terms & Conditions",
+      "privacyPolicy": "Privacy Policy",
+      "refundPolicy": "Refund Policy",
+      "rights": "All rights reserved",
+      "disclaimer": "We are not affiliated with Epic Games."
+    },
+    "cart": {
+      "title": "Cart",
+      "empty": "Your cart is empty",
+      "emptyDescription": "Add items from the store to get started",
+      "continueShopping": "Continue Shopping",
+      "checkout": "Checkout",
+      "checkoutWhatsApp": "Checkout via WhatsApp",
+      "checkoutDisabled": "Checkout Disabled",
+      "calculating": "Calculating...",
+      "total": "Total",
+      "item": "item",
+      "items": "items",
+      "remove": "Remove",
+      "clear": "Clear Cart",
+      "clearConfirm": "Are you sure you want to clear the cart?",
+      "quantity": "Quantity",
+      "subtotal": "Subtotal",
+      "closeCart": "Close cart",
+      "comingSoon": "Coming Soon",
+      "comingSoonDesc": "Bot checkout will be available soon"
+    },
+    "buttons": {
+      "addToCart": "Add to Cart",
+      "buy": "Buy",
+      "buyNow": "Buy Now",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "submit": "Submit",
+      "close": "Close",
+      "save": "Save",
+      "delete": "Delete",
+      "edit": "Edit",
+      "search": "Search",
+      "loading": "Loading...",
+      "retry": "Retry",
+      "continue": "Continue",
+      "viewDetails": "View Details",
+      "backToStore": "Back to Store",
+      "backToHome": "Back to Home",
+      "copied": "Copied!",
+      "copy": "Copy",
+      "copyId": "Copy ID",
+      "upload": "Upload",
+      "uploading": "Uploading..."
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "network": "Connection error. Check your internet.",
+      "notFound": "Not found",
+      "serverError": "Server error. Please try later.",
+      "systemUnavailable": "Error: System not available"
+    },
+    "languages": {
+      "es": "Español",
+      "en": "English",
+      "switchLanguage": "Switch language"
+    },
+    "labels": {
+      "order": "Order",
+      "customer": "Customer",
+      "amount": "Amount",
+      "status": "Status",
+      "date": "Date",
+      "expires": "Expires",
+      "created": "Created",
+      "total": "Total",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "type": "Type"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Your Ultimate Fortnite Arsenal!",
+      "subtitle": "Secure purchase, fast delivery, and the best prices. Get V-Bucks, skins, and exclusive items.",
+      "cta": "View Store",
+      "ctaSecondary": "How It Works"
+    },
+    "products": {
+      "title": "Our Services",
+      "subtitle": "We offer the best services to improve your Fortnite experience",
+      "immediateDelivery": "Immediate delivery",
+      "vbucks": {
+        "title": "V-BUCKS",
+        "description": "Virtual currency to buy items in the Fortnite store"
+      },
+      "store": {
+        "title": "STORE",
+        "description": "Customize your character with the best designs and outfits"
+      },
+      "crew": {
+        "title": "FORTNITE CREW",
+        "description": "Monthly subscription with exclusive benefits and premium content"
+      },
+      "bundles": {
+        "title": "BUNDLES",
+        "description": "Special combos with multiple items at reduced prices"
+      }
+    },
+    "howItWorks": {
+      "title": "How Does It Work?",
+      "subtitle": "Secure purchase in 3 simple steps",
+      "step1": {
+        "title": "Select Your Service",
+        "description": "Choose all the products you want and add them to your cart"
+      },
+      "step2": {
+        "title": "Secure Payment",
+        "description": "Make your payment securely with multiple available methods"
+      },
+      "step3": {
+        "title": "Fast Delivery",
+        "description": "Receive your purchase in the minimum possible time"
+      }
+    },
+    "paymentMethods": {
+      "title": "Payment Methods",
+      "subtitle": "We offer multiple secure and convenient payment options so you can make your purchases with complete confidence.",
+      "securityNote": "All our transactions are protected and backed by our refund and privacy policies, ensuring the protection of your data."
+    },
+    "contact": {
+      "title": "Contact",
+      "heading": "Have Questions?",
+      "subtitle": "Have questions? We're here to help",
+      "description": "Our team is available 24/7 to help you with any questions or concerns.",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "instagram": "Instagram",
+      "discord": "Discord"
+    }
+  },
+  "store": {
+    "title": "FortLoot Store",
+    "subtitle": "Store and Deals updated daily!",
+    "back": "Back",
+    "page": {
+      "title": "Store",
+      "subtitle": "Store and Deals updated daily!",
+      "back": "Back",
+      "fallbackNotice": "Showing fallback data due to connection issues with the external API."
+    },
+    "filters": {
+      "all": "All",
+      "vbucks": "V-Bucks",
+      "shop": "Shop",
+      "crew": "Fortnite Crew",
+      "bundles": "Bundles",
+      "search": "Search items...",
+      "searchAria": "Search items",
+      "noResults": "No items found",
+      "categories": {
+        "outfit": "Skins",
+        "pickaxe": "Pickaxes",
+        "glider": "Gliders",
+        "emote": "Emotes",
+        "wrap": "Wraps",
+        "backpack": "Back Blings",
+        "bundle": "Bundles",
+        "vbucks": "V-Bucks",
+        "crew": "Fortnite Crew"
+      }
+    },
+    "item": {
+      "addedToCart": "ADDED!",
+      "outOfStock": "Out of Stock",
+      "limited": "Limited Edition",
+      "new": "New",
+      "sale": "Sale",
+      "bestValue": "BEST VALUE",
+      "exclusive": "EXCLUSIVE",
+      "acquire": "Acquire",
+      "inMaintenance": "In Maintenance",
+      "maintenanceAria": "Store in maintenance",
+      "acquireAria": "Acquire {name}",
+      "noName": "Item without name",
+      "noDescription": "No description available"
+    },
+    "empty": {
+      "title": "No items found",
+      "description": "No items match your search. Try other filters or search terms.",
+      "resetFilters": "Show all items"
+    },
+    "fallback": {
+      "notice": "Showing fallback data due to connection issues."
+    },
+    "countdown": {
+      "title": "Next store update in:",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds"
+    },
+    "loading": {
+      "items": "Loading items...",
+      "error": "Error loading items"
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Complete the steps to process your order",
+    "page": {
+      "title": "Checkout",
+      "subtitle": "Complete the steps to process your order",
+      "backToStore": "Back to Store",
+      "backToReview": "Back to Review Order",
+      "previous": "Previous",
+      "next": "Next",
+      "notSelected": "Not selected",
+      "cryptoPayment": "Pay with Crypto (USDT/USDC)",
+      "steps": {
+        "verify": "Verify Account",
+        "verifyDesc": "Epic ID",
+        "payment": "Payment Method",
+        "paymentDesc": "Select your method",
+        "review": "Review Order",
+        "reviewDesc": "Confirm your purchase",
+        "upload": "Proof",
+        "uploadDesc": "Upload your proof"
+      },
+      "confirmOrder": {
+        "title": "Confirm Order",
+        "customerData": "Customer Details",
+        "epicId": "Epic ID",
+        "email": "Email",
+        "notAvailable": "Not available",
+        "paymentMethod": "Payment Method",
+        "conversionError": "We couldn't get the exchange rate",
+        "conversionErrorMessage": "Don't worry, you can receive payment instructions directly via WhatsApp.",
+        "whatsappInstructions": "Receive instructions via WhatsApp",
+        "paymentInstructions": "Payment instructions",
+        "products": "Products to Purchase",
+        "quantity": "Quantity",
+        "total": "total",
+        "priceBreakdown": "Price breakdown",
+        "subtotal": "Subtotal",
+        "fee": "Fee",
+        "totalToPay": "Total to pay",
+        "priceValidUntil": "Price valid until {time}",
+        "creating": "Creating Order...",
+        "confirmAndContinue": "Confirm and Continue"
+      },
+      "errors": {
+        "missingInfo": "Missing customer information or payment method",
+        "emptyCart": "The cart is empty",
+        "cryptoInvoiceError": "Error creating crypto invoice",
+        "cryptoProcessError": "Error processing crypto payment. Try another method.",
+        "orderCreationError": "Error creating order. Please try again."
+      },
+      "maintenance": {
+        "title": "We're Under Maintenance",
+        "message": "We're working to improve your experience. Please come back in a few minutes.",
+        "disabled": "Purchases are temporarily disabled. We apologize for the inconvenience."
+      }
+    },
+    "steps": {
+      "verify": {
+        "title": "Verify Account",
+        "short": "Verify Account",
+        "description": "Epic ID"
+      },
+      "payment": {
+        "title": "Payment Method",
+        "short": "Payment Method",
+        "description": "Select your method"
+      },
+      "review": {
+        "title": "Review Order",
+        "short": "Review Order",
+        "description": "Confirm your purchase"
+      },
+      "proof": {
+        "title": "Payment Proof",
+        "short": "Proof",
+        "description": "Upload your proof"
+      }
+    },
+    "epicVerifier": {
+      "loading": "Loading...",
+      "form": {
+        "title": "Account Verification",
+        "subtitle": "Enter your Epic ID and email to continue",
+        "epicIdLabel": "Epic ID",
+        "epicIdPlaceholder": "E.g.: TheProPlayer#1",
+        "epicIdHint": "Your Fortnite username (you can find it in the lobby or profile)",
+        "contactPreferenceLabel": "How would you like us to contact you?",
+        "whatsappLabel": "WhatsApp Number",
+        "emailLabel": "Email address",
+        "contactHint": "You'll receive a code here to view your purchases",
+        "verifying": "Verifying...",
+        "successMessage": "Verified! Continuing...",
+        "continue": "Continue"
+      },
+      "verified": {
+        "title": "Account Verified",
+        "subtitle": "Review your details before continuing",
+        "epicIdLabel": "Epic ID",
+        "tierMessage": "{tier} Customer - Special discounts applied",
+        "storeItemsWarning": "You have {count} item(s) from the store. We'll verify your friendship with our bots when you continue.",
+        "changeAccount": "Change Account",
+        "verifying": "Verifying...",
+        "continue": "Continue"
+      },
+      "errors": {
+        "epicIdRequired": "Please enter your Epic ID",
+        "whatsappRequired": "Please enter your WhatsApp number",
+        "emailRequired": "Please enter your email",
+        "invalidEmail": "Please enter a valid email",
+        "invalidWhatsapp": "Please enter a valid WhatsApp number (e.g.: +1234567890)",
+        "systemUnavailable": "Error: System not available",
+        "verificationError": "Error verifying account",
+        "friendshipError": "Error verifying friendship with bots"
+      },
+      "friendRequest": {
+        "greeting": "Hello",
+        "title": "You need to add our Bots as friends to continue",
+        "description": "We detected you have {count} item(s) from the store in your cart. These items are sent as gifts through our Fortnite Bots, so you need to have them as friends.",
+        "tipLabel": "Tip:",
+        "tipText": "You usually get better results if you add more than one Bot.",
+        "availableBots": "Available Bots:",
+        "copied": "Copied!",
+        "copyId": "Copy ID",
+        "importantLabel": "Important:",
+        "waitTime": "Due to store policies, we cannot send your purchase until 48 hours after you accept the friendship.",
+        "dailyLimitLabel": "Daily limit:",
+        "dailyLimitText": "Each Bot can only send 5 items per day, so we recommend adding multiple Bots.",
+        "stepsLabel": "Steps to follow:",
+        "stepsText": "Copy the Bot ID, add them as a friend in Fortnite, wait for them to accept the request, and after 48 hours return here to continue with your purchase.",
+        "alternativeLabel": "Alternative option:",
+        "alternativeText": "You have {count} item(s) in your cart that don't require friendship with the Bots (V-Bucks, Crew or Bundles). You can continue your purchase with just those items.",
+        "continueWithoutStore": "Continue with only those items",
+        "backToStore": "Back to Store"
+      }
+    },
+    "paymentMethod": {
+      "title": "Payment Method",
+      "subtitle": "Select how you want to pay for your order",
+      "label": "Payment Method:",
+      "crypto": "Pay with Crypto (USDT/USDC)",
+      "notSelected": "Not selected",
+      "loading": "Loading payment methods...",
+      "error": "Error loading payment methods",
+      "retry": "Retry",
+      "noMethods": "No payment methods available at this time.",
+      "cryptoOption": {
+        "title": "Pay with Crypto",
+        "description": "Pay with cryptocurrency - Automatic processing"
+      },
+      "cryptoDisclaimer": "For crypto payments, we recommend choosing networks with low fees such as <bold>LTC, Polygon or TRON</bold> to avoid high network costs.",
+      "orPayManually": "Or pay manually"
+    },
+    "review": {
+      "title": "Confirm Order",
+      "customerData": "Customer Details",
+      "epicId": "Epic ID",
+      "email": "Email",
+      "whatsApp": "WhatsApp",
+      "paymentMethod": "Payment Method:",
+      "productsTitle": "Products to Purchase",
+      "quantity": "Quantity:",
+      "feeBreakdown": "Price breakdown:",
+      "productPrice": "Product price",
+      "paymentFee": "Payment fee",
+      "subtotal": "Subtotal",
+      "fee": "Fee",
+      "totalToPay": "Total to pay:",
+      "priceValidUntil": "Price valid until",
+      "confirmAndContinue": "Confirm and Continue",
+      "creatingOrder": "Creating Order...",
+      "paymentInstructions": "Payment instructions"
+    },
+    "paymentUploader": {
+      "title": "Upload Proof",
+      "subtitle": "Upload a screenshot or photo of your payment proof",
+      "instructionsTitle": "Payment instructions",
+      "dropzone": {
+        "title": "Drag your file here",
+        "subtitle": "or click to select",
+        "formats": "JPG, PNG or PDF - Max 5MB"
+      },
+      "fields": {
+        "transactionId": {
+          "label": "Transaction ID (Optional)",
+          "hint": "If your bank or payment method gave you a reference number or transaction ID, enter it here",
+          "placeholder": "E.g.: REF-123456789 or confirmation number"
+        },
+        "notes": {
+          "label": "Additional Notes (Optional)",
+          "placeholder": "Any additional information you want to share about your payment..."
+        }
+      },
+      "uploading": "Uploading Proof...",
+      "confirmAndUpload": "Confirm and Upload Proof",
+      "verificationNote": "Once uploaded, our team will verify your payment and process your order",
+      "backToStore": "Back to Store",
+      "errors": {
+        "timerExpired": "The time to upload your proof has expired. This order has been marked as abandoned. Please start a new order.",
+        "fileTooLarge": "File must not exceed 5MB",
+        "invalidFileType": "Only JPG, PNG images or PDF files are allowed",
+        "orderExpired": "This order has expired. Please make a new purchase from the start to guarantee item availability.",
+        "serverError": "There was a problem processing the server response. Please check your connection and try again.",
+        "uploadError": "We couldn't process your payment proof. Please verify the file is valid and try again."
+      }
+    },
+    "proofUpload": {
+      "title": "Upload Payment Proof",
+      "description": "Upload a screenshot or photo of your payment proof",
+      "dragDrop": "Drag your file here",
+      "orClick": "or click to select",
+      "formats": "JPG, PNG or PDF - Max 5MB",
+      "transactionId": "Transaction ID (Optional)",
+      "transactionIdHelp": "If your bank or payment method gave you a reference number or transaction ID, enter it here.",
+      "transactionIdPlaceholder": "E.g.: REF-123456789 or confirmation number",
+      "notes": "Additional Notes (Optional)",
+      "notesPlaceholder": "Any additional information you want to share about your payment...",
+      "uploading": "Uploading Payment Proof...",
+      "submit": "Confirm and Upload Proof",
+      "afterUpload": "Once uploaded, our team will verify your payment within minutes.",
+      "errors": {
+        "expired": "The time to upload your proof has expired. This order has been marked as abandoned. Please start a new order.",
+        "maxSize": "File must not exceed 5MB",
+        "invalidFormat": "Only JPG, PNG images or PDF files are allowed",
+        "orderExpired": "This order has expired. Please make a new purchase from the start.",
+        "serverError": "There was a problem processing the server response. Please try again or contact support.",
+        "uploadError": "We couldn't process your payment proof. Please try again or contact support."
+      }
+    },
+    "errors": {
+      "missingInfo": "Missing customer information or payment method",
+      "emptyCart": "The cart is empty",
+      "createOrder": "Error creating order. Please try again.",
+      "cryptoInvoice": "Error creating crypto invoice",
+      "cryptoPayment": "Error processing crypto payment. Try another method."
+    },
+    "maintenance": {
+      "title": "We're Under Maintenance",
+      "message": "We're working to improve your experience. Please come back in a few minutes.",
+      "disabled": "Purchases are temporarily disabled. We apologize for the inconvenience.",
+      "backToStore": "Back to Store"
+    },
+    "manualCheckout": {
+      "title": "Manual Process Required",
+      "description": "Your cart contains items that require a manual verification and delivery process. To continue with your purchase, you'll need to contact us via WhatsApp.",
+      "itemsTitle": "Items requiring manual process:",
+      "quantity": "Quantity",
+      "whatNext": "What's next?",
+      "step1": "Click the WhatsApp button below",
+      "step2": "A conversation will open with all your order information",
+      "step3": "Our team will guide you through the payment and delivery process",
+      "step4": "You'll receive your purchase once the process is complete",
+      "continueWhatsapp": "Continue via WhatsApp"
+    },
+    "orderSummary": {
+      "title": "Order Summary",
+      "quantity": "Quantity",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total",
+      "totalToPay": "Total to pay",
+      "priceValidUntil": "Price valid until {time}"
+    },
+    "userSession": {
+      "buyingAs": "Buying as",
+      "logout": "Logout",
+      "notYou": "Not you?"
+    },
+    "summary": {
+      "title": "Order Summary",
+      "items": "Items",
+      "discount": "Discount",
+      "total": "Total"
+    },
+    "conversionError": {
+      "title": "We couldn't get the exchange rate",
+      "description": "Don't worry, you can receive payment instructions directly via WhatsApp.",
+      "whatsappButton": "Receive instructions via WhatsApp"
+    },
+    "loadingOrder": "Loading order...",
+    "orderNotFound": "Order Not Found",
+    "orderLoadError": "Order could not be loaded"
+  },
+  "orders": {
+    "title": "My Orders",
+    "subtitle": "Check your order history",
+    "search": {
+      "label": "Epic ID",
+      "placeholder": "E.g.: TheProPlayer#1",
+      "button": "Search Orders",
+      "searching": "Searching...",
+      "noResults": "No orders found for this Epic ID",
+      "error": "Error loading your orders. Please try again.",
+      "required": "Please enter your Epic ID",
+      "statsError": "Error getting statistics"
+    },
+    "stats": {
+      "title": "Customer Statistics",
+      "tier": "Tier",
+      "totalOrders": "Total Orders",
+      "totalSpent": "Total Spent",
+      "lifetimeValue": "Lifetime Value"
+    },
+    "history": {
+      "title": "Order History",
+      "order": "Order",
+      "total": "Total",
+      "discount": "Discount",
+      "date": "Date",
+      "items": "Items:",
+      "viewDetails": "View Details",
+      "noOrders": "No orders found"
+    },
+    "status": {
+      "pending": "Pending",
+      "pendingPayment": "Waiting for Payment",
+      "paymentUploaded": "Proof Uploaded",
+      "paymentVerified": "Payment Verified",
+      "paymentRejected": "Payment Rejected",
+      "waitingFriendship": "Waiting for Friendship",
+      "waitingPeriod": "48h Waiting Period",
+      "queued": "Queued",
+      "processing": "Sending Gift",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "abandoned": "Abandoned",
+      "refunded": "Refunded"
+    },
+    "statusDescriptions": {
+      "pending": "Your order has been created and is waiting for processing",
+      "pendingPayment": "Upload your payment proof to continue",
+      "paymentUploaded": "We are verifying your payment proof",
+      "paymentVerified": "Your payment has been verified successfully",
+      "paymentRejected": "Your payment was rejected. Contact support for more information.",
+      "waitingFriendship": "Waiting for you to accept the friend request in Fortnite",
+      "waitingPeriod": "Epic Games requires 48 hours before we can send gifts",
+      "queued": "Your order is queued for processing",
+      "processing": "We are sending your gift now",
+      "completed": "Your gift has been sent successfully!",
+      "failed": "There was a problem processing your order. Contact support.",
+      "cancelled": "This order has been cancelled",
+      "expired": "This order has expired due to lack of payment.",
+      "abandoned": "This order was abandoned.",
+      "refunded": "This order was refunded."
+    },
+    "detail": {
+      "title": "Order Status",
+      "orderNumber": "Order",
+      "currentStatus": "Current Status",
+      "orderExpired": "This order has expired",
+      "orderDetails": "Order Details",
+      "quantity": "Quantity",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "total": "Total",
+      "created": "Created",
+      "expires": "Expires",
+      "backToStore": "Back to Store",
+      "backToHome": "Back to Home",
+      "loading": "Loading order...",
+      "notFound": "Order Not Found",
+      "notFoundDesc": "We couldn't find this order",
+      "loadError": "Order could not be loaded",
+      "unknownError": "Unknown error",
+      "upload": {
+        "title": "Upload Payment Proof",
+        "resubmitTitle": "Resubmit Payment Proof",
+        "desc": "Please upload your payment proof so we can verify your order.",
+        "resubmitDesc": "Your proof was rejected. Please upload a new valid proof.",
+        "button": "Upload Proof"
+      },
+      "paymentInfo": {
+        "title": "Payment Information",
+        "method": "Payment Method",
+        "transactionId": "Transaction ID",
+        "uploadedAt": "Proof Uploaded",
+        "proofLabel": "Payment Proof",
+        "proofAlt": "Payment proof",
+        "clickToEnlarge": "Click on the image to view full size"
+      },
+      "modal": {
+        "title": "Upload Payment Proof",
+        "paymentMethod": "Payment Method",
+        "selectMethod": "Select...",
+        "transactionId": "Transaction ID",
+        "proofImage": "Proof (Image)",
+        "notes": "Notes (Optional)",
+        "notesPlaceholder": "Additional information...",
+        "cancel": "Cancel",
+        "submit": "Upload",
+        "uploading": "Uploading...",
+        "methods": {
+          "transfer": "Bank Transfer",
+          "other": "Other"
+        },
+        "errors": {
+          "requiredFields": "Please complete all required fields",
+          "uploadFailed": "Error uploading proof",
+          "unknown": "Unknown error"
+        }
+      }
+    },
+    "proofModal": {
+      "paymentMethodLabel": "Payment Method *",
+      "selectPlaceholder": "Select...",
+      "bankTransfer": "Bank Transfer",
+      "paypal": "PayPal",
+      "zelle": "Zelle",
+      "binance": "Binance",
+      "other": "Other",
+      "transactionIdLabel": "Transaction ID *",
+      "transactionIdPlaceholder": "ABC123...",
+      "proofLabel": "Proof (Image) *",
+      "notesLabel": "Notes (Optional)",
+      "cancel": "Cancel",
+      "upload": "Upload",
+      "requiredFields": "Please complete all required fields"
+    },
+    "crypto": {
+      "paymentDetail": "Payment Details",
+      "currency": "Currency",
+      "network": "Network",
+      "amount": "Amount",
+      "paidAmount": "Paid Amount",
+      "expires": "Expires",
+      "paidAt": "Paid At",
+      "txHash": "Transaction Hash",
+      "goToPay": "Go to Pay",
+      "changeCurrency": "Change currency/network",
+      "regenerating": "Regenerating...",
+      "regenerated": "Invoice regenerated - select a new currency/network",
+      "regenerateError": "Error regenerating payment",
+      "status": {
+        "pending": "Waiting for Payment",
+        "pendingDesc": "Make the payment on the Cryptomus page",
+        "confirming": "Confirming",
+        "confirmingDesc": "Payment detected, waiting for blockchain confirmations",
+        "paid": "Paid",
+        "paidDesc": "Payment confirmed successfully",
+        "paidOver": "Paid (overpaid)",
+        "paidOverDesc": "You paid more than the required amount",
+        "wrongAmount": "Wrong Amount",
+        "wrongAmountDesc": "The paid amount doesn't match the required amount",
+        "expired": "Expired",
+        "expiredDesc": "The invoice has expired",
+        "cancelled": "Cancelled",
+        "cancelledDesc": "The payment was cancelled",
+        "failed": "Failed",
+        "failedDesc": "The payment failed"
+      }
+    },
+    "statusPage": {
+      "products": "Product(s)",
+      "type": "Type",
+      "quantity": "Quantity",
+      "unitPrice": "Unit price",
+      "orderTotal": "Order Total",
+      "orderInfo": "Order Information",
+      "epicId": "Epic ID",
+      "orderDate": "Order Date",
+      "estimatedDelivery": "Estimated Delivery",
+      "verifyingProof": "Verifying Proof",
+      "verifyingProofDesc": "Your proof is being verified by our team. We'll notify you when it's approved.",
+      "giftSent": "Gift Sent!",
+      "giftSentDesc": "Your gift has been sent successfully. Check your Fortnite account to claim your item.",
+      "orderError": "Order Error",
+      "orderNotCompleted": "Order Not Completed",
+      "cancelledMessage": "This order was cancelled.",
+      "expiredMessage": "This order expired due to lack of payment.",
+      "abandonedMessage": "This order was abandoned.",
+      "contactSupport": "If you have questions, contact support.",
+      "back": "Back",
+      "buyMore": "Buy More"
+    },
+    "myOrders": {
+      "titlePart1": "My",
+      "titlePart2": "Orders",
+      "changeUser": "Change",
+      "epicId": {
+        "title": "Access your history",
+        "description": "Enter your Fortnite username to view your purchases",
+        "label": "Fortnite Username",
+        "placeholder": "Ex: MyName123",
+        "hint": "This is the same username you used to make your purchases",
+        "button": "Continue",
+        "otpNote": "We'll send you a verification code to your registered contact method",
+        "required": "Enter your Fortnite username"
+      },
+      "otp": {
+        "title": "Enter the code",
+        "description": "We sent you a verification code",
+        "label": "Verification code",
+        "sentTo": "Code sent to {contact}",
+        "verifyButton": "Verify Code",
+        "changeUser": "Change user",
+        "resend": "Resend code",
+        "invalidCode": "Enter the 6-digit code",
+        "sendError": "Error sending the code"
+      },
+      "errors": {
+        "connection": "Could not connect to the server. Check your connection and try again."
+      },
+      "stats": {
+        "totalOrders": "Total Orders",
+        "completed": "Completed",
+        "inProgress": "In Progress",
+        "tier": "Your Tier"
+      },
+      "filters": {
+        "all": "All",
+        "pending": "Pending",
+        "processing": "Processing",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "dateRanges": {
+          "30d": "Last 30 days",
+          "3m": "Last 3 months",
+          "1y": "Last year",
+          "all": "All dates"
+        },
+        "dateFilterLabel": "Filter by date"
+      },
+      "timeline": {
+        "created": "Order",
+        "paid": "Paid",
+        "verified": "Verified",
+        "gifting": "Sending",
+        "completed": "Completed"
+      },
+      "card": {
+        "andMore": "and {count} more",
+        "total": "Total"
+      }
+    }
+  },
+  "userSession": {
+    "buyingAs": "Buying as:",
+    "logout": "Logout",
+    "notYou": "Not you?"
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms & Conditions"
+    },
+    "privacy": {
+      "title": "Privacy Policy"
+    },
+    "refund": {
+      "title": "Refund Policy"
+    }
+  },
+  "cookies": {
+    "banner": {
+      "title": "We use cookies",
+      "description": "We use cookies to improve your experience and analyze site traffic.",
+      "accept": "Accept",
+      "reject": "Reject",
+      "customize": "Customize"
+    }
+  },
+  "metadata": {
+    "title": "FortLoot - Gaming Currencies",
+    "description": "The best store for virtual currencies and items for your favorite games."
+  }
+}

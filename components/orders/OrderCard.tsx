@@ -6,6 +6,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { ChevronRight, Calendar } from "lucide-react"
 import { OrderTimeline, getStatusLabel } from "./OrderTimeline"
+import { useTranslations } from "next-intl"
+import { useLocale } from "next-intl"
 
 interface OrderItem {
   id: string
@@ -35,15 +37,6 @@ interface OrderCardProps {
   index?: number
 }
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })
-}
-
 function formatPrice(amount: number): string {
   return `$${amount.toFixed(2)}`
 }
@@ -60,10 +53,24 @@ function getRarityColor(rarity: string): string {
 }
 
 export const OrderCard = memo(({ order, index = 0 }: OrderCardProps) => {
+  const t = useTranslations("orders.myOrders.card")
+  const tStatus = useTranslations("orders.status")
+  const locale = useLocale()
+
   const mainItem = order.items[0]
   const additionalItemsCount = order.items.length - 1
   const isPending = order.status === "PENDING" || order.status === "PAYMENT_PENDING"
   const isSpecialStatus = order.status === "CANCELLED" || order.status === "FAILED"
+
+  // Format date using locale
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
+  }
 
   return (
     <motion.div
@@ -71,7 +78,7 @@ export const OrderCard = memo(({ order, index = 0 }: OrderCardProps) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
     >
-      <Link href={`/order-status/${order.id}?from=mis-compras`}>
+      <Link href={`/${locale}/order-status/${order.id}?from=mis-compras`}>
         <div className="group bg-[#1B263B]/70 backdrop-blur-sm rounded-xl border border-[#1B263B]/80 hover:border-[#FF007A]/50 transition-all duration-300 overflow-hidden">
           <div className="p-4 md:p-5">
             {/* Main layout: Image | Info | Status */}
@@ -103,7 +110,7 @@ export const OrderCard = memo(({ order, index = 0 }: OrderCardProps) => {
                   {mainItem?.catalogItem?.name || "Orden"}
                   {additionalItemsCount > 0 && (
                     <span className="text-gray-400 font-normal text-sm ml-2">
-                      y {additionalItemsCount} más
+                      {t("andMore", { count: additionalItemsCount })}
                     </span>
                   )}
                 </h3>
@@ -119,7 +126,7 @@ export const OrderCard = memo(({ order, index = 0 }: OrderCardProps) => {
 
                 {/* Price */}
                 <div className="mt-2">
-                  <span className="text-xs text-gray-500">Total:</span>
+                  <span className="text-xs text-gray-500">{t("total")}:</span>
                   <span className="text-lg font-bold text-[#00F5D4] ml-2">
                     {formatPrice(order.totalAmount)}
                   </span>
@@ -137,7 +144,7 @@ export const OrderCard = memo(({ order, index = 0 }: OrderCardProps) => {
                       ? "bg-red-500/20 text-red-400"
                       : "bg-gray-500/20 text-gray-400"
                   }`}>
-                    {getStatusLabel(order.status as any)}
+                    {getStatusLabel(order.status as any, tStatus)}
                   </span>
                 )}
 

@@ -2,6 +2,7 @@
 
 import { memo } from "react"
 import { Package, CreditCard, CheckCircle, Gift, XCircle, Clock } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 type OrderStatus =
   | "PENDING"
@@ -22,7 +23,7 @@ type OrderStatus =
 
 interface TimelineStep {
   key: string
-  label: string
+  translationKey: string
   icon: React.ReactNode
   statuses: OrderStatus[]
 }
@@ -30,43 +31,43 @@ interface TimelineStep {
 const TIMELINE_STEPS: TimelineStep[] = [
   {
     key: "created",
-    label: "Pedido",
+    translationKey: "created",
     icon: <Package className="w-4 h-4" />,
     statuses: ["PENDING", "PENDING_PAYMENT", "PAYMENT_UPLOADED"],
   },
   {
     key: "paid",
-    label: "Pagado",
+    translationKey: "paid",
     icon: <CreditCard className="w-4 h-4" />,
     statuses: ["PAYMENT_VERIFIED"],
   },
   {
     key: "verified",
-    label: "Verificado",
+    translationKey: "verified",
     icon: <CheckCircle className="w-4 h-4" />,
     statuses: ["WAITING_FRIENDSHIP", "WAITING_PERIOD", "QUEUED"],
   },
   {
     key: "gifting",
-    label: "Enviando",
+    translationKey: "gifting",
     icon: <Gift className="w-4 h-4" />,
     statuses: ["PROCESSING"],
   },
   {
     key: "completed",
-    label: "Completado",
+    translationKey: "completed",
     icon: <CheckCircle className="w-4 h-4" />,
     statuses: ["COMPLETED"],
   },
 ]
 
-const SPECIAL_STATES: Record<string, { color: string; bgColor: string; icon: React.ReactNode; label: string }> = {
-  CANCELLED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, label: "Cancelado" },
-  FAILED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, label: "Fallido" },
-  PAYMENT_REJECTED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, label: "Pago Rechazado" },
-  EXPIRED: { color: "text-gray-400", bgColor: "bg-gray-500/20", icon: <XCircle className="w-5 h-5" />, label: "Expirado" },
-  ABANDONED: { color: "text-gray-400", bgColor: "bg-gray-500/20", icon: <XCircle className="w-5 h-5" />, label: "Abandonado" },
-  REFUNDED: { color: "text-yellow-400", bgColor: "bg-yellow-500/20", icon: <XCircle className="w-5 h-5" />, label: "Reembolsado" },
+const SPECIAL_STATUS_KEYS: Record<string, { color: string; bgColor: string; icon: React.ReactNode; statusKey: string }> = {
+  CANCELLED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "cancelled" },
+  FAILED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "failed" },
+  PAYMENT_REJECTED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "paymentRejected" },
+  EXPIRED: { color: "text-gray-400", bgColor: "bg-gray-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "expired" },
+  ABANDONED: { color: "text-gray-400", bgColor: "bg-gray-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "abandoned" },
+  REFUNDED: { color: "text-yellow-400", bgColor: "bg-yellow-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "refunded" },
 }
 
 interface OrderTimelineProps {
@@ -84,13 +85,16 @@ function getStepIndex(status: OrderStatus): number {
 }
 
 export const OrderTimeline = memo(({ status, compact = false }: OrderTimelineProps) => {
+  const t = useTranslations("orders.myOrders.timeline")
+  const tStatus = useTranslations("orders.status")
+
   // Check if it's a special state (cancelled/failed)
-  if (SPECIAL_STATES[status]) {
-    const special = SPECIAL_STATES[status]
+  if (SPECIAL_STATUS_KEYS[status]) {
+    const special = SPECIAL_STATUS_KEYS[status]
     return (
       <div className={`flex items-center gap-2 ${special.color}`}>
         <div className={`p-2 rounded-full ${special.bgColor}`}>{special.icon}</div>
-        <span className="font-medium">{special.label}</span>
+        <span className="font-medium">{tStatus(special.statusKey)}</span>
       </div>
     )
   }
@@ -144,7 +148,7 @@ export const OrderTimeline = memo(({ status, compact = false }: OrderTimelinePro
                       : "text-gray-500"
                 }`}
               >
-                {step.label}
+                {t(step.translationKey)}
               </span>
             </div>
           )
@@ -193,7 +197,7 @@ export const OrderTimeline = memo(({ status, compact = false }: OrderTimelinePro
                       : "text-gray-500"
                 }`}
               >
-                {step.label}
+                {t(step.translationKey)}
               </span>
             </div>
 
@@ -214,29 +218,26 @@ export const OrderTimeline = memo(({ status, compact = false }: OrderTimelinePro
 
 OrderTimeline.displayName = "OrderTimeline"
 
-// Export helper to get status label
-export function getStatusLabel(status: OrderStatus): string {
-  if (SPECIAL_STATES[status]) {
-    return SPECIAL_STATES[status].label
+// Export helper to get status label (used by OrderCard)
+// This is a non-hook function for use in non-component contexts
+export function getStatusLabel(status: OrderStatus, tStatus: (key: string) => string): string {
+  const STATUS_KEYS: Record<OrderStatus, string> = {
+    PENDING: "pending",
+    PENDING_PAYMENT: "pendingPayment",
+    PAYMENT_UPLOADED: "paymentUploaded",
+    PAYMENT_VERIFIED: "paymentVerified",
+    WAITING_FRIENDSHIP: "waitingFriendship",
+    WAITING_PERIOD: "waitingPeriod",
+    QUEUED: "queued",
+    PROCESSING: "processing",
+    COMPLETED: "completed",
+    CANCELLED: "cancelled",
+    FAILED: "failed",
+    PAYMENT_REJECTED: "paymentRejected",
+    EXPIRED: "expired",
+    ABANDONED: "abandoned",
+    REFUNDED: "refunded",
   }
 
-  const statusLabels: Record<OrderStatus, string> = {
-    PENDING: "Pendiente de pago",
-    PENDING_PAYMENT: "Esperando pago",
-    PAYMENT_UPLOADED: "Pago subido",
-    PAYMENT_VERIFIED: "Pago verificado",
-    WAITING_FRIENDSHIP: "Esperando amistad",
-    WAITING_PERIOD: "Período de espera",
-    QUEUED: "En cola",
-    PROCESSING: "Procesando regalo",
-    COMPLETED: "Completado",
-    CANCELLED: "Cancelado",
-    FAILED: "Fallido",
-    PAYMENT_REJECTED: "Pago rechazado",
-    EXPIRED: "Expirado",
-    ABANDONED: "Abandonado",
-    REFUNDED: "Reembolsado",
-  }
-
-  return statusLabels[status] || status
+  return tStatus(STATUS_KEYS[status] || status.toLowerCase())
 }

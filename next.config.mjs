@@ -1,3 +1,7 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
+
 /** @type {import('next').NextConfig} */
 const backend = process.env.BACKEND_INTERNAL_URL || 'http://backend:3001'
 
@@ -15,10 +19,6 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-  },
-  experimental: {
-    // Disable static 404 page generation
-    appDir: true,
   },
   async rewrites() {
     return [
@@ -58,4 +58,4 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default withNextIntl(nextConfig)

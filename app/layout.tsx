@@ -2,27 +2,13 @@ import type React from "react"
 import "./globals.css"
 import { Inter } from "next/font/google"
 import type { Metadata } from "next"
-import { ConsentProvider } from "@/context/ConsentContext"
-import { CustomerProvider } from "@/context/CustomerContext"
-import { CartProvider } from "@/context/CartContext"
-import { ConfigProvider } from "@/context/ConfigContext"
-import { AnnouncementProvider } from "@/context/AnnouncementContext"
-import { CartDrawer } from "@/components/cart/CartDrawer"
-import { Toaster } from "@/components/ui/toaster"
-import { CookieBanner } from "@/components/cookies/CookieBanner"
-import { ConditionalAnalytics } from "@/components/analytics/ConditionalAnalytics"
-import { MaintenanceBanner } from "@/components/announcements"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "FortLoot - Gaming Currencies",
-  description: "La mejor tienda de monedas y objetos virtuales para tus juegos favoritos.",
-    generator: 'v0.dev'
+  description: "The best store for virtual currencies and items for your favorite games.",
 }
-
-// Force dynamic rendering to avoid static generation issues
-export const dynamic = 'force-dynamic'
 
 export default function RootLayout({
   children,
@@ -30,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
+    <html suppressHydrationWarning>
       <head>
         <meta name="cryptomus" content="d187b01d" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,23 +28,8 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/favicon.svg" />
       </head>
-      <body className={inter.className}>
-        <ConsentProvider>
-          <ConfigProvider>
-            <AnnouncementProvider>
-              <CustomerProvider>
-                <CartProvider>
-                  <MaintenanceBanner />
-                  {children}
-                  <CartDrawer />
-                  <Toaster />
-                  <CookieBanner />
-                </CartProvider>
-              </CustomerProvider>
-            </AnnouncementProvider>
-          </ConfigProvider>
-          <ConditionalAnalytics />
-        </ConsentProvider>
+      <body className={inter.className} suppressHydrationWarning>
+        {children}
       </body>
     </html>
   )

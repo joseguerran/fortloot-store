@@ -1,18 +1,21 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useTranslations } from "next-intl"
 import { ShoppingCart, Wrench, Plus } from "lucide-react"
 import { useCart } from "@/context/CartContext"
 import { useMaintenance } from "@/context/AnnouncementContext"
 import { motion, AnimatePresence } from "framer-motion"
 
 export function CartButton() {
+  const t = useTranslations('common.cart')
+  const tMaintenance = useTranslations('checkout.maintenance')
   const { toggleCart, totalItems } = useCart()
   const { isInMaintenance } = useMaintenance()
   const [showPlus, setShowPlus] = useState(false)
   const prevTotalRef = useRef(totalItems)
 
-  // Detectar cuando se agrega un item
+  // Detect when an item is added
   useEffect(() => {
     if (totalItems > prevTotalRef.current && totalItems > 0) {
       setShowPlus(true)
@@ -46,17 +49,17 @@ export function CartButton() {
           ? 'bg-gray-500 cursor-not-allowed'
           : 'bg-[#ADFF2F] hover:bg-[#9AE600]'
       } text-[#0D1B2A] font-medium px-4 py-2 rounded-full transition-colors flex items-center relative`}
-      aria-label={isInMaintenance ? "Carrito deshabilitado - En mantenimiento" : "Carrito de compras"}
-      title={isInMaintenance ? "Tienda en mantenimiento" : undefined}
+      aria-label={isInMaintenance ? tMaintenance('title') : t('title')}
+      title={isInMaintenance ? tMaintenance('title') : undefined}
     >
       {isInMaintenance ? (
         <Wrench className="w-5 h-5 mr-2" />
       ) : (
         <ShoppingCart className="w-5 h-5 mr-2" />
       )}
-      <span className="hidden md:inline">{isInMaintenance ? 'En Mantenimiento' : 'Carrito'}</span>
+      <span className="hidden md:inline">{isInMaintenance ? tMaintenance('title') : t('title')}</span>
 
-      {/* Badge con contador */}
+      {/* Badge with counter */}
       <AnimatePresence>
         {totalItems > 0 && !isInMaintenance && (
           <motion.div
