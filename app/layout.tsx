@@ -1,9 +1,6 @@
 import type React from "react"
 import "./globals.css"
-import { Inter } from "next/font/google"
 import type { Metadata } from "next"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "FortLoot - Gaming Currencies",
@@ -28,7 +25,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/favicon.svg" />
       </head>
-      <body className={inter.className} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         {children}
       </body>
     </html>
