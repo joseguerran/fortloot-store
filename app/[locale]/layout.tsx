@@ -1,9 +1,12 @@
 import type React from "react"
+import { Inter } from "next/font/google"
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { locales, type Locale } from '@/i18n/config'
 import type { Metadata } from "next"
+
+const inter = Inter({ subsets: ["latin"] })
 import { ConsentProvider } from "@/context/ConsentContext"
 import { CustomerProvider } from "@/context/CustomerContext"
 import { CartProvider } from "@/context/CartContext"
@@ -75,23 +78,25 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
       <script dangerouslySetInnerHTML={{ __html: setLangScript }} />
-      <ConsentProvider>
-        <ConfigProvider>
-          <AnnouncementProvider>
-            <CustomerProvider>
-              <CartProvider>
-                <MaintenanceBanner />
-                <ConditionalHeader />
-                {children}
-                <CartDrawer />
-                <Toaster />
-                <CookieBanner />
-              </CartProvider>
-            </CustomerProvider>
-          </AnnouncementProvider>
-        </ConfigProvider>
-        <ConditionalAnalytics />
-      </ConsentProvider>
+      <div className={inter.className}>
+        <ConsentProvider>
+          <ConfigProvider>
+            <AnnouncementProvider>
+              <CustomerProvider>
+                <CartProvider>
+                  <MaintenanceBanner />
+                  <ConditionalHeader />
+                  {children}
+                  <CartDrawer />
+                  <Toaster />
+                  <CookieBanner />
+                </CartProvider>
+              </CustomerProvider>
+            </AnnouncementProvider>
+          </ConfigProvider>
+          <ConditionalAnalytics />
+        </ConsentProvider>
+      </div>
     </NextIntlClientProvider>
   )
 }
