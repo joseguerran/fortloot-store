@@ -43,7 +43,7 @@ const STATUS_CONFIG: Record<string, { key: string; color: string; icon: any }> =
   QUEUED: { key: "queued", color: "blue", icon: Package },
   PROCESSING: { key: "processing", color: "blue", icon: Package },
   COMPLETED: { key: "completed", color: "green", icon: CheckCircle },
-  FAILED: { key: "failed", color: "red", icon: XCircle },
+  FAILED: { key: "failed", color: "blue", icon: Package },  // Enmascarado como "Procesando" para el cliente
   CANCELLED: { key: "cancelled", color: "red", icon: XCircle },
   PAYMENT_REJECTED: { key: "paymentRejected", color: "red", icon: XCircle },
   EXPIRED: { key: "expired", color: "gray", icon: Clock },
@@ -465,17 +465,7 @@ export default function OrderStatusPage() {
               </div>
             )}
 
-            {order.status === "FAILED" && order.failureReason && (
-              <div className="bg-red-500/10 border border-red-500 rounded-lg p-6">
-                <div className="flex gap-4">
-                  <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
-                  <div>
-                    <h4 className="text-red-500 font-bold mb-1">{t("statusPage.orderError")}</h4>
-                    <p className="text-sm text-red-400">{order.failureReason}</p>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Error técnico oculto al cliente - el admin ve esto en backoffice */}
 
             {(order.status === "CANCELLED" || order.status === "EXPIRED" || order.status === "ABANDONED") && (
               <div className="bg-red-500/10 border border-red-500 rounded-lg p-6">

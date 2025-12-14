@@ -63,7 +63,7 @@ const TIMELINE_STEPS: TimelineStep[] = [
 
 const SPECIAL_STATUS_KEYS: Record<string, { color: string; bgColor: string; icon: React.ReactNode; statusKey: string }> = {
   CANCELLED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "cancelled" },
-  FAILED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "failed" },
+  FAILED: { color: "text-blue-400", bgColor: "bg-blue-500/20", icon: <Package className="w-5 h-5" />, statusKey: "failed" },  // Enmascarado como "Procesando"
   PAYMENT_REJECTED: { color: "text-red-400", bgColor: "bg-red-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "paymentRejected" },
   EXPIRED: { color: "text-gray-400", bgColor: "bg-gray-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "expired" },
   ABANDONED: { color: "text-gray-400", bgColor: "bg-gray-500/20", icon: <XCircle className="w-5 h-5" />, statusKey: "abandoned" },
