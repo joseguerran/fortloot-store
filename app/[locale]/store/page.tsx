@@ -80,14 +80,13 @@ export default function StorePage() {
       // Don't reset if user manually changed filter (which updates URL)
     }
 
-    // Set search from URL
+    // Set search from URL (only on initial load or when URL param is set)
     if (urlSearch !== null && urlSearch !== searchQuery) {
       logger.log(`🔍 URL search parameter changed: "${urlSearch}", updating search query`)
       setSearchQuery(urlSearch)
-    } else if (urlSearch === null && searchQuery !== "" && initialLoadRef.current) {
-      // Clear search if URL param was removed (e.g., navigating back)
-      setSearchQuery("")
     }
+    // Note: Removed the else branch that cleared searchQuery when urlSearch was null
+    // This was causing a bug where typing in the search field would immediately clear
 
     // Set debug mode
     if (urlDebug === "true" && !debugMode) {
@@ -95,7 +94,9 @@ export default function StorePage() {
     }
 
     initialLoadRef.current = true
-  }, [isClient, urlFilter, urlSearch, urlDebug, activeFilter, searchQuery, debugMode])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClient, urlFilter, urlSearch, urlDebug, activeFilter, debugMode])
+  // Note: searchQuery removed from dependencies to prevent clearing user input
 
   // Actualizar la URL cuando cambia el filtro activo
   const handleFilterChange = useCallback(
