@@ -7,6 +7,7 @@ const backend = process.env.BACKEND_INTERNAL_URL || 'http://backend:3001'
 
 const nextConfig = {
   output: 'standalone', // For Docker deployment
+  poweredByHeader: false, // Oculta "X-Powered-By: Next.js"
   skipTrailingSlashRedirect: true,
   generateBuildId: async () => {
     return 'build-id'
