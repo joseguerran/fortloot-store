@@ -5,14 +5,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.API_URL || 'http://localhost:3001/api';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
     // Forward request to backend
-    const response = await fetch(`${BACKEND_URL}/api/consent`, {
+    const response = await fetch(`${BACKEND_URL}/consent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const response = await fetch(`${BACKEND_URL}/api/consent/${sessionId}`, {
+    const response = await fetch(`${BACKEND_URL}/consent/${sessionId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
